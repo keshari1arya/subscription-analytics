@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "REc7J4X7l8E=",
+  "success": true,
+  "projectFilePath": "/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.Webhook/SubscriptionAnalytics.Webhook.csproj",
+  "expectedPackageFiles": [
+    "/Users/arya/.nuget/packages/microsoft.aspnetcore.openapi/9.0.7/microsoft.aspnetcore.openapi.9.0.7.nupkg.sha512",
+    "/Users/arya/.nuget/packages/microsoft.openapi/1.6.17/microsoft.openapi.1.6.17.nupkg.sha512"
+  ],
+  "logs": []
+}

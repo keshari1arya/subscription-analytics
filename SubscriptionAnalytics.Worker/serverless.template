@@ -1,0 +1,106 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Transform": "AWS::Serverless-2016-10-31",
+  "Description": "SubscriptionAnalytics Worker Lambda Function",
+  
+  "Parameters": {
+    "Environment": {
+      "Type": "String",
+      "Default": "dev",
+      "AllowedValues": ["dev", "staging", "prod"],
+      "Description": "Environment name"
+    }
+  },
+
+  "Globals": {
+    "Function": {
+      "Timeout": 300,
+      "MemorySize": 512,
+      "Runtime": "dotnet9",
+      "Architectures": ["x86_64"]
+    }
+  },
+
+  "Resources": {
+    "SubscriptionAnalyticsWorkerFunction": {
+      "Type": "AWS::Serverless::Function",
+      "Properties": {
+        "FunctionName": "subscription-analytics-worker-{Environment}",
+        "CodeUri": "./bin/Release/net9.0/",
+        "Handler": "SubscriptionAnalytics.Worker::SubscriptionAnalytics.Worker.Program::Main",
+        "Environment": {
+          "Variables": {
+            "ASPNETCORE_ENVIRONMENT": "{Environment}",
+            "AWS_LAMBDA_FUNCTION_NAME": "subscription-analytics-worker-{Environment}"
+          }
+        },
+        "Events": {
+          "ScheduledEvent": {
+            "Type": "Schedule",
+            "Properties": {
+              "Schedule": "rate(1 hour)",
+              "Name": "subscription-analytics-worker-schedule-{Environment}",
+              "Description": "Schedule for SubscriptionAnalytics Worker Lambda",
+              "Enabled": true
+            }
+          }
+        }
+      }
+    },
+
+    "SubscriptionAnalyticsWorkerRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "ManagedPolicyArns": [
+          "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+        ],
+        "Policies": [
+          {
+            "PolicyName": "SubscriptionAnalyticsWorkerPolicy",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "logs:CreateLogGroup",
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents"
+                  ],
+                  "Resource": "arn:aws:logs:*:*:*"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+
+  "Outputs": {
+    "WorkerFunctionName": {
+      "Description": "Name of the Lambda function",
+      "Value": {
+        "Ref": "SubscriptionAnalyticsWorkerFunction"
+      }
+    },
+    "WorkerFunctionArn": {
+      "Description": "ARN of the Lambda function",
+      "Value": {
+        "Fn::GetAtt": ["SubscriptionAnalyticsWorkerFunction", "Arn"]
+      }
+    }
+  }
+} 

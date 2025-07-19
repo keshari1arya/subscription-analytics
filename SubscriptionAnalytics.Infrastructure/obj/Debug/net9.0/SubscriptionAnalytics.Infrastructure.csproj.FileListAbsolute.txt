@@ -1,0 +1,17 @@
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.Infrastructure/obj/Debug/net9.0/SubscriptionAnalytics.Infrastructure.csproj.AssemblyReference.cache
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.Infrastructure/obj/Debug/net9.0/SubscriptionAnalytics.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.Infrastructure/obj/Debug/net9.0/SubscriptionAnalytics.Infrastructure.AssemblyInfoInputs.cache
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.Infrastructure/obj/Debug/net9.0/SubscriptionAnalytics.Infrastructure.AssemblyInfo.cs
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.Infrastructure/obj/Debug/net9.0/SubscriptionAnalytics.Infrastructure.csproj.CoreCompileInputs.cache
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.Infrastructure/bin/Debug/net9.0/SubscriptionAnalytics.Infrastructure.deps.json
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.Infrastructure/bin/Debug/net9.0/SubscriptionAnalytics.Infrastructure.runtimeconfig.json
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.Infrastructure/bin/Debug/net9.0/SubscriptionAnalytics.Infrastructure.dll
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.Infrastructure/bin/Debug/net9.0/SubscriptionAnalytics.Infrastructure.pdb
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.Infrastructure/bin/Debug/net9.0/SubscriptionAnalytics.Shared.dll
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.Infrastructure/bin/Debug/net9.0/SubscriptionAnalytics.Shared.pdb
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.Infrastructure/obj/Debug/net9.0/Subscrip.CE8948FC.Up2Date
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.Infrastructure/obj/Debug/net9.0/SubscriptionAnalytics.Infrastructure.dll
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.Infrastructure/obj/Debug/net9.0/refint/SubscriptionAnalytics.Infrastructure.dll
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.Infrastructure/obj/Debug/net9.0/SubscriptionAnalytics.Infrastructure.pdb
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.Infrastructure/obj/Debug/net9.0/SubscriptionAnalytics.Infrastructure.genruntimeconfig.cache
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.Infrastructure/obj/Debug/net9.0/ref/SubscriptionAnalytics.Infrastructure.dll

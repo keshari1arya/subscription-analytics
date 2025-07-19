@@ -1,0 +1,6 @@
+@SubscriptionAnalytics.Webhook_HostAddress = http://localhost:5135
+
+GET {{SubscriptionAnalytics.Webhook_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

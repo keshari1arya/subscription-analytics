@@ -1,0 +1,15 @@
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.PluginLoader/bin/Debug/net9.0/SubscriptionAnalytics.PluginLoader.deps.json
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.PluginLoader/bin/Debug/net9.0/SubscriptionAnalytics.PluginLoader.dll
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.PluginLoader/bin/Debug/net9.0/SubscriptionAnalytics.PluginLoader.pdb
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.PluginLoader/bin/Debug/net9.0/SubscriptionAnalytics.Shared.dll
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.PluginLoader/bin/Debug/net9.0/SubscriptionAnalytics.Shared.pdb
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.PluginLoader/obj/Debug/net9.0/SubscriptionAnalytics.PluginLoader.csproj.AssemblyReference.cache
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.PluginLoader/obj/Debug/net9.0/SubscriptionAnalytics.PluginLoader.GeneratedMSBuildEditorConfig.editorconfig
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.PluginLoader/obj/Debug/net9.0/SubscriptionAnalytics.PluginLoader.AssemblyInfoInputs.cache
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.PluginLoader/obj/Debug/net9.0/SubscriptionAnalytics.PluginLoader.AssemblyInfo.cs
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.PluginLoader/obj/Debug/net9.0/SubscriptionAnalytics.PluginLoader.csproj.CoreCompileInputs.cache
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.PluginLoader/obj/Debug/net9.0/Subscrip.6FB3803C.Up2Date
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.PluginLoader/obj/Debug/net9.0/SubscriptionAnalytics.PluginLoader.dll
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.PluginLoader/obj/Debug/net9.0/refint/SubscriptionAnalytics.PluginLoader.dll
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.PluginLoader/obj/Debug/net9.0/SubscriptionAnalytics.PluginLoader.pdb
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.PluginLoader/obj/Debug/net9.0/ref/SubscriptionAnalytics.PluginLoader.dll

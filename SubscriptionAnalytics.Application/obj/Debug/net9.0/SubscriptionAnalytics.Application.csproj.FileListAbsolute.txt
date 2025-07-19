@@ -1,0 +1,17 @@
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.Application/bin/Debug/net9.0/SubscriptionAnalytics.Application.deps.json
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.Application/bin/Debug/net9.0/SubscriptionAnalytics.Application.dll
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.Application/bin/Debug/net9.0/SubscriptionAnalytics.Application.pdb
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.Application/bin/Debug/net9.0/SubscriptionAnalytics.Infrastructure.dll
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.Application/bin/Debug/net9.0/SubscriptionAnalytics.Shared.dll
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.Application/bin/Debug/net9.0/SubscriptionAnalytics.Shared.pdb
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.Application/bin/Debug/net9.0/SubscriptionAnalytics.Infrastructure.pdb
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.Application/obj/Debug/net9.0/SubscriptionAnalytics.Application.csproj.AssemblyReference.cache
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.Application/obj/Debug/net9.0/SubscriptionAnalytics.Application.GeneratedMSBuildEditorConfig.editorconfig
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.Application/obj/Debug/net9.0/SubscriptionAnalytics.Application.AssemblyInfoInputs.cache
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.Application/obj/Debug/net9.0/SubscriptionAnalytics.Application.AssemblyInfo.cs
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.Application/obj/Debug/net9.0/SubscriptionAnalytics.Application.csproj.CoreCompileInputs.cache
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.Application/obj/Debug/net9.0/Subscrip.E88F6D30.Up2Date
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.Application/obj/Debug/net9.0/SubscriptionAnalytics.Application.dll
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.Application/obj/Debug/net9.0/refint/SubscriptionAnalytics.Application.dll
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.Application/obj/Debug/net9.0/SubscriptionAnalytics.Application.pdb
+/Users/arya/project/subscriptionanalytics/SubscriptionAnalytics.Application/obj/Debug/net9.0/ref/SubscriptionAnalytics.Application.dll
