@@ -39,4 +39,10 @@ public class UserTenantsResponse
     public string UserId { get; set; } = string.Empty;
     public string UserEmail { get; set; } = string.Empty;
     public List<UserTenantDto> Tenants { get; set; } = new List<UserTenantDto>();
+}
+
+public class AssignAppRoleRequest
+{
+    public string UserId { get; set; } = string.Empty;
+    public string Role { get; set; } = string.Empty;
 } 

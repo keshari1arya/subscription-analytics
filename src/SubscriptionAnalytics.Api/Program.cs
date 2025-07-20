@@ -10,6 +10,8 @@ using SubscriptionAnalytics.Shared.Interfaces;
 using SubscriptionAnalytics.Api.Middleware;
 using Microsoft.AspNetCore.Authentication;
 using SubscriptionAnalytics.Api;
+using SubscriptionAnalytics.Shared.Constants;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -57,6 +59,11 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Configure Identity Core and Roles
+builder.Services.AddIdentityCore<IdentityUser>()
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<AppDbContext>();
+
 // Configure Identity API
 builder.Services.AddIdentityApiEndpoints<IdentityUser>()
     .AddEntityFrameworkStores<AppDbContext>();
@@ -73,6 +80,46 @@ builder.Services.AddScoped<ITenantService, TenantService>();
 builder.Services.AddScoped<ITenantContext, TenantContext>();
 
 var app = builder.Build();
+
+// Seed roles and default AppAdmin user at startup
+using (var scope = app.Services.CreateScope())
+{
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+    string[] roles = new[]
+    {
+        Roles.AppAdmin,
+        Roles.TenantAdmin,
+        Roles.TenantUser,
+        Roles.SupportUser,
+        Roles.ReadOnlyUser
+    };
+    foreach (var role in roles)
+    {
+        if (!await roleManager.RoleExistsAsync(role))
+        {
+            await roleManager.CreateAsync(new IdentityRole(role));
+        }
+    }
+    // Seed default AppAdmin user
+    var adminEmail = "admin@example.com";
+    var adminUser = await userManager.FindByEmailAsync(adminEmail);
+    if (adminUser == null)
+    {
+        var admin = new IdentityUser { UserName = adminEmail, Email = adminEmail, EmailConfirmed = true };
+        var password = "Admin!" + Guid.NewGuid().ToString("N").Substring(0, 8) + "!";
+        var result = await userManager.CreateAsync(admin, password);
+        if (result.Succeeded)
+        {
+            await userManager.AddToRoleAsync(admin, Roles.AppAdmin);
+            Console.WriteLine($"Seeded AppAdmin user: {adminEmail} with password: {password}");
+        }
+        else
+        {
+            Console.WriteLine($"Failed to seed AppAdmin user: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+        }
+    }
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

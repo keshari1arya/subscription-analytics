@@ -6,6 +6,7 @@ using SubscriptionAnalytics.Infrastructure.Data;
 using SubscriptionAnalytics.Shared.DTOs;
 using SubscriptionAnalytics.Shared.Entities;
 using SubscriptionAnalytics.Shared.Exceptions;
+using SubscriptionAnalytics.Shared.Constants;
 
 namespace SubscriptionAnalytics.Application.Services;
 
@@ -84,6 +85,8 @@ public class TenantService : ITenantService
 
     public async Task<UserTenantDto> AssignUserToTenantAsync(AssignUserToTenantRequest request)
     {
+        if (!UserTenant.IsValidTenantRole(request.Role))
+            throw new BusinessException($"Invalid tenant role: {request.Role}");
         // Find user by email
         var user = await _userManager.FindByEmailAsync(request.UserEmail);
         if (user == null)
@@ -193,6 +196,8 @@ public class TenantService : ITenantService
 
     public async Task<bool> UpdateUserTenantRoleAsync(string userId, Guid tenantId, string newRole)
     {
+        if (!UserTenant.IsValidTenantRole(newRole))
+            return false;
         var userTenant = await _context.UserTenants
             .FirstOrDefaultAsync(ut => ut.UserId == userId && ut.TenantId == tenantId);
 
@@ -205,5 +210,25 @@ public class TenantService : ITenantService
         _logger.LogInformation("Updated user {UserId} role to {Role} in tenant {TenantId}", 
             userId, newRole, tenantId);
         return true;
+    }
+
+    public async Task<bool> AssignAppRoleAsync(string userId, string appRole)
+    {
+        if (appRole != Roles.AppAdmin && appRole != Roles.SupportUser)
+            throw new BusinessException($"Invalid app-level role: {appRole}");
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null) return false;
+        var result = await _userManager.AddToRoleAsync(user, appRole);
+        return result.Succeeded;
+    }
+
+    public async Task<bool> RemoveAppRoleAsync(string userId, string appRole)
+    {
+        if (appRole != Roles.AppAdmin && appRole != Roles.SupportUser)
+            throw new BusinessException($"Invalid app-level role: {appRole}");
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null) return false;
+        var result = await _userManager.RemoveFromRoleAsync(user, appRole);
+        return result.Succeeded;
     }
 } 

@@ -208,4 +208,40 @@ public class TenantControllerTests
         // Assert
         result.Should().BeOfType<NotFoundResult>();
     }
+
+    [Fact]
+    public async Task AssignAppRole_Should_Return_Ok_IfSuccess()
+    {
+        var request = new AssignAppRoleRequest { UserId = "user1", Role = "AppAdmin" };
+        _tenantServiceMock.Setup(x => x.AssignAppRoleAsync(request.UserId, request.Role)).ReturnsAsync(true);
+        var result = await _controller.AssignAppRole(request);
+        result.Should().BeOfType<OkResult>();
+    }
+
+    [Fact]
+    public async Task AssignAppRole_Should_Return_NotFound_IfUserMissing()
+    {
+        var request = new AssignAppRoleRequest { UserId = "user1", Role = "AppAdmin" };
+        _tenantServiceMock.Setup(x => x.AssignAppRoleAsync(request.UserId, request.Role)).ReturnsAsync(false);
+        var result = await _controller.AssignAppRole(request);
+        result.Should().BeOfType<NotFoundResult>();
+    }
+
+    [Fact]
+    public async Task RemoveAppRole_Should_Return_Ok_IfSuccess()
+    {
+        var request = new AssignAppRoleRequest { UserId = "user1", Role = "AppAdmin" };
+        _tenantServiceMock.Setup(x => x.RemoveAppRoleAsync(request.UserId, request.Role)).ReturnsAsync(true);
+        var result = await _controller.RemoveAppRole(request);
+        result.Should().BeOfType<OkResult>();
+    }
+
+    [Fact]
+    public async Task RemoveAppRole_Should_Return_NotFound_IfUserMissing()
+    {
+        var request = new AssignAppRoleRequest { UserId = "user1", Role = "AppAdmin" };
+        _tenantServiceMock.Setup(x => x.RemoveAppRoleAsync(request.UserId, request.Role)).ReturnsAsync(false);
+        var result = await _controller.RemoveAppRole(request);
+        result.Should().BeOfType<NotFoundResult>();
+    }
 } 

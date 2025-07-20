@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SubscriptionAnalytics.Application.Interfaces;
 using SubscriptionAnalytics.Shared.DTOs;
+using SubscriptionAnalytics.Shared.Constants;
 
 namespace SubscriptionAnalytics.Api.Controllers;
 
@@ -26,7 +27,7 @@ public class TenantController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = Roles.TenantAdmin)]
     public async Task<ActionResult<TenantDto>> CreateTenant([FromBody] CreateTenantRequest request)
     {
         if (!ModelState.IsValid)
@@ -50,7 +51,7 @@ public class TenantController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = Roles.TenantAdmin)]
     public async Task<ActionResult<List<TenantDto>>> GetAllTenants()
     {
         var tenants = await _tenantService.GetAllTenantsAsync();
@@ -58,7 +59,7 @@ public class TenantController : ControllerBase
     }
 
     [HttpPost("assign-user")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = Roles.TenantAdmin)]
     public async Task<ActionResult<UserTenantDto>> AssignUserToTenant([FromBody] AssignUserToTenantRequest request)
     {
         var userTenant = await _tenantService.AssignUserToTenantAsync(request);
@@ -79,7 +80,7 @@ public class TenantController : ControllerBase
     }
 
     [HttpDelete("{tenantId:guid}/users/{userId}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = Roles.TenantAdmin)]
     public async Task<ActionResult> RemoveUserFromTenant(Guid tenantId, string userId)
     {
         var result = await _tenantService.RemoveUserFromTenantAsync(userId, tenantId);
@@ -92,7 +93,7 @@ public class TenantController : ControllerBase
     }
 
     [HttpPut("{tenantId:guid}/users/{userId}/role")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = Roles.TenantAdmin)]
     public async Task<ActionResult> UpdateUserTenantRole(Guid tenantId, string userId, [FromBody] string newRole)
     {
         var result = await _tenantService.UpdateUserTenantRoleAsync(userId, tenantId, newRole);
@@ -102,5 +103,23 @@ public class TenantController : ControllerBase
         }
 
         return NoContent();
+    }
+
+    [HttpPost("app-role")]
+    [Authorize(Roles = Roles.AppAdmin)]
+    public async Task<ActionResult> AssignAppRole([FromBody] AssignAppRoleRequest request)
+    {
+        var result = await _tenantService.AssignAppRoleAsync(request.UserId, request.Role);
+        if (!result) return NotFound();
+        return Ok();
+    }
+
+    [HttpDelete("app-role")]
+    [Authorize(Roles = Roles.AppAdmin)]
+    public async Task<ActionResult> RemoveAppRole([FromBody] AssignAppRoleRequest request)
+    {
+        var result = await _tenantService.RemoveAppRoleAsync(request.UserId, request.Role);
+        if (!result) return NotFound();
+        return Ok();
     }
 } 
