@@ -1,0 +1,84 @@
+# Prompt: Create a Detailed Multi-Tenant SaaS Project with Comprehensive Tests
+
+## **Project Overview**
+You are to create a new .NET 8+ solution for a basic multi-tenant SaaS application from scratch. This project should demonstrate best practices for modularity, security, and testability, and should be suitable as a starting point for real-world SaaS products.
+
+---
+
+## **Step-by-Step Requirements**
+
+### 1. **Project Structure**
+- Create a root directory with two main folders:
+  - `src` for all application code
+  - `test` for all test projects
+- Use clear, consistent naming for all projects and files.
+- Add a `README.md` at the root with setup, run, and test instructions.
+
+### 2. **API Project**
+- Create an ASP.NET Core Web API project in `src`.
+- Use **ASP.NET Identity** for user management and authentication.
+- Implement **JWT authentication** (not just cookies).
+- Expose endpoints for:
+  - `POST /identity/register` — Register a new user
+  - `POST /identity/login` — Log in and receive a JWT
+  - `POST /api/tenant` — Create a new tenant (only for authenticated users)
+  - `POST /api/tenant/assign-user` — Assign a user to a tenant (admin only)
+  - `GET /api/tenant/my-tenants` — Get all tenants for the current user
+  - `GET /api/tenant/{id}` — Get tenant by ID
+  - `GET /api/tenant` — Get all tenants (admin only)
+  - `DELETE /api/tenant/{tenantId}/users/{userId}` — Remove user from tenant (admin only)
+  - `PUT /api/tenant/{tenantId}/users/{userId}/role` — Update user role in tenant (admin only)
+  - CRUD endpoints for a sample entity (e.g., Customer) scoped to the current tenant
+- Add **Swagger/OpenAPI** documentation for all endpoints.
+
+### 3. **Multi-Tenancy**
+- Each user can belong to multiple tenants (organizations/workspaces).
+- Use a join table (e.g., `UserTenant`) to manage user-tenant relationships and roles.
+- Enforce tenant context in all relevant endpoints (e.g., only return data for the current tenant).
+- Use middleware or a service to resolve the current tenant from the request/user.
+
+### 4. **Data Layer**
+- Use **Entity Framework Core** for data access.
+- Use **PostgreSQL** as the primary database (but allow in-memory DB for tests).
+- Create models for User, Tenant, UserTenant, and the sample entity (e.g., Customer).
+- Add migrations and a `DbContext` with proper configuration.
+- Seed demo data for development/testing if possible.
+
+### 5. **Service Layer**
+- Implement business logic in a service layer (not in controllers).
+- Use dependency injection for all services and repositories.
+- Follow the repository pattern for data access.
+
+### 6. **Testing**
+- Create test projects in the `test` folder:
+  - **Unit tests** for the service layer (xUnit, Moq, FluentAssertions)
+  - **Integration tests** for API endpoints (xUnit, WebApplicationFactory, InMemory DB)
+- For each endpoint and service method, cover:
+  - Positive scenarios (valid input, correct role, expected result)
+  - Negative scenarios (unauthorized, forbidden, not found, invalid input, etc.)
+- Use helpers to register and log in users via the real API in integration tests.
+- Test multi-tenant scenarios: users with different roles, users in multiple tenants, etc.
+
+### 7. **Security and Best Practices**
+- Use strong password policies and validation.
+- Secure all endpoints with proper authentication and authorization attributes.
+- Use DTOs for all API input/output (never expose EF entities directly).
+- Add global exception handling middleware.
+- Use async/await throughout.
+- Add comments and documentation for all public classes and methods.
+
+### 8. **Deliverables**
+- All source code and test code, organized as described above.
+- A `README.md` with:
+  - Setup instructions (including DB config)
+  - How to run the app and tests
+  - Example API requests/responses
+- All necessary configuration files (e.g., `appsettings.json`, launch profiles, etc.)
+
+---
+
+## **Notes for the Assistant**
+- If the project name is already taken, use a similar but unique name.
+- If you need to make assumptions (e.g., about roles, claims, or sample entities), document them in the README.
+- The goal is to create a clean, modular, and testable starting point for a real SaaS product, with multi-tenancy and robust test coverage.
+- If you encounter any ambiguity, make reasonable choices and document them. 
