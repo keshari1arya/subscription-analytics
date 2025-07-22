@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Authentication;
 using SubscriptionAnalytics.Api;
 using SubscriptionAnalytics.Shared.Constants;
 using Microsoft.Extensions.DependencyInjection;
+using SubscriptionAnalytics.Connectors.Stripe.Abstractions;
+using SubscriptionAnalytics.Connectors.Stripe.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -79,47 +81,14 @@ var isTestEnv = builder.Environment.EnvironmentName == "Test";
 builder.Services.AddScoped<ITenantService, TenantService>();
 builder.Services.AddScoped<ITenantContext, TenantContext>();
 
+// Stripe Services
+builder.Services.AddScoped<IStripeConnector, StripeConnector>();
+builder.Services.AddScoped<IStripeInstallationService, StripeInstallationService>();
+builder.Services.AddScoped<IEncryptionService, EncryptionService>();
+
 var app = builder.Build();
 
-// Seed roles and default AppAdmin user at startup
-using (var scope = app.Services.CreateScope())
-{
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
-    string[] roles = new[]
-    {
-        Roles.AppAdmin,
-        Roles.TenantAdmin,
-        Roles.TenantUser,
-        Roles.SupportUser,
-        Roles.ReadOnlyUser
-    };
-    foreach (var role in roles)
-    {
-        if (!await roleManager.RoleExistsAsync(role))
-        {
-            await roleManager.CreateAsync(new IdentityRole(role));
-        }
-    }
-    // Seed default AppAdmin user
-    var adminEmail = "admin@example.com";
-    var adminUser = await userManager.FindByEmailAsync(adminEmail);
-    if (adminUser == null)
-    {
-        var admin = new IdentityUser { UserName = adminEmail, Email = adminEmail, EmailConfirmed = true };
-        var password = "Admin!" + Guid.NewGuid().ToString("N").Substring(0, 8) + "!";
-        var result = await userManager.CreateAsync(admin, password);
-        if (result.Succeeded)
-        {
-            await userManager.AddToRoleAsync(admin, Roles.AppAdmin);
-            Console.WriteLine($"Seeded AppAdmin user: {adminEmail} with password: {password}");
-        }
-        else
-        {
-            Console.WriteLine($"Failed to seed AppAdmin user: {string.Join(", ", result.Errors.Select(e => e.Description))}");
-        }
-    }
-}
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -145,7 +114,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // Map Identity API endpoints
-app.MapIdentityApi<IdentityUser>();
+var group = app.MapGroup("/api/identity");  
+group.MapIdentityApi<IdentityUser>();
 
 app.MapControllers();
 

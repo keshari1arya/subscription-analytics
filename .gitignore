@@ -460,9 +460,6 @@ jspm_packages/
 ## TypeScript v1 declaration files
 typings/
 
-## TypeScript cache
-*.tsbuildinfo
-
 ## Optional npm cache directory
 .npm
 
@@ -551,4 +548,19 @@ docker-compose.override.yml
 
 ## Local development
 *.local
-local.* 
+local.*
+
+# ===================================
+# PROJECT SPECIFIC - Sensitive Configuration Files
+# ===================================
+
+# Development settings with real credentials (like .env)
+**/appsettings.Development.json
+
+# Local user secrets
+**/appsettings.Local.json
+**/appsettings.*.local.json
+
+# Production secrets (should use Azure Key Vault or similar)
+**/appsettings.Production.json
+**/appsettings.Staging.json 
