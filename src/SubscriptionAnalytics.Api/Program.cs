@@ -10,6 +10,8 @@ using SubscriptionAnalytics.Shared.Interfaces;
 using SubscriptionAnalytics.Api.Middleware;
 using SubscriptionAnalytics.Connectors.Stripe.Abstractions;
 using SubscriptionAnalytics.Connectors.Stripe.Services;
+using SubscriptionAnalytics.Connectors.PayPal.Abstractions;
+using SubscriptionAnalytics.Connectors.PayPal.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -76,9 +78,14 @@ var isTestEnv = builder.Environment.EnvironmentName == "Test";
 // Register services
 builder.Services.AddScoped<ITenantService, TenantService>();
 builder.Services.AddScoped<ITenantContext, TenantContext>();
+builder.Services.AddScoped<IProviderConnectionService, ProviderConnectionService>();
 
-// Stripe Services
+// Connector Services
 builder.Services.AddScoped<IStripeConnector, StripeConnector>();
+builder.Services.AddScoped<IPayPalConnector, PayPalConnector>();
+builder.Services.AddScoped<IConnectorFactory, ConnectorFactory>();
+
+// Legacy Services (for backward compatibility)
 builder.Services.AddScoped<IStripeInstallationService, StripeInstallationService>();
 builder.Services.AddScoped<IEncryptionService, EncryptionService>();
 

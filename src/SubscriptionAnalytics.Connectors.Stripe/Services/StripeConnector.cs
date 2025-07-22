@@ -1,23 +1,85 @@
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Stripe;
 using SubscriptionAnalytics.Connectors.Stripe.Abstractions;
 using SubscriptionAnalytics.Shared.DTOs;
+using SubscriptionAnalytics.Shared.Interfaces;
 
 namespace SubscriptionAnalytics.Connectors.Stripe.Services;
 
-public class StripeConnector : IStripeConnector
+public class StripeConnector : IStripeConnector, IConnector
 {
     private readonly string _clientId;
     private readonly string _clientSecret;
+    private readonly string _apiKey;
+    private readonly ILogger<StripeConnector> _logger;
 
-    public StripeConnector(IConfiguration configuration)
+    public StripeConnector(IConfiguration configuration, ILogger<StripeConnector> logger)
     {
-        _clientId = configuration["Stripe:ConnectClientId"] 
+        _clientId = configuration["Stripe:ConnectClientId"]
             ?? throw new InvalidOperationException("Stripe Connect Client ID is not configured");
-        _clientSecret = configuration["Stripe:ConnectClientSecret"] 
+        _clientSecret = configuration["Stripe:ConnectClientSecret"]
             ?? throw new InvalidOperationException("Stripe Connect Client Secret is not configured");
+        _apiKey = configuration["Stripe:ApiKey"]
+            ?? throw new InvalidOperationException("Stripe API Key is not configured");
+        _logger = logger;
+
+        // Initialize Stripe configuration
+        StripeConfiguration.ApiKey = _apiKey;
     }
 
+    // IConnector implementation
+    public string ProviderName => "Stripe";
+    public string DisplayName => "Stripe";
+    public bool SupportsOAuth => true;
+
+    public async Task<string> GenerateOAuthUrlAsync(string state, string redirectUri, Guid tenantId)
+    {
+        _logger.LogInformation("Generating Stripe OAuth URL for tenant: {TenantId}", tenantId);
+        return await GenerateOAuthUrl(state, redirectUri);
+    }
+
+    public async Task<OAuthTokenResponse> ExchangeOAuthCodeAsync(string code, string state)
+    {
+        _logger.LogInformation("Exchanging Stripe OAuth code for token");
+        var stripeResponse = await ExchangeOAuthCode(code);
+        return new OAuthTokenResponse
+        {
+            AccessToken = stripeResponse.AccessToken,
+            RefreshToken = stripeResponse.RefreshToken,
+            TokenType = stripeResponse.TokenType,
+            Scope = stripeResponse.Scope,
+            ProviderAccountId = stripeResponse.StripeAccountId,
+            AdditionalData = new Dictionary<string, object>
+            {
+                ["StripeAccountId"] = stripeResponse.StripeAccountId
+            }
+        };
+    }
+
+    public async Task<bool> ValidateConnectionAsync(string accessToken)
+    {
+        return await ValidateConnection(accessToken);
+    }
+
+    public async Task<bool> DisconnectAsync(Guid tenantId)
+    {
+        // TODO: Implement Stripe disconnection logic
+        _logger.LogInformation("Disconnecting Stripe for tenant: {TenantId}", tenantId);
+        return true;
+    }
+
+    public async Task SyncDataAsync(Guid tenantId, CancellationToken cancellationToken)
+    {
+        // TODO: Implement Stripe data synchronization
+        // This would involve fetching customers, subscriptions, payments, etc. from Stripe
+        _logger.LogInformation("Syncing Stripe data for tenant: {TenantId}", tenantId);
+        
+        // Placeholder implementation
+        await Task.Delay(100, cancellationToken); // Simulate async work
+    }
+
+    // IStripeConnector implementation (existing methods)
     public Task<string> GenerateOAuthUrl(string state, string redirectUri)
     {
         var oauthUrl = "https://connect.stripe.com/oauth/authorize" +
@@ -53,12 +115,14 @@ public class StripeConnector : IStripeConnector
                 Scope = response.Scope
             };
         }
-        catch (StripeException)
+        catch (StripeException ex)
         {
+            _logger.LogError(ex, "Stripe OAuth token exchange failed");
             throw;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            _logger.LogError(ex, "Unexpected error during Stripe OAuth token exchange");
             throw;
         }
     }
@@ -71,12 +135,14 @@ public class StripeConnector : IStripeConnector
             await service.GetAsync(accessToken);
             return true;
         }
-        catch (StripeException)
+        catch (StripeException ex)
         {
+            _logger.LogWarning(ex, "Stripe connection validation failed");
             return false;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            _logger.LogError(ex, "Unexpected error during Stripe connection validation");
             return false;
         }
     }

@@ -10,6 +10,7 @@
     <ProjectReference Include="..\SubscriptionAnalytics.Shared\SubscriptionAnalytics.Shared.csproj" />
     <ProjectReference Include="..\SubscriptionAnalytics.Infrastructure\SubscriptionAnalytics.Infrastructure.csproj" />
     <ProjectReference Include="..\SubscriptionAnalytics.Connectors.Stripe\SubscriptionAnalytics.Connectors.Stripe.csproj" />
+    <ProjectReference Include="..\SubscriptionAnalytics.Connectors.PayPal\SubscriptionAnalytics.Connectors.PayPal.csproj" />
   </ItemGroup>
 
   <ItemGroup>
