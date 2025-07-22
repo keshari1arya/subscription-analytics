@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat Code Coverage">
+        <Configuration>
+          <Format>cobertura</Format>
+          <Exclude>[*]*.Designer.cs</Exclude>
+          <Exclude>[*]*.g.cs</Exclude>
+          <Exclude>[*]*.g.i.cs</Exclude>
+          <Exclude>[*]Migrations/*.cs</Exclude>
+          <Exclude>[*]Migrations/**/*.cs</Exclude>
+          <Exclude>[*]*Tests.cs</Exclude>
+          <Exclude>[*]*Tests/*.cs</Exclude>
+          <Exclude>[*]*Test/*.cs</Exclude>
+          <Exclude>[*]obj/**/*.cs</Exclude>
+          <Exclude>[*]bin/**/*.cs</Exclude>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings> 

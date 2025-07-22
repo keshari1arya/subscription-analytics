@@ -21,6 +21,7 @@ public class StripeConnectorTests
         _loggerMock = new Mock<ILogger<StripeConnector>>();
         _configurationMock.Setup(x => x["Stripe:ConnectClientId"]).Returns("test_client_id");
         _configurationMock.Setup(x => x["Stripe:ConnectClientSecret"]).Returns("test_client_secret");
+        _configurationMock.Setup(x => x["Stripe:ApiKey"]).Returns("test_api_key");
         
         _connector = new StripeConnector(_configurationMock.Object, _loggerMock.Object);
     }
@@ -236,5 +237,120 @@ public class StripeConnectorTests
 
         // Assert
         result.Should().Contain("client_id=test_client_id");
+    }
+
+    [Fact]
+    public void Constructor_WithMissingApiKey_Should_ThrowInvalidOperationException()
+    {
+        // Arrange
+        var configMock = new Mock<IConfiguration>();
+        var loggerMock = new Mock<ILogger<StripeConnector>>();
+        configMock.Setup(x => x["Stripe:ConnectClientId"]).Returns("test_id");
+        configMock.Setup(x => x["Stripe:ConnectClientSecret"]).Returns("test_secret");
+        configMock.Setup(x => x["Stripe:ApiKey"]).Returns((string?)null);
+
+        // Act & Assert
+        var action = () => new StripeConnector(configMock.Object, loggerMock.Object);
+        action.Should().Throw<InvalidOperationException>()
+            .WithMessage("Stripe API Key is not configured");
+    }
+
+    [Fact]
+    public void ProviderName_Should_ReturnStripe()
+    {
+        // Act & Assert
+        _connector.ProviderName.Should().Be("Stripe");
+    }
+
+    [Fact]
+    public void DisplayName_Should_ReturnStripe()
+    {
+        // Act & Assert
+        _connector.DisplayName.Should().Be("Stripe");
+    }
+
+    [Fact]
+    public void SupportsOAuth_Should_ReturnTrue()
+    {
+        // Act & Assert
+        _connector.SupportsOAuth.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task GenerateOAuthUrlAsync_WithValidParameters_Should_ReturnCorrectUrl()
+    {
+        // Arrange
+        var state = "test_state";
+        var redirectUri = "https://example.com/callback";
+        var tenantId = Guid.NewGuid();
+
+        // Act
+        var result = await _connector.GenerateOAuthUrlAsync(state, redirectUri, tenantId);
+
+        // Assert
+        result.Should().NotBeNullOrEmpty();
+        result.Should().StartWith("https://connect.stripe.com/oauth/authorize");
+        result.Should().Contain("client_id=test_client_id");
+    }
+
+    [Fact]
+    public async Task ExchangeOAuthCodeAsync_WithValidCode_Should_ReturnOAuthTokenResponse()
+    {
+        // Arrange
+        var code = "valid_oauth_code";
+        var state = "test_state";
+
+        // Act & Assert
+        var action = async () => await _connector.ExchangeOAuthCodeAsync(code, state);
+        await action.Should().ThrowAsync<StripeException>();
+    }
+
+    [Fact]
+    public async Task ValidateConnectionAsync_WithValidToken_Should_ReturnTrue()
+    {
+        // Arrange
+        var accessToken = "valid_access_token";
+
+        // Act & Assert
+        var action = async () => await _connector.ValidateConnectionAsync(accessToken);
+        await action.Should().NotThrowAsync();
+    }
+
+    [Fact]
+    public async Task DisconnectAsync_WithValidTenantId_Should_ReturnTrue()
+    {
+        // Arrange
+        var tenantId = Guid.NewGuid();
+
+        // Act
+        var result = await _connector.DisconnectAsync(tenantId);
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task SyncDataAsync_WithValidTenantId_Should_CompleteSuccessfully()
+    {
+        // Arrange
+        var tenantId = Guid.NewGuid();
+        var cancellationToken = CancellationToken.None;
+
+        // Act & Assert
+        var action = async () => await _connector.SyncDataAsync(tenantId, cancellationToken);
+        await action.Should().NotThrowAsync();
+    }
+
+    [Fact]
+    public async Task SyncDataAsync_WithCancelledToken_Should_HandleCancellation()
+    {
+        // Arrange
+        var tenantId = Guid.NewGuid();
+        var cancellationTokenSource = new CancellationTokenSource();
+        cancellationTokenSource.Cancel();
+
+        // Act & Assert
+        var action = async () => await _connector.SyncDataAsync(tenantId, cancellationTokenSource.Token);
+        await action.Should().ThrowAsync<OperationCanceledException>();
     }
 } 

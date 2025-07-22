@@ -51,31 +51,23 @@ public class ConnectController : ControllerBase
         Guid tenantId, 
         [FromRoute] string provider)
     {
-        try
+        if (!Enum.TryParse<ConnectorType>(provider, true, out var connectorType))
         {
-            if (!Enum.TryParse<ConnectorType>(provider, true, out var connectorType))
-            {
-                return BadRequest(new { error = $"Unsupported provider: {provider}" });
-            }
-
-            var connector = _connectorFactory.GetConnector(connectorType);
-            var state = Guid.NewGuid().ToString();
-            var redirectUri = $"https://localhost:7001/api/connect/tenant/{tenantId}/provider/{provider}/oauth-callback";
-            
-            var authUrl = await connector.GenerateOAuthUrlAsync(state, redirectUri, tenantId);
-
-            return Ok(new InitiateConnectionResponse
-            {
-                AuthorizationUrl = authUrl,
-                State = state,
-                Provider = provider
-            });
+            return BadRequest(new { error = $"Unsupported provider: {provider}" });
         }
-        catch (Exception ex)
+
+        var connector = _connectorFactory.GetConnector(connectorType);
+        var state = Guid.NewGuid().ToString();
+        var redirectUri = $"https://localhost:7001/api/connect/tenant/{tenantId}/provider/{provider}/oauth-callback";
+        
+        var authUrl = await connector.GenerateOAuthUrlAsync(state, redirectUri, tenantId);
+
+        return Ok(new InitiateConnectionResponse
         {
-            _logger.LogError(ex, "Error initiating {Provider} connection for tenant {TenantId}", provider, tenantId);
-            return StatusCode(500, new { error = "An unexpected error occurred" });
-        }
+            AuthorizationUrl = authUrl,
+            State = state,
+            Provider = provider
+        });
     }
 
     /// <summary>
@@ -108,39 +100,24 @@ public class ConnectController : ControllerBase
             return BadRequest(new { error = "Missing required OAuth parameters" });
         }
 
-        try
+        if (!Enum.TryParse<ConnectorType>(provider, true, out var connectorType))
         {
-            if (!Enum.TryParse<ConnectorType>(provider, true, out var connectorType))
-            {
-                return BadRequest(new { error = $"Unsupported provider: {provider}" });
-            }
+            return BadRequest(new { error = $"Unsupported provider: {provider}" });
+        }
 
-            var connector = _connectorFactory.GetConnector(connectorType);
-            var tokenResponse = await connector.ExchangeOAuthCodeAsync(code, state);
-            
-            // Store the connection in the database
-            var connection = await _connectionService.SaveConnectionAsync(tenantId, provider, tokenResponse);
-            
-            return Ok(new { 
-                message = $"{provider} account connected successfully",
-                provider = provider,
-                connectionId = connection.Id,
-                providerAccountId = connection.ProviderAccountId,
-                status = connection.Status
-            });
-        }
-        catch (ArgumentException ex)
-        {
-            _logger.LogWarning("Invalid OAuth callback for tenant {TenantId} with provider {Provider}: {Message}", 
-                tenantId, provider, ex.Message);
-            return BadRequest(new { error = ex.Message });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Unexpected error handling OAuth callback for tenant {TenantId} with provider {Provider}", 
-                tenantId, provider);
-            return StatusCode(500, new { error = "An unexpected error occurred" });
-        }
+        var connector = _connectorFactory.GetConnector(connectorType);
+        var tokenResponse = await connector.ExchangeOAuthCodeAsync(code, state);
+        
+        // Store the connection in the database
+        var connection = await _connectionService.SaveConnectionAsync(tenantId, provider, tokenResponse);
+        
+        return Ok(new { 
+            message = $"{provider} account connected successfully",
+            provider = provider,
+            connectionId = connection.Id,
+            providerAccountId = connection.ProviderAccountId,
+            status = connection.Status
+        });
     }
 
     /// <summary>
@@ -149,22 +126,14 @@ public class ConnectController : ControllerBase
     [HttpGet("tenant/{tenantId:guid}/provider/{provider}")]
     public async Task<ActionResult<ProviderConnectionDto>> GetConnection(Guid tenantId, [FromRoute] string provider)
     {
-        try
+        var connection = await _connectionService.GetConnectionAsync(tenantId, provider);
+        
+        if (connection == null)
         {
-            var connection = await _connectionService.GetConnectionAsync(tenantId, provider);
-            
-            if (connection == null)
-            {
-                return NotFound(new { error = $"No {provider} connection found for this tenant" });
-            }
+            return NotFound(new { error = $"No {provider} connection found for this tenant" });
+        }
 
-            return Ok(connection);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting {Provider} connection for tenant {TenantId}", provider, tenantId);
-            return StatusCode(500, new { error = "An unexpected error occurred" });
-        }
+        return Ok(connection);
     }
 
     /// <summary>
@@ -173,16 +142,8 @@ public class ConnectController : ControllerBase
     [HttpGet("tenant/{tenantId:guid}/connections")]
     public async Task<ActionResult<IEnumerable<ProviderConnectionDto>>> GetConnections(Guid tenantId)
     {
-        try
-        {
-            var connections = await _connectionService.GetConnectionsAsync(tenantId);
-            return Ok(connections);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting connections for tenant {TenantId}", tenantId);
-            return StatusCode(500, new { error = "An unexpected error occurred" });
-        }
+        var connections = await _connectionService.GetConnectionsAsync(tenantId);
+        return Ok(connections);
     }
 
     /// <summary>
@@ -191,22 +152,14 @@ public class ConnectController : ControllerBase
     [HttpDelete("tenant/{tenantId:guid}/provider/{provider}")]
     public async Task<IActionResult> DisconnectProvider(Guid tenantId, [FromRoute] string provider)
     {
-        try
+        var success = await _connectionService.DisconnectAsync(tenantId, provider);
+        
+        if (!success)
         {
-            var success = await _connectionService.DisconnectAsync(tenantId, provider);
-            
-            if (!success)
-            {
-                return NotFound(new { error = $"No {provider} connection found for this tenant" });
-            }
+            return NotFound(new { error = $"No {provider} connection found for this tenant" });
+        }
 
-            return NoContent();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error disconnecting {Provider} for tenant {TenantId}", provider, tenantId);
-            return StatusCode(500, new { error = "An unexpected error occurred" });
-        }
+        return NoContent();
     }
 }
 
