@@ -231,6 +231,23 @@ namespace SubscriptionAnalytics.Infrastructure.Migrations
                     b.Property<DateTime>("ConnectedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
                     b.Property<DateTime?>("LastSyncedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -248,6 +265,13 @@ namespace SubscriptionAnalytics.Infrastructure.Migrations
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
 
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("StripeAccountId")
@@ -262,33 +286,70 @@ namespace SubscriptionAnalytics.Infrastructure.Migrations
             modelBuilder.Entity("SubscriptionAnalytics.Shared.Entities.SyncedCustomer", b =>
                 {
                     b.Property<string>("CustomerId")
-                        .HasColumnType("text");
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
 
                     b.Property<DateTime>("CreatedStripeAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
                     b.Property<string>("Email")
-                        .HasColumnType("text");
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("Livemode")
                         .HasColumnType("boolean");
 
                     b.Property<string>("Name")
-                        .HasColumnType("text");
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
 
                     b.Property<string>("Phone")
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<DateTime>("SyncedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("NOW() AT TIME ZONE 'UTC'");
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
                     b.HasKey("CustomerId");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("SyncedCustomers");
                 });
@@ -302,12 +363,34 @@ namespace SubscriptionAnalytics.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
                     b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
 
                     b.HasKey("Id");
 
@@ -325,9 +408,34 @@ namespace SubscriptionAnalytics.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Role")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
 
                     b.HasKey("UserId", "TenantId");
 
@@ -398,10 +506,21 @@ namespace SubscriptionAnalytics.Infrastructure.Migrations
                     b.Navigation("Tenant");
                 });
 
+            modelBuilder.Entity("SubscriptionAnalytics.Shared.Entities.SyncedCustomer", b =>
+                {
+                    b.HasOne("SubscriptionAnalytics.Shared.Entities.Tenant", "Tenant")
+                        .WithMany("SyncedCustomers")
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tenant");
+                });
+
             modelBuilder.Entity("SubscriptionAnalytics.Shared.Entities.UserTenant", b =>
                 {
                     b.HasOne("SubscriptionAnalytics.Shared.Entities.Tenant", "Tenant")
-                        .WithMany()
+                        .WithMany("UserTenants")
                         .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -412,6 +531,10 @@ namespace SubscriptionAnalytics.Infrastructure.Migrations
             modelBuilder.Entity("SubscriptionAnalytics.Shared.Entities.Tenant", b =>
                 {
                     b.Navigation("StripeConnection");
+
+                    b.Navigation("SyncedCustomers");
+
+                    b.Navigation("UserTenants");
                 });
 #pragma warning restore 612, 618
         }

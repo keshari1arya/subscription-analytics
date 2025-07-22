@@ -27,41 +27,8 @@ public class AppDbContext : IdentityDbContext<IdentityUser>
     {
         base.OnModelCreating(modelBuilder);
 
-        // Configure Tenant (minimal configuration for primary key)
-        modelBuilder.Entity<Tenant>(entity =>
-        {
-            entity.HasKey(t => t.Id);
-        });
-
-        // Configure UserTenant (minimal configuration for composite primary key)
-        modelBuilder.Entity<UserTenant>(entity =>
-        {
-            entity.HasKey(ut => new { ut.UserId, ut.TenantId });
-        });
-
-        // Configure SyncedCustomer (minimal configuration for primary key)
-        modelBuilder.Entity<SyncedCustomer>(entity =>
-        {
-            entity.HasKey(sc => sc.CustomerId);
-        });
-
-        // Configure StripeConnection
-        modelBuilder.Entity<StripeConnection>(entity =>
-        {
-            entity.HasKey(e => e.Id);
-            entity.HasIndex(e => e.TenantId).IsUnique();
-            entity.HasIndex(e => e.StripeAccountId).IsUnique();
-
-            entity.Property(e => e.AccessToken).IsRequired();
-            entity.Property(e => e.RefreshToken).IsRequired(false);
-            entity.Property(e => e.Status).IsRequired();
-            entity.Property(e => e.StripeAccountId).IsRequired();
-
-            entity.HasOne(e => e.Tenant)
-                .WithOne(t => t.StripeConnection)
-                .HasForeignKey<StripeConnection>(e => e.TenantId)
-                .OnDelete(DeleteBehavior.Cascade);
-        });
+        // Apply all entity configurations from the current assembly
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
 
         // Apply tenant-specific query filters if tenant context is available
         if (_tenantId.HasValue)

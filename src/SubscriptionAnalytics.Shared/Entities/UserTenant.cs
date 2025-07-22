@@ -2,10 +2,10 @@ using SubscriptionAnalytics.Shared.Constants;
 
 namespace SubscriptionAnalytics.Shared.Entities;
 
-public class UserTenant
+public class UserTenant : BaseTenantEntity
 {
     public string UserId { get; set; } = string.Empty;
-    public Guid TenantId { get; set; }
+    
     /// <summary>
     /// Role of the user within the tenant. Allowed: TenantAdmin, TenantUser, SupportUser, ReadOnlyUser
     /// </summary>
@@ -18,8 +18,4 @@ public class UserTenant
                role == Roles.SupportUser ||
                role == Roles.ReadOnlyUser;
     }
-    public DateTime CreatedAt { get; set; }
-    
-    // Navigation properties
-    public virtual Tenant? Tenant { get; set; }
 } 
