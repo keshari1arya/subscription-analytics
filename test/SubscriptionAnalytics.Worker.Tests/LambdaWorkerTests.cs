@@ -1,13 +1,7 @@
-using System;
-using System.IO;
-using System.Threading.Tasks;
 using Amazon.Lambda.Core;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
-using SubscriptionAnalytics.Worker;
-using Xunit;
-using System.Threading;
 
 namespace SubscriptionAnalytics.Worker.Tests;
 

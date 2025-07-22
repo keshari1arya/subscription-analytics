@@ -1,5 +1,3 @@
-using System;
-
 namespace SubscriptionAnalytics.Shared.DTOs;
 
 public class InitiateStripeConnectionResponse

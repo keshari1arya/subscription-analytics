@@ -1,5 +1,3 @@
-using System;
-using System.Threading.Tasks;
 using SubscriptionAnalytics.Shared.DTOs;
 
 namespace SubscriptionAnalytics.Application.Interfaces;

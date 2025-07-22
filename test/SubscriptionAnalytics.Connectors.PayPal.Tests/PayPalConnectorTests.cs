@@ -1,10 +1,6 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using FluentAssertions;
 using SubscriptionAnalytics.Connectors.PayPal.Services;
 using SubscriptionAnalytics.Shared.Interfaces;
-using Xunit;
 
 namespace SubscriptionAnalytics.Connectors.PayPal.Tests;
 

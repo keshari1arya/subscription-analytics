@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using SubscriptionAnalytics.Shared.Interfaces;
-using System.Security.Claims;
 
 namespace SubscriptionAnalytics.Infrastructure.Middleware;
 

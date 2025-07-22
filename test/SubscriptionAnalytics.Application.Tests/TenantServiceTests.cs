@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -9,10 +5,10 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using SubscriptionAnalytics.Application.Services;
 using SubscriptionAnalytics.Infrastructure.Data;
+using SubscriptionAnalytics.Shared.Constants;
 using SubscriptionAnalytics.Shared.DTOs;
 using SubscriptionAnalytics.Shared.Entities;
 using SubscriptionAnalytics.Shared.Exceptions;
-using Xunit;
 
 namespace SubscriptionAnalytics.Application.Tests;
 
@@ -119,7 +115,7 @@ public class TenantServiceTests
     {
         // Arrange
         _userManagerMock.Setup(x => x.FindByEmailAsync("nonexistent@example.com")).ReturnsAsync((IdentityUser?)null);
-        var request = new AssignUserToTenantRequest { UserEmail = "nonexistent@example.com", TenantId = Guid.NewGuid(), Role = "TenantUser" };
+        var request = new AssignUserToTenantRequest { UserEmail = "nonexistent@example.com", TenantId = Guid.NewGuid(), Role = Roles.TenantUser };
 
         // Act & Assert
         var act = async () => await _service.AssignUserToTenantAsync(request);
@@ -132,7 +128,7 @@ public class TenantServiceTests
         // Arrange
         var user = new IdentityUser { Id = "user1", Email = "user1@example.com" };
         _userManagerMock.Setup(x => x.FindByEmailAsync(user.Email!)).ReturnsAsync(user);
-        var request = new AssignUserToTenantRequest { UserEmail = user.Email!, TenantId = Guid.NewGuid(), Role = "TenantUser" };
+        var request = new AssignUserToTenantRequest { UserEmail = user.Email!, TenantId = Guid.NewGuid(), Role = Roles.TenantUser };
 
         // Act & Assert
         var act = async () => await _service.AssignUserToTenantAsync(request);
@@ -148,7 +144,7 @@ public class TenantServiceTests
         _dbContext.Tenants.Add(tenant);
         await _dbContext.SaveChangesAsync();
         _userManagerMock.Setup(x => x.FindByEmailAsync(user.Email!)).ReturnsAsync(user);
-        var request = new AssignUserToTenantRequest { UserEmail = user.Email!, TenantId = tenant.Id, Role = "TenantUser" };
+        var request = new AssignUserToTenantRequest { UserEmail = user.Email!, TenantId = tenant.Id, Role = Roles.TenantUser };
 
         // Act
         var result = await _service.AssignUserToTenantAsync(request);
@@ -156,7 +152,7 @@ public class TenantServiceTests
         // Assert
         result.UserId.Should().Be(user.Id);
         result.TenantId.Should().Be(tenant.Id);
-        result.Role.Should().Be("TenantUser");
+        result.Role.Should().Be(Roles.TenantUser);
     }
 
     [Fact]
@@ -165,18 +161,18 @@ public class TenantServiceTests
         // Arrange
         var user = new IdentityUser { Id = "user3", Email = "user3@example.com" };
         var tenant = new Tenant { Id = Guid.NewGuid(), Name = "TenantY", IsActive = true };
-        var userTenant = new UserTenant { UserId = user.Id, TenantId = tenant.Id, Role = "TenantUser", CreatedAt = DateTime.UtcNow };
+        var userTenant = new UserTenant { UserId = user.Id, TenantId = tenant.Id, Role = Roles.TenantUser, CreatedAt = DateTime.UtcNow };
         _dbContext.Tenants.Add(tenant);
         _dbContext.UserTenants.Add(userTenant);
         await _dbContext.SaveChangesAsync();
         _userManagerMock.Setup(x => x.FindByEmailAsync(user.Email!)).ReturnsAsync(user);
-        var request = new AssignUserToTenantRequest { UserEmail = user.Email!, TenantId = tenant.Id, Role = "SupportUser" };
+        var request = new AssignUserToTenantRequest { UserEmail = user.Email!, TenantId = tenant.Id, Role = Roles.SupportUser };
 
         // Act
         var result = await _service.AssignUserToTenantAsync(request);
 
         // Assert
-        result.Role.Should().Be("SupportUser");
+        result.Role.Should().Be(Roles.SupportUser);
     }
 
     [Fact]
@@ -198,7 +194,7 @@ public class TenantServiceTests
         // Arrange
         var user = new IdentityUser { Id = "user4", Email = "user4@example.com" };
         var tenant = new Tenant { Id = Guid.NewGuid(), Name = "TenantZ", IsActive = true };
-        var userTenant = new UserTenant { UserId = user.Id, TenantId = tenant.Id, Role = "TenantUser", CreatedAt = DateTime.UtcNow, Tenant = tenant };
+        var userTenant = new UserTenant { UserId = user.Id, TenantId = tenant.Id, Role = Roles.TenantUser, CreatedAt = DateTime.UtcNow, Tenant = tenant };
         _dbContext.Tenants.Add(tenant);
         _dbContext.UserTenants.Add(userTenant);
         await _dbContext.SaveChangesAsync();
@@ -226,7 +222,7 @@ public class TenantServiceTests
     public async Task RemoveUserFromTenantAsync_Should_Remove_And_ReturnTrue()
     {
         // Arrange
-        var userTenant = new UserTenant { UserId = "user5", TenantId = Guid.NewGuid(), Role = "TenantUser", CreatedAt = DateTime.UtcNow };
+        var userTenant = new UserTenant { UserId = "user5", TenantId = Guid.NewGuid(), Role = Roles.TenantUser, CreatedAt = DateTime.UtcNow };
         _dbContext.UserTenants.Add(userTenant);
         await _dbContext.SaveChangesAsync();
 
@@ -242,7 +238,7 @@ public class TenantServiceTests
     public async Task UpdateUserTenantRoleAsync_Should_ReturnFalse_IfNotFound()
     {
         // Act
-        var result = await _service.UpdateUserTenantRoleAsync("nouser", Guid.NewGuid(), "TenantUser");
+        var result = await _service.UpdateUserTenantRoleAsync("nouser", Guid.NewGuid(), Roles.TenantUser);
         result.Should().BeFalse();
     }
 
@@ -250,15 +246,15 @@ public class TenantServiceTests
     public async Task UpdateUserTenantRoleAsync_Should_UpdateRole_And_ReturnTrue()
     {
         // Arrange
-        var userTenant = new UserTenant { UserId = "user6", TenantId = Guid.NewGuid(), Role = "TenantUser", CreatedAt = DateTime.UtcNow };
+        var userTenant = new UserTenant { UserId = "user6", TenantId = Guid.NewGuid(), Role = Roles.TenantUser, CreatedAt = DateTime.UtcNow };
         _dbContext.UserTenants.Add(userTenant);
         await _dbContext.SaveChangesAsync();
 
         // Act
-        var result = await _service.UpdateUserTenantRoleAsync(userTenant.UserId, userTenant.TenantId, "SupportUser");
+        var result = await _service.UpdateUserTenantRoleAsync(userTenant.UserId, userTenant.TenantId, Roles.SupportUser);
 
         // Assert
         result.Should().BeTrue();
-        _dbContext.UserTenants.Find(userTenant.UserId, userTenant.TenantId)?.Role.Should().Be("SupportUser");
+        _dbContext.UserTenants.Find(userTenant.UserId, userTenant.TenantId)?.Role.Should().Be(Roles.SupportUser);
     }
 } 

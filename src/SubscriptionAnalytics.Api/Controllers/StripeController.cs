@@ -1,10 +1,7 @@
-using System;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SubscriptionAnalytics.Application.Interfaces;
 using SubscriptionAnalytics.Shared.DTOs;
-using Microsoft.Extensions.Logging;
 
 namespace SubscriptionAnalytics.Api.Controllers;
 

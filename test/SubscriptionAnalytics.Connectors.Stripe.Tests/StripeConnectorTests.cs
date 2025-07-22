@@ -1,12 +1,9 @@
-using System;
-using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using Stripe;
 using SubscriptionAnalytics.Connectors.Stripe.Abstractions;
 using SubscriptionAnalytics.Connectors.Stripe.Services;
-using Xunit;
 
 namespace SubscriptionAnalytics.Connectors.Stripe.Tests;
 

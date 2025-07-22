@@ -1,5 +1,3 @@
-using System;
-
 namespace SubscriptionAnalytics.Shared.Entities;
 
 public class StripeConnection : BaseTenantEntity

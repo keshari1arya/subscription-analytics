@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -10,8 +7,8 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using SubscriptionAnalytics.Api.Controllers;
 using SubscriptionAnalytics.Application.Interfaces;
+using SubscriptionAnalytics.Shared.Constants;
 using SubscriptionAnalytics.Shared.DTOs;
-using Xunit;
 
 namespace SubscriptionAnalytics.Api.Tests;
 
@@ -105,7 +102,7 @@ public class TenantControllerTests
     public async Task AssignUserToTenant_Should_Return_Ok()
     {
         // Arrange
-        var request = new AssignUserToTenantRequest { UserEmail = "user@example.com", TenantId = Guid.NewGuid(), Role = "User" };
+        var request = new AssignUserToTenantRequest { UserEmail = "user@example.com", TenantId = Guid.NewGuid(), Role = Roles.TenantUser };
         var userTenantDto = new UserTenantDto { UserId = "user1", TenantId = request.TenantId, Role = request.Role, CreatedAt = DateTime.UtcNow };
         _tenantServiceMock.Setup(x => x.AssignUserToTenantAsync(request)).ReturnsAsync(userTenantDto);
 
@@ -113,9 +110,9 @@ public class TenantControllerTests
         var result = await _controller.AssignUserToTenant(request);
 
         // Assert
-        var ok = result.Result as OkObjectResult;
-        ok.Should().NotBeNull();
-        ok!.Value.Should().BeEquivalentTo(userTenantDto);
+        var okResult = result.Result.Should().BeOfType<OkObjectResult>().Subject;
+        var returnedDto = okResult.Value.Should().BeOfType<UserTenantDto>().Subject;
+        returnedDto.Should().BeEquivalentTo(userTenantDto);
     }
 
     [Fact]
@@ -187,7 +184,7 @@ public class TenantControllerTests
         // Arrange
         var tenantId = Guid.NewGuid();
         var userId = "user1";
-        var newRole = "Admin";
+        var newRole = Roles.TenantAdmin;
         _tenantServiceMock.Setup(x => x.UpdateUserTenantRoleAsync(userId, tenantId, newRole)).ReturnsAsync(true);
 
         // Act
@@ -198,12 +195,12 @@ public class TenantControllerTests
     }
 
     [Fact]
-    public async Task UpdateUserTenantRole_Should_Return_NotFound_IfMissing()
+    public async Task UpdateUserTenantRole_Should_Return_NotFound_IfFailed()
     {
         // Arrange
         var tenantId = Guid.NewGuid();
         var userId = "user1";
-        var newRole = "Admin";
+        var newRole = Roles.TenantAdmin;
         _tenantServiceMock.Setup(x => x.UpdateUserTenantRoleAsync(userId, tenantId, newRole)).ReturnsAsync(false);
 
         // Act
@@ -216,7 +213,7 @@ public class TenantControllerTests
     [Fact]
     public async Task AssignAppRole_Should_Return_Ok_IfSuccess()
     {
-        var request = new AssignAppRoleRequest { UserId = "user1", Role = "AppAdmin" };
+        var request = new AssignAppRoleRequest { UserId = "user1", Role = Roles.AppAdmin };
         _tenantServiceMock.Setup(x => x.AssignAppRoleAsync(request.UserId, request.Role)).ReturnsAsync(true);
         var result = await _controller.AssignAppRole(request);
         result.Should().BeOfType<OkResult>();
@@ -225,7 +222,7 @@ public class TenantControllerTests
     [Fact]
     public async Task AssignAppRole_Should_Return_NotFound_IfUserMissing()
     {
-        var request = new AssignAppRoleRequest { UserId = "user1", Role = "AppAdmin" };
+        var request = new AssignAppRoleRequest { UserId = "user1", Role = Roles.AppAdmin };
         _tenantServiceMock.Setup(x => x.AssignAppRoleAsync(request.UserId, request.Role)).ReturnsAsync(false);
         var result = await _controller.AssignAppRole(request);
         result.Should().BeOfType<NotFoundResult>();
@@ -234,7 +231,7 @@ public class TenantControllerTests
     [Fact]
     public async Task RemoveAppRole_Should_Return_Ok_IfSuccess()
     {
-        var request = new AssignAppRoleRequest { UserId = "user1", Role = "AppAdmin" };
+        var request = new AssignAppRoleRequest { UserId = "user1", Role = Roles.AppAdmin };
         _tenantServiceMock.Setup(x => x.RemoveAppRoleAsync(request.UserId, request.Role)).ReturnsAsync(true);
         var result = await _controller.RemoveAppRole(request);
         result.Should().BeOfType<OkResult>();
@@ -243,7 +240,7 @@ public class TenantControllerTests
     [Fact]
     public async Task RemoveAppRole_Should_Return_NotFound_IfUserMissing()
     {
-        var request = new AssignAppRoleRequest { UserId = "user1", Role = "AppAdmin" };
+        var request = new AssignAppRoleRequest { UserId = "user1", Role = Roles.AppAdmin };
         _tenantServiceMock.Setup(x => x.RemoveAppRoleAsync(request.UserId, request.Role)).ReturnsAsync(false);
         var result = await _controller.RemoveAppRole(request);
         result.Should().BeOfType<NotFoundResult>();

@@ -1,7 +1,6 @@
 using FluentAssertions;
 using SubscriptionAnalytics.Shared.DTOs;
 using SubscriptionAnalytics.Shared.Validation;
-using Xunit;
 
 namespace SubscriptionAnalytics.Shared.Tests;
 

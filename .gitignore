@@ -139,6 +139,10 @@ coverage*.json
 coverage*.xml
 coverage*.info
 
+# Coverage report directories
+coverage/
+coverage-report/
+
 # Visual Studio code coverage results
 *.coverage
 *.coveragexml

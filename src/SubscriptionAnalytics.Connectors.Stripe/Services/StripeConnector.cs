@@ -1,5 +1,3 @@
-using System;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Stripe;
 using SubscriptionAnalytics.Connectors.Stripe.Abstractions;

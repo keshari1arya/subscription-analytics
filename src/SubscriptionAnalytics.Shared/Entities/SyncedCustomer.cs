@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations.Schema;
-
 namespace SubscriptionAnalytics.Shared.Entities;
 
 public class SyncedCustomer : BaseTenantEntity

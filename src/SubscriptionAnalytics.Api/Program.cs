@@ -8,10 +8,6 @@ using SubscriptionAnalytics.Infrastructure.Middleware;
 using SubscriptionAnalytics.Infrastructure.Services;
 using SubscriptionAnalytics.Shared.Interfaces;
 using SubscriptionAnalytics.Api.Middleware;
-using Microsoft.AspNetCore.Authentication;
-using SubscriptionAnalytics.Api;
-using SubscriptionAnalytics.Shared.Constants;
-using Microsoft.Extensions.DependencyInjection;
 using SubscriptionAnalytics.Connectors.Stripe.Abstractions;
 using SubscriptionAnalytics.Connectors.Stripe.Services;
 

@@ -1,7 +1,4 @@
-using System;
 using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SubscriptionAnalytics.Application.Interfaces;
 using SubscriptionAnalytics.Connectors.Stripe.Abstractions;

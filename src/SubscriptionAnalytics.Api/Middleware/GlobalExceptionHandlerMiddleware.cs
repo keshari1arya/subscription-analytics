@@ -1,6 +1,3 @@
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using SubscriptionAnalytics.Shared.DTOs;
 using SubscriptionAnalytics.Shared.Exceptions;
 using System.Net;

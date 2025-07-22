@@ -1,6 +1,5 @@
 using FluentAssertions;
 using SubscriptionAnalytics.Shared.Exceptions;
-using Xunit;
 
 namespace SubscriptionAnalytics.Shared.Tests;
 

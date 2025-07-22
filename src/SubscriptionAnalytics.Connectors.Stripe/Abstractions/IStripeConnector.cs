@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using SubscriptionAnalytics.Shared.DTOs;
 
 namespace SubscriptionAnalytics.Connectors.Stripe.Abstractions;

@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
-using SubscriptionAnalytics.Shared.DTOs;
 using Microsoft.AspNetCore.Authentication;
 
 namespace SubscriptionAnalytics.Api.IntegrationTests;

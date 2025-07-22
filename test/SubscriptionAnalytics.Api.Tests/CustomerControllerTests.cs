@@ -1,12 +1,9 @@
-using System;
-using System.Collections.Generic;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using SubscriptionAnalytics.Api.Controllers;
 using SubscriptionAnalytics.Shared.DTOs;
-using Xunit;
 
 namespace SubscriptionAnalytics.Api.Tests;
 

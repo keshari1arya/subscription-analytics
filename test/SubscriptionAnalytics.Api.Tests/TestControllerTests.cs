@@ -1,11 +1,9 @@
-using System;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using SubscriptionAnalytics.Api.Controllers;
-using Xunit;
 
 namespace SubscriptionAnalytics.Api.Tests;
 
