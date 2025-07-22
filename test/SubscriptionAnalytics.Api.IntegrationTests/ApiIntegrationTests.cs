@@ -6,6 +6,7 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
+using Microsoft.AspNetCore.Identity;
 
 namespace SubscriptionAnalytics.Api.IntegrationTests;
 
@@ -19,7 +20,7 @@ public class ApiIntegrationTests : IClassFixture<CustomWebApplicationFactory>
     }
 
     // Helper to get an authenticated client (simulate Admin or User)
-    private HttpClient GetAuthenticatedClient(string role = "Admin")
+    private HttpClient GetAuthenticatedClient(string role = "TenantAdmin")
     {
         var client = _factory.CreateClient();
         // Simulate JWT or cookie auth as needed. For now, set a fake header.
@@ -46,7 +47,7 @@ public class ApiIntegrationTests : IClassFixture<CustomWebApplicationFactory>
     [Fact]
     public async Task CreateTenant_ShouldReturnCreated_WhenAdminAndValidRequest()
     {
-        var client = GetAuthenticatedClient("Admin");
+        var client = GetAuthenticatedClient("TenantAdmin");
         var request = new { Name = "TestTenant" };
         var response = await client.PostAsJsonAsync("/api/tenant", request);
         response.StatusCode.Should().Be(HttpStatusCode.Created);
@@ -64,18 +65,18 @@ public class ApiIntegrationTests : IClassFixture<CustomWebApplicationFactory>
     }
 
     [Fact]
-    public async Task CreateTenant_ShouldReturnForbidden_WhenNotAdmin()
+    public async Task CreateTenant_ShouldReturnCreated_WhenAuthenticatedUser()
     {
         var client = GetAuthenticatedClient("User");
         var request = new { Name = "TestTenant" };
         var response = await client.PostAsJsonAsync("/api/tenant", request);
-        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        response.StatusCode.Should().Be(HttpStatusCode.Created);
     }
 
     [Fact]
     public async Task CreateTenant_ShouldReturnBadRequest_WhenInvalidInput()
     {
-        var client = GetAuthenticatedClient("Admin");
+        var client = GetAuthenticatedClient("TenantAdmin");
         var request = new { Name = "" }; // Invalid: Name required
         var response = await client.PostAsJsonAsync("/api/tenant", request);
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -136,7 +137,7 @@ public class ApiIntegrationTests : IClassFixture<CustomWebApplicationFactory>
     [Fact]
     public async Task GetAllTenants_ShouldReturnOk_WhenAdmin()
     {
-        var client = GetAuthenticatedClient("Admin");
+        var client = GetAuthenticatedClient("TenantAdmin");
         // Create a tenant to ensure there is at least one
         var createRequest = new { Name = "AllTenantsTest" };
         await client.PostAsJsonAsync("/api/tenant", createRequest);
@@ -165,7 +166,18 @@ public class ApiIntegrationTests : IClassFixture<CustomWebApplicationFactory>
     [Fact]
     public async Task AssignUserToTenant_ShouldReturnOk_WhenAdminAndValidRequest()
     {
-        var client = GetAuthenticatedClient("Admin");
+        var client = GetAuthenticatedClient("TenantAdmin");
+        
+        // First, create a user to assign to the tenant
+        var userEmail = "user@example.com";
+        var uniqueUserId = Guid.NewGuid().ToString();
+        var user = new IdentityUser { Id = uniqueUserId, Email = userEmail, UserName = userEmail, NormalizedEmail = userEmail.ToUpper(), NormalizedUserName = userEmail.ToUpper() };
+        
+        // Add user to the database (this would normally be done through registration)
+        using var scope = _factory.Services.CreateScope();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+        await userManager.CreateAsync(user);
+        
         // Create a tenant to assign a user to
         var createTenant = new { Name = "AssignUserTest" };
         var createResponse = await client.PostAsJsonAsync("/api/tenant", createTenant);
@@ -173,17 +185,17 @@ public class ApiIntegrationTests : IClassFixture<CustomWebApplicationFactory>
         var jsonString = await createResponse.Content.ReadAsStringAsync();
         using var doc = System.Text.Json.JsonDocument.Parse(jsonString);
         string tenantId = doc.RootElement.GetProperty("id").GetString();
-        var request = new { UserEmail = "user@example.com", TenantId = tenantId, Role = "User" };
+        var request = new { UserEmail = userEmail, TenantId = tenantId, Role = "TenantUser" };
         var response = await client.PostAsJsonAsync("/api/tenant/assign-user", request);
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var responseJson = await response.Content.ReadAsStringAsync();
-        responseJson.Should().Contain("user@example.com");
+        responseJson.Should().Contain(userEmail);
     }
 
     [Fact]
     public async Task AssignUserToTenant_ShouldReturnBadRequest_WhenInvalidInput()
     {
-        var client = GetAuthenticatedClient("Admin");
+        var client = GetAuthenticatedClient("TenantAdmin");
         var request = new { UserEmail = "", TenantId = "", Role = "" }; // Invalid
         var response = await client.PostAsJsonAsync("/api/tenant/assign-user", request);
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -201,8 +213,8 @@ public class ApiIntegrationTests : IClassFixture<CustomWebApplicationFactory>
     [Fact]
     public async Task AssignUserToTenant_ShouldReturnForbidden_WhenNotAdmin()
     {
-        var client = GetAuthenticatedClient("User");
-        var request = new { UserEmail = "user@example.com", TenantId = Guid.NewGuid().ToString(), Role = "User" };
+        var client = GetAuthenticatedClient("TenantUser");
+        var request = new { UserEmail = "user@example.com", TenantId = Guid.NewGuid().ToString(), Role = "TenantUser" };
         var response = await client.PostAsJsonAsync("/api/tenant/assign-user", request);
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }

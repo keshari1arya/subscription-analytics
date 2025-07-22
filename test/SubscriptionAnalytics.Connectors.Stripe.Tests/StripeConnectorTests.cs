@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Moq;
+using Stripe;
 using SubscriptionAnalytics.Connectors.Stripe.Abstractions;
 using SubscriptionAnalytics.Connectors.Stripe.Services;
 using Xunit;
@@ -49,6 +50,6 @@ public class StripeConnectorTests
         // Act & Assert
         // Note: This will fail in tests since we're using mock configuration
         // In real scenarios, this would be tested with integration tests
-        await Assert.ThrowsAsync<Exception>(() => _connector.ExchangeOAuthCode(code));
+        await Assert.ThrowsAsync<StripeException>(() => _connector.ExchangeOAuthCode(code));
     }
 } 

@@ -38,8 +38,12 @@ public class TenantControllerTests
     {
         // Arrange
         var request = new CreateTenantRequest { Name = "TestTenant" };
+        var userId = "test-user-id";
+        var user = new IdentityUser { Id = userId, Email = "test@example.com" };
         var tenantDto = new TenantDto { Id = Guid.NewGuid(), Name = request.Name, CreatedAt = DateTime.UtcNow, IsActive = true };
-        _tenantServiceMock.Setup(x => x.CreateTenantAsync(request)).ReturnsAsync(tenantDto);
+        
+        _userManagerMock.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(user);
+        _tenantServiceMock.Setup(x => x.CreateTenantAsync(request, userId)).ReturnsAsync(tenantDto);
 
         // Act
         var result = await _controller.CreateTenant(request);
