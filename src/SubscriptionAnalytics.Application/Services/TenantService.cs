@@ -26,7 +26,7 @@ public class TenantService : ITenantService
         _logger = logger;
     }
 
-    public async Task<TenantDto> CreateTenantAsync(CreateTenantRequest request)
+    public async Task<TenantDto> CreateTenantAsync(CreateTenantRequest request, string userId)
     {
         var tenant = new Tenant
         {
@@ -37,9 +37,20 @@ public class TenantService : ITenantService
         };
 
         _context.Tenants.Add(tenant);
+
+        // Create UserTenant relationship with TenantAdmin role
+        var userTenant = new UserTenant
+        {
+            UserId = userId,
+            TenantId = tenant.Id,
+            Role = Roles.TenantAdmin,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        _context.UserTenants.Add(userTenant);
         await _context.SaveChangesAsync();
 
-        _logger.LogInformation("Created tenant: {TenantName} with ID: {TenantId}", tenant.Name, tenant.Id);
+        _logger.LogInformation("Created tenant: {TenantName} with ID: {TenantId} for user: {UserId}", tenant.Name, tenant.Id, userId);
 
         return new TenantDto
         {

@@ -27,14 +27,21 @@ public class TenantController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = Roles.TenantAdmin)]
+    [Authorize]
     public async Task<ActionResult<TenantDto>> CreateTenant([FromBody] CreateTenantRequest request)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
-        var tenant = await _tenantService.CreateTenantAsync(request);
+
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null)
+        {
+            return Unauthorized();
+        }
+
+        var tenant = await _tenantService.CreateTenantAsync(request, user.Id);
         return CreatedAtAction(nameof(GetTenant), new { id = tenant.Id }, tenant);
     }
 

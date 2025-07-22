@@ -4,7 +4,7 @@ namespace SubscriptionAnalytics.Application.Interfaces;
 
 public interface ITenantService
 {
-    Task<TenantDto> CreateTenantAsync(CreateTenantRequest request);
+    Task<TenantDto> CreateTenantAsync(CreateTenantRequest request, string userId);
     Task<TenantDto?> GetTenantByIdAsync(Guid tenantId);
     Task<List<TenantDto>> GetAllTenantsAsync();
     Task<UserTenantDto> AssignUserToTenantAsync(AssignUserToTenantRequest request);

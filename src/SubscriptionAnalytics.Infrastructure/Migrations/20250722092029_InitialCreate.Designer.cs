@@ -12,8 +12,8 @@ using SubscriptionAnalytics.Infrastructure.Data;
 namespace SubscriptionAnalytics.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250722083325_AddBaseEntityInheritanceAndStripeConnections")]
-    partial class AddBaseEntityInheritanceAndStripeConnections
+    [Migration("20250722092029_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
