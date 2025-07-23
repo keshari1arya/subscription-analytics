@@ -1,12 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
-import { AuthenticationService } from '../../../core/services/auth.service';
-import { AuthfakeauthenticationService } from '../../../core/services/authfake.service';
-
 import { Store } from '@ngrx/store';
+import { login } from '../../../store/Authentication/authentication.actions';
+
 import { ActivatedRoute, Router } from '@angular/router';
-import { login } from 'src/app/store/Authentication/authentication.actions';
 import { CommonModule } from '@angular/common';
+import { AuthenticationState } from '../../../store/Authentication/authentication.reducer';
+import { Observable, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -19,20 +19,30 @@ import { CommonModule } from '@angular/common';
 /**
  * Login component
  */
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, OnDestroy {
 
   loginForm: UntypedFormGroup;
   submitted: any = false;
-  error: any = '';
   returnUrl: string;
   fieldTextType!: boolean;
+  
+  // Store observables
+  authState$: Observable<AuthenticationState>;
+  loading$: Observable<boolean>;
+  error$: Observable<string | null>;
+  
+  private subscriptions = new Subscription();
 
   // set the currenr year
   year: number = new Date().getFullYear();
 
   // tslint:disable-next-line: max-line-length
-  constructor(private formBuilder: UntypedFormBuilder, private route: ActivatedRoute, private router: Router, private authenticationService: AuthenticationService, private store: Store,
-    private authFackservice: AuthfakeauthenticationService) { }
+  constructor(private formBuilder: UntypedFormBuilder, private route: ActivatedRoute, private router: Router, private store: Store) { 
+    // Initialize store observables
+    this.authState$ = this.store.select((state: any) => state.auth);
+    this.loading$ = this.store.select((state: any) => state.auth.loading);
+    this.error$ = this.store.select((state: any) => state.auth.error);
+  }
 
   ngOnInit() {
     if (localStorage.getItem('currentUser')) {
@@ -54,11 +64,11 @@ export class LoginComponent implements OnInit {
   onSubmit() {
     this.submitted = true;
 
-    const email = this.f['email'].value; // Get the username from the form
+    const email = this.f['email'].value; // Get the email from the form
     const password = this.f['password'].value; // Get the password from the form
 
-    // Login Api
-    this.store.dispatch(login({ email: email, password: password }));
+    // Dispatch login action
+    this.store.dispatch(login({ email, password }));
   }
 
   /**
@@ -66,5 +76,9 @@ export class LoginComponent implements OnInit {
  */
   toggleFieldTextType() {
     this.fieldTextType = !this.fieldTextType;
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
   }
 }

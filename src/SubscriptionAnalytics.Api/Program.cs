@@ -12,12 +12,26 @@ using SubscriptionAnalytics.Connectors.Stripe.Abstractions;
 using SubscriptionAnalytics.Connectors.Stripe.Services;
 using SubscriptionAnalytics.Connectors.PayPal.Abstractions;
 using SubscriptionAnalytics.Connectors.PayPal.Services;
+using SubscriptionAnalytics.Shared.DTOs;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+
+// Configure CORS
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? new[] { "http://localhost:4200" };
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngularApp", policy =>
+    {
+        policy.WithOrigins(allowedOrigins)
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
 
 // Configure Swagger/OpenAPI
 builder.Services.AddSwaggerGen(c =>
@@ -106,6 +120,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+// Enable CORS
+app.UseCors("AllowAngularApp");
+
 // Add global exception handler middleware (must be first)
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
@@ -117,7 +134,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // Map Identity API endpoints
-var group = app.MapGroup("/api/identity");  
+var group = app.MapGroup("/api/identity").WithTags("Identity");  
 group.MapIdentityApi<IdentityUser>();
 
 app.MapControllers();
@@ -125,11 +142,11 @@ app.MapControllers();
 // Add some basic endpoints
 app.MapGet("/", () => "SubscriptionAnalytics API is running! 🚀");
 
-app.MapGet("/health", () => new { 
-    Status = "Healthy", 
-    Timestamp = DateTime.UtcNow,
-    Version = "1.0.0"
-});
+app.MapGet("/api/health", () => new HealthResponseDto(
+    Status: "Healthy", 
+    Timestamp: DateTime.UtcNow,
+    Version: "1.0.0"
+));
 
 app.Run();
 

@@ -568,3 +568,10 @@ local.*
 # Production secrets (should use Azure Key Vault or similar)
 **/appsettings.Production.json
 **/appsettings.Staging.json 
+
+# Angular build cache
+.angular/
+.angular/cache/
+
+# API Client
+api-client/

@@ -6,24 +6,28 @@ export interface AuthenticationState {
     isLoggedIn: boolean;
     user: User | null;
     error: string | null;
+    loading: boolean;
+    registerLoading: boolean;
 }
 
 const initialState: AuthenticationState = {
     isLoggedIn: false,
     user: null,
     error: null,
+    loading: false,
+    registerLoading: false,
 };
 
 export const authenticationReducer = createReducer(
     initialState,
-    on(Register, (state) => ({ ...state, error: null })),
-    on(RegisterSuccess, (state, { user }) => ({ ...state, isLoggedIn: true, user, error: null, })),
-    on(RegisterFailure, (state, { error }) => ({ ...state, error })),
+    on(Register, (state) => ({ ...state, error: null, registerLoading: true })),
+    on(RegisterSuccess, (state, { user }) => ({ ...state, isLoggedIn: true, user, error: null, registerLoading: false })),
+    on(RegisterFailure, (state, { error }) => ({ ...state, error, registerLoading: false })),
 
-    on(login, (state) => ({ ...state, error: null })),
-    on(loginSuccess, (state, { user }) => ({ ...state, isLoggedIn: true, user, error: null, })),
-    on(loginFailure, (state, { error }) => ({ ...state, error })),
-    on(logout, (state) => ({ ...state, user: null })),
+    on(login, (state) => ({ ...state, error: null, loading: true })),
+    on(loginSuccess, (state, { user }) => ({ ...state, isLoggedIn: true, user, error: null, loading: false })),
+    on(loginFailure, (state, { error }) => ({ ...state, error, loading: false })),
+    on(logout, (state) => ({ ...state, user: null, loading: false, registerLoading: false })),
 
 
 );

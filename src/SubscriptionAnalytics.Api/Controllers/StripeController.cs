@@ -75,15 +75,12 @@ public class StripeController : ControllerBase
                 tenantId, error, error_description);
             
             // In a real app, you'd redirect to a frontend error page
-            return BadRequest(new { 
-                error = error, 
-                description = error_description ?? "OAuth authorization failed" 
-            });
+            return BadRequest(new ErrorResponseDto(error));
         }
 
         if (string.IsNullOrEmpty(code) || string.IsNullOrEmpty(state))
         {
-            return BadRequest(new { error = "Missing required OAuth parameters" });
+            return BadRequest(new ErrorResponseDto("Missing required OAuth parameters"));
         }
 
         try
@@ -97,27 +94,24 @@ public class StripeController : ControllerBase
             var connection = await _stripeInstallationService.HandleOAuthCallback(tenantId, request);
             
             // In a real app, you'd redirect to a frontend success page
-            return Ok(new { 
-                message = "Stripe account connected successfully",
-                connection = connection
-            });
+            return Ok(new SuccessResponseDto(true, "Stripe account connected successfully"));
         }
         catch (ArgumentException ex)
         {
             _logger.LogWarning("Tenant not found for OAuth callback {TenantId}: {Message}", 
                 tenantId, ex.Message);
-            return NotFound(new { error = ex.Message });
+            return NotFound(new ErrorResponseDto(ex.Message));
         }
         catch (InvalidOperationException ex)
         {
             _logger.LogWarning("Invalid OAuth callback for tenant {TenantId}: {Message}", 
                 tenantId, ex.Message);
-            return BadRequest(new { error = ex.Message });
+            return BadRequest(new ErrorResponseDto(ex.Message));
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unexpected error handling OAuth callback for tenant {TenantId}", tenantId);
-            return StatusCode(500, new { error = "An unexpected error occurred" });
+            return StatusCode(500, new ErrorResponseDto("An unexpected error occurred"));
         }
     }
 
@@ -135,7 +129,7 @@ public class StripeController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving Stripe connection for tenant {TenantId}", tenantId);
-            return StatusCode(500, new { error = "An unexpected error occurred" });
+            return StatusCode(500, new ErrorResponseDto("An unexpected error occurred"));
         }
     }
 
@@ -151,7 +145,7 @@ public class StripeController : ControllerBase
             
             if (!success)
             {
-                return NotFound(new { error = "No Stripe connection found for this tenant" });
+                return NotFound(new ErrorResponseDto("No Stripe connection found for this tenant"));
             }
 
             return NoContent();
@@ -159,7 +153,7 @@ public class StripeController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error disconnecting Stripe account for tenant {TenantId}", tenantId);
-            return StatusCode(500, new { error = "An unexpected error occurred" });
+            return StatusCode(500, new ErrorResponseDto("An unexpected error occurred"));
         }
     }
 } 

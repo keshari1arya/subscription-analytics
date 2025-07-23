@@ -2,12 +2,13 @@ import { Injectable, Inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { map, switchMap, catchError, exhaustMap, tap, first } from 'rxjs/operators';
 import { from, of } from 'rxjs';
-import { AuthenticationService } from '../../core/services/auth.service';
+import { IdentityService } from '../../api-client/api/identity.service';
+import { MicrosoftAspNetCoreIdentityDataLoginRequest, MicrosoftAspNetCoreIdentityDataRegisterRequest, MicrosoftAspNetCoreAuthenticationBearerTokenAccessTokenResponse } from '../../api-client/model/models';
 import { login, loginSuccess, loginFailure, logout, logoutSuccess, Register, RegisterSuccess, RegisterFailure } from './authentication.actions';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
-import { AuthfakeauthenticationService } from 'src/app/core/services/authfake.service';
 import { UserProfileService } from 'src/app/core/services/user.service';
+import { TokenService } from '../../core/services/token.service';
 
 @Injectable()
 export class AuthenticationEffects {
@@ -15,20 +16,72 @@ export class AuthenticationEffects {
   Register$ = createEffect(() =>
     this.actions$.pipe(
       ofType(Register),
-      exhaustMap(({ email, username, password }) => {
+      exhaustMap(({ email, password }) => {
         if (environment.defaultauth === 'fakebackend') {
-          return this.userService.register({ email, username, password }).pipe(
+          return this.userService.register({ email, password }).pipe(
             map((user) => {
               this.router.navigate(['/auth/login']);
               return RegisterSuccess({ user })
             }),
-            catchError((error) => of(RegisterFailure({ error })))
+            catchError((error) => {
+              console.error('Register error:', error);
+              let errorMessage = 'Registration failed. Please try again.';
+
+              if (error.error && error.error.errors) {
+                // Handle validation errors from API
+                const errors = error.error.errors;
+                if (errors.DuplicateUserName) {
+                  errorMessage = errors.DuplicateUserName[0];
+                } else if (errors.Password) {
+                  errorMessage = errors.Password[0];
+                } else {
+                  // Get first error message
+                  const firstError = Object.values(errors)[0];
+                  errorMessage = Array.isArray(firstError) ? firstError[0] : firstError;
+                }
+              } else if (error.error && error.error.title) {
+                errorMessage = error.error.title;
+              } else if (error.message) {
+                errorMessage = error.message;
+              }
+
+              return of(RegisterFailure({ error: errorMessage }));
+            })
           );
         } else {
-          return this.AuthenticationService.register({ email, username, password }).pipe(
-            map((user) => {
+          const registerRequest: MicrosoftAspNetCoreIdentityDataRegisterRequest = {
+            email: email,
+            password: password
+          };
+
+          return this.identityService.apiIdentityRegisterPost(registerRequest).pipe(
+            map((response) => {
               this.router.navigate(['/auth/login']);
-              return RegisterSuccess({ user })
+              return RegisterSuccess({ user: { email: email, id: 1 } })
+            }),
+            catchError((error) => {
+              console.error('Register error:', error);
+              let errorMessage = 'Registration failed. Please try again.';
+
+              if (error.error && error.error.errors) {
+                // Handle validation errors from API
+                const errors = error.error.errors;
+                if (errors.DuplicateUserName) {
+                  errorMessage = errors.DuplicateUserName[0];
+                } else if (errors.Password) {
+                  errorMessage = errors.Password[0];
+                } else {
+                  // Get first error message
+                  const firstError = Object.values(errors)[0];
+                  errorMessage = Array.isArray(firstError) ? firstError[0] : firstError;
+                }
+              } else if (error.error && error.error.title) {
+                errorMessage = error.error.title;
+              } else if (error.message) {
+                errorMessage = error.message;
+              }
+
+              return of(RegisterFailure({ error: errorMessage }));
             })
           )
         }
@@ -42,23 +95,53 @@ export class AuthenticationEffects {
     this.actions$.pipe(
       ofType(login),
       exhaustMap(({ email, password }) => {
-        if (environment.defaultauth === "fakebackend") {
-          return this.AuthfakeService.login(email, password).pipe(
-            map((user) => {
-              if (user) {
-                localStorage.setItem('currentUser', JSON.stringify(user));
-                localStorage.setItem('token', user.token);
-                this.router.navigate(['/']);
-              }
-              return loginSuccess({ user });
-            }),
-            catchError((error) => of(loginFailure({ error })), // Closing parenthesis added here
-            ));
-        } else if (environment.defaultauth === "firebase") {
-          return this.AuthenticationService.login(email, password).pipe(map((user) => {
+        const loginRequest: MicrosoftAspNetCoreIdentityDataLoginRequest = {
+          email: email,
+          password: password
+        };
+
+        return this.identityService.apiIdentityLoginPost(undefined, undefined, loginRequest, 'body', false).pipe(
+          map((response: MicrosoftAspNetCoreAuthenticationBearerTokenAccessTokenResponse) => {
+            const user = {
+              id: 1,
+              email: email,
+              token: response.accessToken
+            };
+
+            // Store tokens using TokenService
+            this.tokenService.setTokens(response.accessToken, response.refreshToken);
+            this.tokenService.setCurrentUser(user);
+            this.router.navigate(['/']);
             return loginSuccess({ user });
-          }))
-        }
+          }),
+          catchError((error) => {
+            console.error('Login error:', error);
+            let errorMessage = 'Login failed. Please try again.';
+
+            if (error.error && error.error.errors) {
+              // Handle validation errors from API
+              const errors = error.error.errors;
+              if (errors.InvalidCredentials) {
+                errorMessage = errors.InvalidCredentials[0];
+              } else if (errors.DuplicateUserName) {
+                errorMessage = errors.DuplicateUserName[0];
+              } else {
+                // Get first error message
+                const firstError = Object.values(errors)[0];
+                errorMessage = Array.isArray(firstError) ? firstError[0] : firstError;
+              }
+            } else if (error.error && error.error.title) {
+              errorMessage = error.error.title;
+            } else if (error.error && error.error.detail) {
+              errorMessage = error.error.detail;
+            } else if (error.message) {
+              errorMessage = error.message;
+            }
+
+            return of(loginFailure({ error: errorMessage }));
+          })
+        )
+
       })
     )
   );
@@ -68,7 +151,8 @@ export class AuthenticationEffects {
     this.actions$.pipe(
       ofType(logout),
       tap(() => {
-        // Perform any necessary cleanup or side effects before logging out
+        // Clear tokens using TokenService
+        this.tokenService.clearTokens();
       }),
       exhaustMap(() => of(logoutSuccess()))
     )
@@ -76,8 +160,8 @@ export class AuthenticationEffects {
 
   constructor(
     @Inject(Actions) private actions$: Actions,
-    private AuthenticationService: AuthenticationService,
-    private AuthfakeService: AuthfakeauthenticationService,
+    private identityService: IdentityService,
+    private tokenService: TokenService,
     private userService: UserProfileService,
     private router: Router) { }
 

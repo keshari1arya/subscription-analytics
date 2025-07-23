@@ -2,8 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { AuthenticationService } from '../../../core/services/auth.service';
-import { environment } from '../../../../environments/environment';
+
 import { first } from 'rxjs/operators';
 import { UserProfileService } from '../../../core/services/user.service';
 import { Store } from '@ngrx/store';
@@ -25,7 +24,7 @@ export class Register2Component implements OnInit {
   error: any = '';
   successmsg: any = false;
 
-  constructor(private formBuilder: UntypedFormBuilder, private route: ActivatedRoute, private router: Router, private authenticationService: AuthenticationService,
+  constructor(private formBuilder: UntypedFormBuilder, private route: ActivatedRoute, private router: Router,
     private userService: UserProfileService, public store: Store) { }
   // set the currenr year
   year: number = new Date().getFullYear();
@@ -34,9 +33,8 @@ export class Register2Component implements OnInit {
     document.body.classList.add("auth-body-bg");
 
     this.signupForm = this.formBuilder.group({
-      username: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required],
+      password: ['', [Validators.required, Validators.minLength(6)]],
     });
   }
 
@@ -58,10 +56,9 @@ export class Register2Component implements OnInit {
     this.submitted = true;
 
     const email = this.f['email'].value;
-    const name = this.f['name'].value;
     const password = this.f['password'].value;
 
     //Dispatch Action
-    this.store.dispatch(Register({ email: email, username: name, password: password }));
+    this.store.dispatch(Register({ email: email, password: password }));
   }
 }

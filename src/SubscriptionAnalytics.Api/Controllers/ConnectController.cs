@@ -51,23 +51,23 @@ public class ConnectController : ControllerBase
         Guid tenantId, 
         [FromRoute] string provider)
     {
-        if (!Enum.TryParse<ConnectorType>(provider, true, out var connectorType))
-        {
-            return BadRequest(new { error = $"Unsupported provider: {provider}" });
-        }
+            if (!Enum.TryParse<ConnectorType>(provider, true, out var connectorType))
+            {
+                return BadRequest(new ErrorResponseDto($"Unsupported provider: {provider}"));
+            }
 
-        var connector = _connectorFactory.GetConnector(connectorType);
-        var state = Guid.NewGuid().ToString();
-        var redirectUri = $"https://localhost:7001/api/connect/tenant/{tenantId}/provider/{provider}/oauth-callback";
-        
-        var authUrl = await connector.GenerateOAuthUrlAsync(state, redirectUri, tenantId);
+            var connector = _connectorFactory.GetConnector(connectorType);
+            var state = Guid.NewGuid().ToString();
+            var redirectUri = $"https://localhost:7001/api/connect/tenant/{tenantId}/provider/{provider}/oauth-callback";
+            
+            var authUrl = await connector.GenerateOAuthUrlAsync(state, redirectUri, tenantId);
 
-        return Ok(new InitiateConnectionResponse
-        {
-            AuthorizationUrl = authUrl,
-            State = state,
-            Provider = provider
-        });
+            return Ok(new InitiateConnectionResponse
+            {
+                AuthorizationUrl = authUrl,
+                State = state,
+                Provider = provider
+            });
     }
 
     /// <summary>
@@ -89,35 +89,26 @@ public class ConnectController : ControllerBase
             _logger.LogWarning("OAuth error for tenant {TenantId} with provider {Provider}: {Error} - {Description}", 
                 tenantId, provider, error, error_description);
             
-            return BadRequest(new { 
-                error = error, 
-                description = error_description ?? "OAuth authorization failed" 
-            });
+            return BadRequest(new ErrorResponseDto(error));
         }
 
         if (string.IsNullOrEmpty(code) || string.IsNullOrEmpty(state))
         {
-            return BadRequest(new { error = "Missing required OAuth parameters" });
+            return BadRequest(new ErrorResponseDto("Missing required OAuth parameters"));
         }
 
-        if (!Enum.TryParse<ConnectorType>(provider, true, out var connectorType))
-        {
-            return BadRequest(new { error = $"Unsupported provider: {provider}" });
-        }
+            if (!Enum.TryParse<ConnectorType>(provider, true, out var connectorType))
+            {
+                return BadRequest(new ErrorResponseDto($"Unsupported provider: {provider}"));
+            }
 
-        var connector = _connectorFactory.GetConnector(connectorType);
-        var tokenResponse = await connector.ExchangeOAuthCodeAsync(code, state);
-        
-        // Store the connection in the database
-        var connection = await _connectionService.SaveConnectionAsync(tenantId, provider, tokenResponse);
-        
-        return Ok(new { 
-            message = $"{provider} account connected successfully",
-            provider = provider,
-            connectionId = connection.Id,
-            providerAccountId = connection.ProviderAccountId,
-            status = connection.Status
-        });
+            var connector = _connectorFactory.GetConnector(connectorType);
+            var tokenResponse = await connector.ExchangeOAuthCodeAsync(code, state);
+            
+            // Store the connection in the database
+            var connection = await _connectionService.SaveConnectionAsync(tenantId, provider, tokenResponse);
+            
+            return Ok(new        SuccessResponseDto(true, $"{provider} account connected successfully"));
     }
 
     /// <summary>
@@ -125,15 +116,15 @@ public class ConnectController : ControllerBase
     /// </summary>
     [HttpGet("tenant/{tenantId:guid}/provider/{provider}")]
     public async Task<ActionResult<ProviderConnectionDto>> GetConnection(Guid tenantId, [FromRoute] string provider)
-    {
-        var connection = await _connectionService.GetConnectionAsync(tenantId, provider);
-        
-        if (connection == null)
         {
-            return NotFound(new { error = $"No {provider} connection found for this tenant" });
-        }
+            var connection = await _connectionService.GetConnectionAsync(tenantId, provider);
+            
+            if (connection == null)
+            {
+                return NotFound(new ErrorResponseDto($"No {provider} connection found for this tenant"));
+            }
 
-        return Ok(connection);
+            return Ok(connection);
     }
 
     /// <summary>
@@ -141,9 +132,9 @@ public class ConnectController : ControllerBase
     /// </summary>
     [HttpGet("tenant/{tenantId:guid}/connections")]
     public async Task<ActionResult<IEnumerable<ProviderConnectionDto>>> GetConnections(Guid tenantId)
-    {
-        var connections = await _connectionService.GetConnectionsAsync(tenantId);
-        return Ok(connections);
+        {
+            var connections = await _connectionService.GetConnectionsAsync(tenantId);
+            return Ok(connections);
     }
 
     /// <summary>
@@ -151,15 +142,15 @@ public class ConnectController : ControllerBase
     /// </summary>
     [HttpDelete("tenant/{tenantId:guid}/provider/{provider}")]
     public async Task<IActionResult> DisconnectProvider(Guid tenantId, [FromRoute] string provider)
-    {
-        var success = await _connectionService.DisconnectAsync(tenantId, provider);
-        
-        if (!success)
         {
-            return NotFound(new { error = $"No {provider} connection found for this tenant" });
-        }
+            var success = await _connectionService.DisconnectAsync(tenantId, provider);
+            
+            if (!success)
+            {
+                return NotFound(new ErrorResponseDto($"No {provider} connection found for this tenant"));
+            }
 
-        return NoContent();
+            return NoContent();
     }
 }
 

@@ -2,9 +2,7 @@ import { ApplicationConfig, enableProdMode, importProvidersFrom, provideZoneChan
 import { bootstrapApplication } from '@angular/platform-browser';
 import { HttpClient, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
-// AngularFire imports
-import { AngularFireModule } from '@angular/fire/compat';
-import { AngularFireAuthModule } from '@angular/fire/compat/auth';
+
 
 
 // Other module imports
@@ -34,6 +32,10 @@ import { routes } from './app.routes';
 import { provideRouter } from '@angular/router';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { BsDropdownConfig } from 'ngx-bootstrap/dropdown';
+import { ApiModule } from './api-client/api.module';
+import { Configuration } from './api-client/configuration';
+import { AuthInterceptor } from './core/interceptors/auth.interceptor';
+import { environment } from '../environments/environment';
 
 export function createTranslateLoader(http: HttpClient): any {
   return new TranslateHttpLoader(http, 'assets/i18n/', '.json');
@@ -63,6 +65,7 @@ export const appConfig: ApplicationConfig = {
       ]
     ),
     provideHttpClient(withInterceptorsFromDi()),
+    { provide: AuthInterceptor, useClass: AuthInterceptor },
     importProvidersFrom(
       TranslateModule.forRoot({
         loader: {
@@ -74,7 +77,12 @@ export const appConfig: ApplicationConfig = {
     ),
     provideAnimations(),
     provideToastr(),
-    { provide: BsDropdownConfig, useValue: { isAnimated: true, autoClose: true } }
+    { provide: BsDropdownConfig, useValue: { isAnimated: true, autoClose: true } },
+    importProvidersFrom(
+      ApiModule.forRoot(() => new Configuration({ 
+        basePath: environment.apiBaseUrl 
+      }))
+    )
   ]
 };
 

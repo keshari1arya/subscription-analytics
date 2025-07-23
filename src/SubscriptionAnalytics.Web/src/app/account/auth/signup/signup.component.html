@@ -33,29 +33,18 @@
                 <alert type="success" [dismissible]="false">Registeration successfull.
                 </alert>
                 }
-                @if(error){
+                @if(error$ | async; as error){
                 <alert type="danger" [dismissible]="false">{{ error }}</alert>
                 }
                 <div class="mb-3">
-                  <label for="username" class="form-label">Username</label>
-
-                  <input type="text" formControlName="username" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.username.errors }" id="username" placeholder="Enter username" />
-                  @if(submitted && f.username.errors){
-                  <div class="invalid-feedback">
-                    @if(f.username.errors.required){
-                    <div>Userame is required</div>}
-                  </div>}
-                </div>
-
-                <div class="mb-3">
                   <label for="email" class="form-label">Email</label>
 
-                  <input type="email" formControlName="email" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.email.errors }" id="email" placeholder="Email" />
-                  @if(submitted && f.email.errors){
+                  <input type="email" formControlName="email" class="form-control" [ngClass]="{ 'is-invalid': submitted && signupFormControls.email.errors }" id="email" placeholder="Enter your email" />
+                  @if(submitted && signupFormControls.email.errors){
                   <div class="invalid-feedback">
-                    @if(f.email.errors.required){
+                    @if(signupFormControls.email.errors.required){
                     <div>Email is required</div>}
-                    @if(f.email.errors.email){
+                    @if(signupFormControls.email.errors.email){
                     <div>Email must be a valid email address</div>}
                   </div>}
                 </div>
@@ -63,16 +52,60 @@
                 <div class="mb-3">
                   <label for="password" class="form-label">Password</label>
 
-                  <input type="password" formControlName="password" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.password.errors }" id="password" placeholder="Password" />
-                  @if(submitted && f.password.errors){
+                  <input type="password" formControlName="password" class="form-control" [ngClass]="{ 'is-invalid': submitted && signupFormControls.password.errors }" id="password" placeholder="Enter your password" />
+                  
+                  <!-- Password Strength Indicator -->
+                  @if(signupFormControls.password.value && signupFormControls.password.value.length > 0){
+                  <div class="mt-2">
+                    <div class="d-flex align-items-center mb-1">
+                      <small class="text-muted me-2">Password Strength:</small>
+                      <small class="text-{{passwordStrengthColor}} fw-bold">{{passwordStrengthLabel}}</small>
+                    </div>
+                    <div class="progress" style="height: 4px;">
+                      <div class="progress-bar bg-{{passwordStrengthColor}}" [style.width.%]="(passwordStrength / 5) * 100"></div>
+                    </div>
+                  </div>
+                  }
+                  
+                  @if(submitted && signupFormControls.password.errors){
                   <div class="invalid-feedback">
-                    @if(f.password.errors.required){
+                    @if(signupFormControls.password.errors.required){
                     <div>Password is required</div>}
+                    @if(signupFormControls.password.errors.minLength){
+                    <div>Password must be at least 6 characters</div>}
+                    @if(signupFormControls.password.errors.uppercase){
+                    <div>{{signupFormControls.password.errors.uppercase.message}}</div>}
+                    @if(signupFormControls.password.errors.lowercase){
+                    <div>{{signupFormControls.password.errors.lowercase.message}}</div>}
+                    @if(signupFormControls.password.errors.digit){
+                    <div>{{signupFormControls.password.errors.digit.message}}</div>}
+                    @if(signupFormControls.password.errors.specialChar){
+                    <div>{{signupFormControls.password.errors.specialChar.message}}</div>}
+                  </div>}
+                </div>
+
+                <div class="mb-3">
+                  <label for="confirmPassword" class="form-label">Confirm Password</label>
+
+                  <input type="password" formControlName="confirmPassword" class="form-control" [ngClass]="{ 'is-invalid': submitted && signupFormControls.confirmPassword.errors }" id="confirmPassword" placeholder="Confirm your password" />
+                  @if(submitted && signupFormControls.confirmPassword.errors){
+                  <div class="invalid-feedback">
+                    @if(signupFormControls.confirmPassword.errors.required){
+                    <div>Confirm password is required</div>}
+                    @if(signupFormControls.confirmPassword.errors.passwordMismatch){
+                    <div>Passwords do not match</div>}
                   </div>}
                 </div>
 
                 <div class="mt-4 d-grid">
-                  <button class="btn btn-primary" type="submit">Register</button>
+                  <button class="btn btn-primary" type="submit" [disabled]="loading$ | async">
+                    @if(loading$ | async){
+                      <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                      Registering...
+                    } @else {
+                      Register
+                    }
+                  </button>
                 </div>
                 <div class="mt-4 text-center">
                   <h5 class="font-size-14 mb-3">Sign in with</h5>
