@@ -1,0 +1,63 @@
+# Semgrep configuration for SubscriptionAnalytics
+rules:
+  # OWASP Top 10 rules
+  - id: 'owasp-a1-injection'
+    pattern: |
+      $QUERY = "SELECT * FROM users WHERE id = " + $USER_INPUT
+    message: 'SQL injection vulnerability detected'
+    severity: 'ERROR'
+    languages: ['csharp', 'javascript', 'typescript']
+
+  - id: 'owasp-a2-auth'
+    pattern: |
+      if ($PASSWORD == "admin123") {
+        // ...
+      }
+    message: 'Hardcoded credentials detected'
+    severity: 'ERROR'
+    languages: ['csharp', 'javascript', 'typescript']
+
+  - id: 'owasp-a3-xss'
+    pattern: |
+      document.write($USER_INPUT)
+    message: 'XSS vulnerability detected'
+    severity: 'ERROR'
+    languages: ['javascript', 'typescript']
+
+  # GDPR compliance rules
+  - id: 'gdpr-pii-detection'
+    pattern: |
+      $EMAIL = $USER_INPUT
+      $PHONE = $USER_INPUT
+      $SSN = $USER_INPUT
+    message: 'PII data handling detected - ensure GDPR compliance'
+    severity: 'WARNING'
+    languages: ['csharp', 'javascript', 'typescript']
+
+  # SOC2 compliance rules
+  - id: 'soc2-logging'
+    pattern: |
+      Console.WriteLine($SENSITIVE_DATA)
+    message: 'Sensitive data logging detected - review for SOC2 compliance'
+    severity: 'WARNING'
+    languages: ['csharp']
+
+  # Multi-tenant security rules
+  - id: 'tenant-isolation'
+    pattern: |
+      SELECT * FROM $TABLE WHERE tenant_id = $TENANT_ID
+    message: 'Ensure proper tenant isolation in database queries'
+    severity: 'INFO'
+    languages: ['csharp']
+
+# Exclude patterns
+exclude:
+  - '**/node_modules/**'
+  - '**/bin/**'
+  - '**/obj/**'
+  - '**/dist/**'
+  - '**/coverage/**'
+  - '**/*.test.js'
+  - '**/*.spec.js'
+  - '**/*.test.ts'
+  - '**/*.spec.ts' 

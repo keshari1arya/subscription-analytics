@@ -9,7 +9,7 @@ namespace SubscriptionAnalytics.Api.Controllers;
 
 [ApiController]
 [Route("api/connect")]
-// [Authorize] // Temporarily disabled for testing
+[Authorize]
 public class ConnectController : ControllerBase
 {
     private readonly IConnectorFactory _connectorFactory;
@@ -33,7 +33,6 @@ public class ConnectController : ControllerBase
     /// Gets all available payment providers
     /// </summary>
     [HttpGet("providers")]
-    [AllowAnonymous] // Allow anonymous access for testing
     public ActionResult<IEnumerable<ConnectorInfo>> GetAvailableProviders()
     {
         try
@@ -96,6 +95,9 @@ public class ConnectController : ControllerBase
         });
     }
 
+    // TODO: Remove AllowAnonymous and add Authorize once we have a way to secure redirect urls 
+    // TODO: Add a way to validate the tenantId in the callback url
+    // TODO: or move the callback url to a different controller
     /// <summary>
     /// Handles OAuth callback from payment providers
     /// </summary>

@@ -1,0 +1,27 @@
+# Snyk (https://snyk.io) policy file
+version: v1.25.0
+ignore:
+  'npm:some-vulnerability@1.2.3':
+    - path/to/file1.js
+      reason: 'No fix available yet'
+      expires: 2024-12-31T00:00:00.000Z
+  'SNYK-JS-PACKAGE-123456':
+    - '*':
+        reason: 'False positive'
+        expires: 2024-12-31T00:00:00.000Z
+
+# Patch specific vulnerabilities
+patch:
+  'npm:lodash@4.17.15':
+    - path: >-
+        src/SubscriptionAnalytics.Web/package.json
+      patched: '2024-01-01T00:00:00.000Z'
+
+# Custom rules for your project
+rules:
+  - id: 'custom-rule-1'
+    description: 'Custom security rule for SubscriptionAnalytics'
+    severity: 'high'
+    patterns:
+      - pattern: 'password.*=.*["\']'
+        message: 'Hardcoded passwords detected' 

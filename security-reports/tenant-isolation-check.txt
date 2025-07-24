@@ -1,0 +1,379 @@
+src/SubscriptionAnalytics.Connectors.Stripe/Services/StripeConnector.cs:    public async Task<string> GenerateOAuthUrlAsync(string state, string redirectUri, Guid tenantId)
+src/SubscriptionAnalytics.Connectors.Stripe/Services/StripeConnector.cs:        _logger.LogInformation("Generating Stripe OAuth URL for tenant: {TenantId}", tenantId);
+src/SubscriptionAnalytics.Connectors.Stripe/Services/StripeConnector.cs:    public async Task<bool> DisconnectAsync(Guid tenantId)
+src/SubscriptionAnalytics.Connectors.Stripe/Services/StripeConnector.cs:        _logger.LogInformation("Disconnecting Stripe for tenant: {TenantId}", tenantId);
+src/SubscriptionAnalytics.Connectors.Stripe/Services/StripeConnector.cs:    public async Task SyncDataAsync(Guid tenantId, CancellationToken cancellationToken)
+src/SubscriptionAnalytics.Connectors.Stripe/Services/StripeConnector.cs:        _logger.LogInformation("Syncing Stripe data for tenant: {TenantId}", tenantId);
+src/app/core/services/tenant.service.ts:  private currentTenantId: string | null = null;
+src/app/core/services/tenant.service.ts:          this.setCurrentTenantId(firstTenant.tenantId || '');
+src/app/core/services/tenant.service.ts:  switchTenant(tenantId: string): Observable<boolean> {
+src/app/core/services/tenant.service.ts:        this.setCurrentTenantId(tenantId);
+src/app/core/services/tenant.service.ts:   * Get current tenant ID
+src/app/core/services/tenant.service.ts:  getCurrentTenantId(): string | null {
+src/app/core/services/tenant.service.ts:    return this.currentTenantId;
+src/app/core/services/tenant.service.ts:   * Set current tenant ID
+src/app/core/services/tenant.service.ts:  setCurrentTenantId(tenantId: string): void {
+src/app/core/services/tenant.service.ts:    this.currentTenantId = tenantId;
+src/app/core/services/tenant.service.ts:  setCurrentTenantInfo(tenantInfo: UserTenantDto): void {
+src/app/core/services/tenant.service.ts:  clearTenantContext(): void {
+src/app/core/services/tenant.service.ts:    this.currentTenantId = null;
+src/app/core/services/tenant.service.ts:  hasAccessToTenant(tenantId: string): Observable<boolean> {
+src/app/core/services/tenant.service.ts:function Injectable(arg0: { providedIn: string; }): (target: typeof TenantService, context: ClassDecoratorContext<typeof TenantService>) => void | typeof TenantService {
+src/SubscriptionAnalytics.Connectors.PayPal/Services/PayPalConnector.cs:    public async Task<string> GenerateOAuthUrlAsync(string state, string redirectUri, Guid tenantId)
+src/SubscriptionAnalytics.Connectors.PayPal/Services/PayPalConnector.cs:    public async Task<bool> DisconnectAsync(Guid tenantId)
+src/SubscriptionAnalytics.Connectors.PayPal/Services/PayPalConnector.cs:        _logger.LogInformation("Disconnecting PayPal for tenant: {TenantId}", tenantId);
+src/SubscriptionAnalytics.Connectors.PayPal/Services/PayPalConnector.cs:    public async Task SyncDataAsync(Guid tenantId, CancellationToken cancellationToken)
+src/SubscriptionAnalytics.Connectors.PayPal/Services/PayPalConnector.cs:        _logger.LogInformation("Syncing PayPal data for tenant: {TenantId}", tenantId);
+src/SubscriptionAnalytics.Api/Controllers/ConnectController.cs:        var tenantId = _tenantContext.TenantId;
+src/SubscriptionAnalytics.Api/Controllers/ConnectController.cs:        _logger.LogDebug("Tenant ID from context: {TenantId}", tenantId);
+src/SubscriptionAnalytics.Api/Controllers/ConnectController.cs:        if (tenantId == Guid.Empty)
+src/SubscriptionAnalytics.Api/Controllers/ConnectController.cs:            return BadRequest(new ErrorResponseDto("Tenant context not found. Please provide X-Tenant-Id header."));
+src/SubscriptionAnalytics.Api/Controllers/ConnectController.cs:        var redirectUri = $"https://localhost:7001/api/connect/tenant/{tenantId}/provider/{provider}/oauth-callback";
+src/SubscriptionAnalytics.Api/Controllers/ConnectController.cs:        var authUrl = await connector.GenerateOAuthUrlAsync(state, redirectUri, tenantId);
+src/SubscriptionAnalytics.Api/Controllers/ConnectController.cs:    // TODO: Add a way to validate the tenantId in the callback url
+src/SubscriptionAnalytics.Api/Controllers/ConnectController.cs:    [HttpGet("tenant/{tenantId:guid}/provider/{provider}/oauth-callback")]
+src/SubscriptionAnalytics.Api/Controllers/ConnectController.cs:        Guid tenantId,
+src/SubscriptionAnalytics.Api/Controllers/ConnectController.cs:            _logger.LogWarning("OAuth error for tenant {TenantId} with provider {Provider}: {Error} - {Description}",
+src/SubscriptionAnalytics.Api/Controllers/ConnectController.cs:                tenantId, provider, error, error_description);
+src/SubscriptionAnalytics.Api/Controllers/ConnectController.cs:        var connection = await _connectionService.SaveConnectionAsync(tenantId, provider, tokenResponse);
+src/SubscriptionAnalytics.Api/Controllers/ConnectController.cs:        var tenantId = _tenantContext.TenantId;
+src/SubscriptionAnalytics.Api/Controllers/ConnectController.cs:        if (tenantId == Guid.Empty)
+src/SubscriptionAnalytics.Api/Controllers/ConnectController.cs:            return BadRequest(new ErrorResponseDto("Tenant context not found. Please provide X-Tenant-Id header."));
+src/SubscriptionAnalytics.Api/Controllers/ConnectController.cs:        var connection = await _connectionService.GetConnectionAsync(tenantId, provider);
+src/SubscriptionAnalytics.Api/Controllers/ConnectController.cs:        var tenantId = _tenantContext.TenantId;
+src/SubscriptionAnalytics.Api/Controllers/ConnectController.cs:        if (tenantId == Guid.Empty)
+src/SubscriptionAnalytics.Api/Controllers/ConnectController.cs:            return BadRequest(new ErrorResponseDto("Tenant context not found. Please provide X-Tenant-Id header."));
+src/SubscriptionAnalytics.Api/Controllers/ConnectController.cs:        var connections = await _connectionService.GetConnectionsAsync(tenantId);
+src/SubscriptionAnalytics.Api/Controllers/ConnectController.cs:        var tenantId = _tenantContext.TenantId;
+src/SubscriptionAnalytics.Api/Controllers/ConnectController.cs:        if (tenantId == Guid.Empty)
+src/SubscriptionAnalytics.Api/Controllers/ConnectController.cs:            return BadRequest(new ErrorResponseDto("Tenant context not found. Please provide X-Tenant-Id header."));
+src/SubscriptionAnalytics.Api/Controllers/ConnectController.cs:        var success = await _connectionService.DisconnectAsync(tenantId, provider);
+src/SubscriptionAnalytics.Api/Controllers/TenantController.cs:        var tenant = await _tenantService.CreateTenantAsync(request, user.Id);
+src/SubscriptionAnalytics.Api/Controllers/TenantController.cs:        return CreatedAtAction(nameof(GetTenant), new { id = tenant.Id }, tenant);
+src/SubscriptionAnalytics.Api/Controllers/TenantController.cs:    public async Task<ActionResult<TenantDto>> GetTenant(Guid id)
+src/SubscriptionAnalytics.Api/Controllers/TenantController.cs:        var tenant = await _tenantService.GetTenantByIdAsync(id);
+src/SubscriptionAnalytics.Api/Controllers/TenantController.cs:        var userTenants = await _tenantService.GetUserTenantsAsync(user.Id);
+src/SubscriptionAnalytics.Api/Controllers/TenantController.cs:    [HttpDelete("{tenantId:guid}/users/{userId}")]
+src/SubscriptionAnalytics.Api/Controllers/TenantController.cs:    public async Task<ActionResult> RemoveUserFromTenant(Guid tenantId, string userId)
+src/SubscriptionAnalytics.Api/Controllers/TenantController.cs:        var result = await _tenantService.RemoveUserFromTenantAsync(userId, tenantId);
+src/SubscriptionAnalytics.Api/Controllers/TenantController.cs:    [HttpPut("{tenantId:guid}/users/{userId}/role")]
+src/SubscriptionAnalytics.Api/Controllers/TenantController.cs:    public async Task<ActionResult> UpdateUserTenantRole(Guid tenantId, string userId, [FromBody] string newRole)
+src/SubscriptionAnalytics.Api/Controllers/TenantController.cs:        var result = await _tenantService.UpdateUserTenantRoleAsync(userId, tenantId, newRole);
+src/SubscriptionAnalytics.Api/Controllers/TenantController.cs:        var result = await _tenantService.AssignAppRoleAsync(request.UserId, request.Role);
+src/SubscriptionAnalytics.Api/Controllers/TenantController.cs:        var result = await _tenantService.RemoveAppRoleAsync(request.UserId, request.Role);
+src/SubscriptionAnalytics.Api/Program.cs:// Add tenant context middleware
+src/SubscriptionAnalytics.Api/Program.cs:app.UseMiddleware<TenantContextMiddleware>();
+src/SubscriptionAnalytics.Application/Services/ProviderConnectionService.cs:    Task<ProviderConnectionDto?> GetConnectionAsync(Guid tenantId, string providerName);
+src/SubscriptionAnalytics.Application/Services/ProviderConnectionService.cs:    Task<ProviderConnectionDto> SaveConnectionAsync(Guid tenantId, string providerName, OAuthTokenResponse tokenResponse);
+src/SubscriptionAnalytics.Application/Services/ProviderConnectionService.cs:    Task<bool> DisconnectAsync(Guid tenantId, string providerName);
+src/SubscriptionAnalytics.Application/Services/ProviderConnectionService.cs:    Task<IEnumerable<ProviderConnectionDto>> GetConnectionsAsync(Guid tenantId);
+src/SubscriptionAnalytics.Application/Services/ProviderConnectionService.cs:    public async Task<ProviderConnectionDto?> GetConnectionAsync(Guid tenantId, string providerName)
+src/SubscriptionAnalytics.Application/Services/ProviderConnectionService.cs:            .FirstOrDefaultAsync(c => c.TenantId == tenantId && 
+src/SubscriptionAnalytics.Application/Services/ProviderConnectionService.cs:    public async Task<ProviderConnectionDto> SaveConnectionAsync(Guid tenantId, string providerName, OAuthTokenResponse tokenResponse)
+src/SubscriptionAnalytics.Application/Services/ProviderConnectionService.cs:        // Remove any existing connection for this tenant and provider
+src/SubscriptionAnalytics.Application/Services/ProviderConnectionService.cs:            .FirstOrDefaultAsync(c => c.TenantId == tenantId && c.ProviderName == providerName);
+src/SubscriptionAnalytics.Application/Services/ProviderConnectionService.cs:            TenantId = tenantId,
+src/SubscriptionAnalytics.Application/Services/ProviderConnectionService.cs:        _logger.LogInformation("Saved {Provider} connection for tenant {TenantId}", providerName, tenantId);
+src/SubscriptionAnalytics.Application/Services/ProviderConnectionService.cs:    public async Task<bool> DisconnectAsync(Guid tenantId, string providerName)
+src/SubscriptionAnalytics.Application/Services/ProviderConnectionService.cs:            .FirstOrDefaultAsync(c => c.TenantId == tenantId && c.ProviderName == providerName);
+src/SubscriptionAnalytics.Application/Services/ProviderConnectionService.cs:        _logger.LogInformation("Disconnected {Provider} for tenant {TenantId}", providerName, tenantId);
+src/SubscriptionAnalytics.Application/Services/ProviderConnectionService.cs:    public async Task<IEnumerable<ProviderConnectionDto>> GetConnectionsAsync(Guid tenantId)
+src/SubscriptionAnalytics.Application/Services/ProviderConnectionService.cs:            .Where(c => c.TenantId == tenantId && c.Status == "Connected")
+src/SubscriptionAnalytics.Application/Services/ProviderConnectionService.cs:            TenantId = connection.TenantId,
+src/SubscriptionAnalytics.Application/Services/TenantService.cs:    public async Task<TenantDto> CreateTenantAsync(CreateTenantRequest request, string userId)
+src/SubscriptionAnalytics.Application/Services/TenantService.cs:            TenantId = tenant.Id,
+src/SubscriptionAnalytics.Application/Services/TenantService.cs:        _logger.LogInformation("Created tenant: {TenantName} with ID: {TenantId} for user: {UserId}", tenant.Name, tenant.Id, userId);
+src/SubscriptionAnalytics.Application/Services/TenantService.cs:            Id = tenant.Id,
+src/SubscriptionAnalytics.Application/Services/TenantService.cs:    public async Task<TenantDto?> GetTenantByIdAsync(Guid tenantId)
+src/SubscriptionAnalytics.Application/Services/TenantService.cs:            .FirstOrDefaultAsync(t => t.Id == tenantId);
+src/SubscriptionAnalytics.Application/Services/TenantService.cs:            Id = tenant.Id,
+src/SubscriptionAnalytics.Application/Services/TenantService.cs:        if (!UserTenant.IsValidTenantRole(request.Role))
+src/SubscriptionAnalytics.Application/Services/TenantService.cs:        var tenant = await _context.Tenants.FindAsync(request.TenantId);
+src/SubscriptionAnalytics.Application/Services/TenantService.cs:            throw new NotFoundException($"Tenant with ID {request.TenantId} not found");
+src/SubscriptionAnalytics.Application/Services/TenantService.cs:            .FirstOrDefaultAsync(ut => ut.UserId == user.Id && ut.TenantId == request.TenantId);
+src/SubscriptionAnalytics.Application/Services/TenantService.cs:                TenantId = request.TenantId,
+src/SubscriptionAnalytics.Application/Services/TenantService.cs:            TenantId = request.TenantId,
+src/SubscriptionAnalytics.Application/Services/TenantService.cs:            TenantId = request.TenantId,
+src/SubscriptionAnalytics.Application/Services/TenantService.cs:    public async Task<UserTenantsResponse> GetUserTenantsAsync(string userId)
+src/SubscriptionAnalytics.Application/Services/TenantService.cs:            TenantId = ut.TenantId,
+src/SubscriptionAnalytics.Application/Services/TenantService.cs:    public async Task<bool> RemoveUserFromTenantAsync(string userId, Guid tenantId)
+src/SubscriptionAnalytics.Application/Services/TenantService.cs:            .FirstOrDefaultAsync(ut => ut.UserId == userId && ut.TenantId == tenantId);
+src/SubscriptionAnalytics.Application/Services/TenantService.cs:        _logger.LogInformation("Removed user {UserId} from tenant {TenantId}", userId, tenantId);
+src/SubscriptionAnalytics.Application/Services/TenantService.cs:    public async Task<bool> UpdateUserTenantRoleAsync(string userId, Guid tenantId, string newRole)
+src/SubscriptionAnalytics.Application/Services/TenantService.cs:        if (!UserTenant.IsValidTenantRole(newRole))
+src/SubscriptionAnalytics.Application/Services/TenantService.cs:            .FirstOrDefaultAsync(ut => ut.UserId == userId && ut.TenantId == tenantId);
+src/SubscriptionAnalytics.Application/Services/TenantService.cs:        _logger.LogInformation("Updated user {UserId} role to {Role} in tenant {TenantId}", 
+src/SubscriptionAnalytics.Application/Services/TenantService.cs:            userId, newRole, tenantId);
+src/SubscriptionAnalytics.Application/Services/StripeInstallationService.cs:    public async Task<InitiateStripeConnectionResponse> InitiateConnection(Guid tenantId)
+src/SubscriptionAnalytics.Application/Services/StripeInstallationService.cs:        var tenant = await _dbContext.Tenants.FindAsync(tenantId);
+src/SubscriptionAnalytics.Application/Services/StripeInstallationService.cs:            throw new ArgumentException("Tenant not found", nameof(tenantId));
+src/SubscriptionAnalytics.Application/Services/StripeInstallationService.cs:            .FirstOrDefaultAsync(c => c.TenantId == tenantId && c.Status == "Connected");
+src/SubscriptionAnalytics.Application/Services/StripeInstallationService.cs:        var redirectUri = $"http://localhost:5069/api/stripe/tenant/{tenantId}/oauth-callback";
+src/SubscriptionAnalytics.Application/Services/StripeInstallationService.cs:    public async Task<StripeConnectionDto> HandleOAuthCallback(Guid tenantId, StripeOAuthCallbackRequest request)
+src/SubscriptionAnalytics.Application/Services/StripeInstallationService.cs:        var tenant = await _dbContext.Tenants.FindAsync(tenantId);
+src/SubscriptionAnalytics.Application/Services/StripeInstallationService.cs:            throw new ArgumentException("Tenant not found", nameof(tenantId));
+src/SubscriptionAnalytics.Application/Services/StripeInstallationService.cs:            .FirstOrDefaultAsync(c => c.TenantId == tenantId);
+src/SubscriptionAnalytics.Application/Services/StripeInstallationService.cs:            TenantId = tenantId,
+src/SubscriptionAnalytics.Application/Services/StripeInstallationService.cs:    public async Task<StripeConnectionDto?> GetConnection(Guid tenantId)
+src/SubscriptionAnalytics.Application/Services/StripeInstallationService.cs:            .FirstOrDefaultAsync(c => c.TenantId == tenantId && c.Status == "Connected");
+src/SubscriptionAnalytics.Application/Services/StripeInstallationService.cs:    public async Task<bool> DisconnectStripe(Guid tenantId)
+src/SubscriptionAnalytics.Application/Services/StripeInstallationService.cs:            .FirstOrDefaultAsync(c => c.TenantId == tenantId);
+src/SubscriptionAnalytics.Application/Services/StripeInstallationService.cs:            TenantId = connection.TenantId,
+src/SubscriptionAnalytics.Application/Interfaces/ITenantService.cs:    Task<TenantDto> CreateTenantAsync(CreateTenantRequest request, string userId);
+src/SubscriptionAnalytics.Application/Interfaces/ITenantService.cs:    Task<TenantDto?> GetTenantByIdAsync(Guid tenantId);
+src/SubscriptionAnalytics.Application/Interfaces/ITenantService.cs:    Task<UserTenantsResponse> GetUserTenantsAsync(string userId);
+src/SubscriptionAnalytics.Application/Interfaces/ITenantService.cs:    Task<bool> RemoveUserFromTenantAsync(string userId, Guid tenantId);
+src/SubscriptionAnalytics.Application/Interfaces/ITenantService.cs:    Task<bool> UpdateUserTenantRoleAsync(string userId, Guid tenantId, string newRole);
+src/SubscriptionAnalytics.Application/Interfaces/IStripeInstallationService.cs:    Task<InitiateStripeConnectionResponse> InitiateConnection(Guid tenantId);
+src/SubscriptionAnalytics.Application/Interfaces/IStripeInstallationService.cs:    Task<StripeConnectionDto> HandleOAuthCallback(Guid tenantId, StripeOAuthCallbackRequest request);
+src/SubscriptionAnalytics.Application/Interfaces/IStripeInstallationService.cs:    Task<StripeConnectionDto?> GetConnection(Guid tenantId);
+src/SubscriptionAnalytics.Application/Interfaces/IStripeInstallationService.cs:    Task<bool> DisconnectStripe(Guid tenantId);
+src/SubscriptionAnalytics.Web/src/app/core/interceptors/tenant.interceptor.ts:    // Get tenant ID from tenant service
+src/SubscriptionAnalytics.Web/src/app/core/interceptors/tenant.interceptor.ts:    const tenantId = tenantService.getCurrentTenantId();
+src/SubscriptionAnalytics.Web/src/app/core/interceptors/tenant.interceptor.ts:    console.log('TenantInterceptor - Tenant ID:', tenantId);
+src/SubscriptionAnalytics.Web/src/app/core/interceptors/tenant.interceptor.ts:    if (tenantId) {
+src/SubscriptionAnalytics.Web/src/app/core/interceptors/tenant.interceptor.ts:          'X-Tenant-Id': tenantId
+src/SubscriptionAnalytics.Web/src/app/core/interceptors/tenant.interceptor.ts:      console.log('TenantInterceptor - Added header X-Tenant-Id:', tenantId);
+src/SubscriptionAnalytics.Web/src/app/core/interceptors/tenant.interceptor.ts:      console.log('TenantInterceptor - No tenant ID found');
+src/SubscriptionAnalytics.Web/src/app/core/services/tenant.service.ts:  private currentTenantId: string | null = null;
+src/SubscriptionAnalytics.Web/src/app/core/services/tenant.service.ts:  private readonly CURRENT_TENANT_ID_KEY = 'currentTenantId';
+src/SubscriptionAnalytics.Web/src/app/core/services/tenant.service.ts:          this.setCurrentTenantId(firstTenant.tenantId || '');
+src/SubscriptionAnalytics.Web/src/app/core/services/tenant.service.ts:  loadTenantContextFromStorage(): void {
+src/SubscriptionAnalytics.Web/src/app/core/services/tenant.service.ts:      const tenantId = localStorage.getItem(this.CURRENT_TENANT_ID_KEY);
+src/SubscriptionAnalytics.Web/src/app/core/services/tenant.service.ts:      console.log('TenantService - Loading from localStorage - tenantId:', tenantId);
+src/SubscriptionAnalytics.Web/src/app/core/services/tenant.service.ts:      if (tenantId) {
+src/SubscriptionAnalytics.Web/src/app/core/services/tenant.service.ts:        this.currentTenantId = tenantId;
+src/SubscriptionAnalytics.Web/src/app/core/services/tenant.service.ts:        console.log('TenantService - Set currentTenantId to:', tenantId);
+src/SubscriptionAnalytics.Web/src/app/core/services/tenant.service.ts:  switchTenant(tenantId: string): Observable<boolean> {
+src/SubscriptionAnalytics.Web/src/app/core/services/tenant.service.ts:        this.setCurrentTenantId(tenantId);
+src/SubscriptionAnalytics.Web/src/app/core/services/tenant.service.ts:   * Get current tenant ID
+src/SubscriptionAnalytics.Web/src/app/core/services/tenant.service.ts:  getCurrentTenantId(): string | null {
+src/SubscriptionAnalytics.Web/src/app/core/services/tenant.service.ts:    if (!this.currentTenantId) {
+src/SubscriptionAnalytics.Web/src/app/core/services/tenant.service.ts:    console.log('TenantService - Current tenant ID:', this.currentTenantId);
+src/SubscriptionAnalytics.Web/src/app/core/services/tenant.service.ts:    return this.currentTenantId;
+src/SubscriptionAnalytics.Web/src/app/core/services/tenant.service.ts:   * Set current tenant ID
+src/SubscriptionAnalytics.Web/src/app/core/services/tenant.service.ts:  setCurrentTenantId(tenantId: string): void {
+src/SubscriptionAnalytics.Web/src/app/core/services/tenant.service.ts:    this.currentTenantId = tenantId;
+src/SubscriptionAnalytics.Web/src/app/core/services/tenant.service.ts:    localStorage.setItem(this.CURRENT_TENANT_ID_KEY, tenantId);
+src/SubscriptionAnalytics.Web/src/app/core/services/tenant.service.ts:  setCurrentTenantInfo(tenantInfo: UserTenantDto): void {
+src/SubscriptionAnalytics.Web/src/app/core/services/tenant.service.ts:  clearTenantContext(): void {
+src/SubscriptionAnalytics.Web/src/app/core/services/tenant.service.ts:    this.currentTenantId = null;
+src/SubscriptionAnalytics.Web/src/app/core/services/tenant.service.ts:    localStorage.removeItem(this.CURRENT_TENANT_ID_KEY);
+src/SubscriptionAnalytics.Web/src/app/core/services/tenant.service.ts:  hasAccessToTenant(tenantId: string): Observable<boolean> {
+src/SubscriptionAnalytics.Web/src/app/api-client/model/providerConnectionDto.ts:    tenantId?: string;
+src/SubscriptionAnalytics.Web/src/app/api-client/model/subscriptionAnalyticsSharedDTOsUserTenantDto.ts:    tenantId?: string;
+src/SubscriptionAnalytics.Web/src/app/api-client/model/subscriptionAnalyticsSharedDTOsProviderConnectionDto.ts:    tenantId?: string;
+src/SubscriptionAnalytics.Web/src/app/api-client/model/assignUserToTenantRequest.ts:    tenantId?: string;
+src/SubscriptionAnalytics.Web/src/app/api-client/model/userTenantDto.ts:    tenantId?: string;
+src/SubscriptionAnalytics.Web/src/app/api-client/model/subscriptionAnalyticsSharedDTOsStripeConnectionDto.ts:    tenantId?: string;
+src/SubscriptionAnalytics.Web/src/app/api-client/model/subscriptionAnalyticsSharedDTOsAssignUserToTenantRequest.ts:    tenantId?: string;
+src/SubscriptionAnalytics.Web/src/app/api-client/api/tenant.serviceInterface.ts:    apiTenantIdGet(id: string, extraHttpRequestParams?: any): Observable<TenantDto>;
+src/SubscriptionAnalytics.Web/src/app/api-client/api/tenant.serviceInterface.ts:     * @param tenantId 
+src/SubscriptionAnalytics.Web/src/app/api-client/api/tenant.serviceInterface.ts:    apiTenantTenantIdUsersUserIdDelete(tenantId: string, userId: string, extraHttpRequestParams?: any): Observable<{}>;
+src/SubscriptionAnalytics.Web/src/app/api-client/api/tenant.serviceInterface.ts:     * @param tenantId 
+src/SubscriptionAnalytics.Web/src/app/api-client/api/tenant.serviceInterface.ts:    apiTenantTenantIdUsersUserIdRolePut(tenantId: string, userId: string, body?: string, extraHttpRequestParams?: any): Observable<{}>;
+src/SubscriptionAnalytics.Web/src/app/api-client/api/stripe.service.ts:     * @param tenantId 
+src/SubscriptionAnalytics.Web/src/app/api-client/api/stripe.service.ts:    public apiStripeTenantTenantIdConnectPost(tenantId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<SubscriptionAnalyticsSharedDTOsInitiateStripeConnectionResponse>;
+src/SubscriptionAnalytics.Web/src/app/api-client/api/stripe.service.ts:    public apiStripeTenantTenantIdConnectPost(tenantId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<SubscriptionAnalyticsSharedDTOsInitiateStripeConnectionResponse>>;
+src/SubscriptionAnalytics.Web/src/app/api-client/api/stripe.service.ts:    public apiStripeTenantTenantIdConnectPost(tenantId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<SubscriptionAnalyticsSharedDTOsInitiateStripeConnectionResponse>>;
+src/SubscriptionAnalytics.Web/src/app/api-client/api/stripe.service.ts:    public apiStripeTenantTenantIdConnectPost(tenantId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+src/SubscriptionAnalytics.Web/src/app/api-client/api/stripe.service.ts:        if (tenantId === null || tenantId === undefined) {
+src/SubscriptionAnalytics.Web/src/app/api-client/api/stripe.service.ts:            throw new Error('Required parameter tenantId was null or undefined when calling apiStripeTenantTenantIdConnectPost.');
+src/SubscriptionAnalytics.Web/src/app/api-client/api/stripe.service.ts:        let localVarPath = `/api/stripe/tenant/${this.configuration.encodeParam({name: "tenantId", value: tenantId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}/connect`;
+src/SubscriptionAnalytics.Web/src/app/api-client/api/stripe.service.ts:     * @param tenantId 
+src/SubscriptionAnalytics.Web/src/app/api-client/api/stripe.service.ts:    public apiStripeTenantTenantIdConnectionDelete(tenantId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
+src/SubscriptionAnalytics.Web/src/app/api-client/api/stripe.service.ts:    public apiStripeTenantTenantIdConnectionDelete(tenantId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+src/SubscriptionAnalytics.Web/src/app/api-client/api/stripe.service.ts:    public apiStripeTenantTenantIdConnectionDelete(tenantId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+src/SubscriptionAnalytics.Web/src/app/api-client/api/stripe.service.ts:    public apiStripeTenantTenantIdConnectionDelete(tenantId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+src/SubscriptionAnalytics.Web/src/app/api-client/api/stripe.service.ts:        if (tenantId === null || tenantId === undefined) {
+src/SubscriptionAnalytics.Web/src/app/api-client/api/stripe.service.ts:            throw new Error('Required parameter tenantId was null or undefined when calling apiStripeTenantTenantIdConnectionDelete.');
+src/SubscriptionAnalytics.Web/src/app/api-client/api/stripe.service.ts:        let localVarPath = `/api/stripe/tenant/${this.configuration.encodeParam({name: "tenantId", value: tenantId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}/connection`;
+src/SubscriptionAnalytics.Web/src/app/api-client/api/stripe.service.ts:     * @param tenantId 
+src/SubscriptionAnalytics.Web/src/app/api-client/api/stripe.service.ts:    public apiStripeTenantTenantIdConnectionGet(tenantId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<SubscriptionAnalyticsSharedDTOsStripeConnectionDto>;
+src/SubscriptionAnalytics.Web/src/app/api-client/api/stripe.service.ts:    public apiStripeTenantTenantIdConnectionGet(tenantId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<SubscriptionAnalyticsSharedDTOsStripeConnectionDto>>;
+src/SubscriptionAnalytics.Web/src/app/api-client/api/stripe.service.ts:    public apiStripeTenantTenantIdConnectionGet(tenantId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<SubscriptionAnalyticsSharedDTOsStripeConnectionDto>>;
+src/SubscriptionAnalytics.Web/src/app/api-client/api/stripe.service.ts:    public apiStripeTenantTenantIdConnectionGet(tenantId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+src/SubscriptionAnalytics.Web/src/app/api-client/api/stripe.service.ts:        if (tenantId === null || tenantId === undefined) {
+src/SubscriptionAnalytics.Web/src/app/api-client/api/stripe.service.ts:            throw new Error('Required parameter tenantId was null or undefined when calling apiStripeTenantTenantIdConnectionGet.');
+src/SubscriptionAnalytics.Web/src/app/api-client/api/stripe.service.ts:        let localVarPath = `/api/stripe/tenant/${this.configuration.encodeParam({name: "tenantId", value: tenantId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}/connection`;
+src/SubscriptionAnalytics.Web/src/app/api-client/api/stripe.service.ts:     * @param tenantId 
+src/SubscriptionAnalytics.Web/src/app/api-client/api/stripe.service.ts:    public apiStripeTenantTenantIdOauthCallbackGet(tenantId: string, code?: string, state?: string, error?: string, errorDescription?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
+src/SubscriptionAnalytics.Web/src/app/api-client/api/stripe.service.ts:    public apiStripeTenantTenantIdOauthCallbackGet(tenantId: string, code?: string, state?: string, error?: string, errorDescription?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+src/SubscriptionAnalytics.Web/src/app/api-client/api/stripe.service.ts:    public apiStripeTenantTenantIdOauthCallbackGet(tenantId: string, code?: string, state?: string, error?: string, errorDescription?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+src/SubscriptionAnalytics.Web/src/app/api-client/api/stripe.service.ts:    public apiStripeTenantTenantIdOauthCallbackGet(tenantId: string, code?: string, state?: string, error?: string, errorDescription?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+src/SubscriptionAnalytics.Web/src/app/api-client/api/stripe.service.ts:        if (tenantId === null || tenantId === undefined) {
+src/SubscriptionAnalytics.Web/src/app/api-client/api/stripe.service.ts:            throw new Error('Required parameter tenantId was null or undefined when calling apiStripeTenantTenantIdOauthCallbackGet.');
+src/SubscriptionAnalytics.Web/src/app/api-client/api/stripe.service.ts:        let localVarPath = `/api/stripe/tenant/${this.configuration.encodeParam({name: "tenantId", value: tenantId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}/oauth-callback`;
+src/SubscriptionAnalytics.Web/src/app/api-client/api/connect.serviceInterface.ts:     * @param tenantId 
+src/SubscriptionAnalytics.Web/src/app/api-client/api/connect.serviceInterface.ts:    apiConnectTenantTenantIdProviderProviderOauthCallbackGet(tenantId: string, provider: string, code?: string, state?: string, error?: string, errorDescription?: string, extraHttpRequestParams?: any): Observable<{}>;
+src/SubscriptionAnalytics.Web/src/app/api-client/api/stripe.serviceInterface.ts:     * @param tenantId 
+src/SubscriptionAnalytics.Web/src/app/api-client/api/stripe.serviceInterface.ts:    apiStripeTenantTenantIdConnectPost(tenantId: string, extraHttpRequestParams?: any): Observable<SubscriptionAnalyticsSharedDTOsInitiateStripeConnectionResponse>;
+src/SubscriptionAnalytics.Web/src/app/api-client/api/stripe.serviceInterface.ts:     * @param tenantId 
+src/SubscriptionAnalytics.Web/src/app/api-client/api/stripe.serviceInterface.ts:    apiStripeTenantTenantIdConnectionDelete(tenantId: string, extraHttpRequestParams?: any): Observable<{}>;
+src/SubscriptionAnalytics.Web/src/app/api-client/api/stripe.serviceInterface.ts:     * @param tenantId 
+src/SubscriptionAnalytics.Web/src/app/api-client/api/stripe.serviceInterface.ts:    apiStripeTenantTenantIdConnectionGet(tenantId: string, extraHttpRequestParams?: any): Observable<SubscriptionAnalyticsSharedDTOsStripeConnectionDto>;
+src/SubscriptionAnalytics.Web/src/app/api-client/api/stripe.serviceInterface.ts:     * @param tenantId 
+src/SubscriptionAnalytics.Web/src/app/api-client/api/stripe.serviceInterface.ts:    apiStripeTenantTenantIdOauthCallbackGet(tenantId: string, code?: string, state?: string, error?: string, errorDescription?: string, extraHttpRequestParams?: any): Observable<{}>;
+src/SubscriptionAnalytics.Web/src/app/api-client/api/tenant.service.ts:    public apiTenantIdGet(id: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<TenantDto>;
+src/SubscriptionAnalytics.Web/src/app/api-client/api/tenant.service.ts:    public apiTenantIdGet(id: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<TenantDto>>;
+src/SubscriptionAnalytics.Web/src/app/api-client/api/tenant.service.ts:    public apiTenantIdGet(id: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<TenantDto>>;
+src/SubscriptionAnalytics.Web/src/app/api-client/api/tenant.service.ts:    public apiTenantIdGet(id: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+src/SubscriptionAnalytics.Web/src/app/api-client/api/tenant.service.ts:            throw new Error('Required parameter id was null or undefined when calling apiTenantIdGet.');
+src/SubscriptionAnalytics.Web/src/app/api-client/api/tenant.service.ts:        let localVarPath = `/api/Tenant/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}`;
+src/SubscriptionAnalytics.Web/src/app/api-client/api/tenant.service.ts:     * @param tenantId 
+src/SubscriptionAnalytics.Web/src/app/api-client/api/tenant.service.ts:    public apiTenantTenantIdUsersUserIdDelete(tenantId: string, userId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
+src/SubscriptionAnalytics.Web/src/app/api-client/api/tenant.service.ts:    public apiTenantTenantIdUsersUserIdDelete(tenantId: string, userId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+src/SubscriptionAnalytics.Web/src/app/api-client/api/tenant.service.ts:    public apiTenantTenantIdUsersUserIdDelete(tenantId: string, userId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+src/SubscriptionAnalytics.Web/src/app/api-client/api/tenant.service.ts:    public apiTenantTenantIdUsersUserIdDelete(tenantId: string, userId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+src/SubscriptionAnalytics.Web/src/app/api-client/api/tenant.service.ts:        if (tenantId === null || tenantId === undefined) {
+src/SubscriptionAnalytics.Web/src/app/api-client/api/tenant.service.ts:            throw new Error('Required parameter tenantId was null or undefined when calling apiTenantTenantIdUsersUserIdDelete.');
+src/SubscriptionAnalytics.Web/src/app/api-client/api/tenant.service.ts:            throw new Error('Required parameter userId was null or undefined when calling apiTenantTenantIdUsersUserIdDelete.');
+src/SubscriptionAnalytics.Web/src/app/api-client/api/tenant.service.ts:        let localVarPath = `/api/Tenant/${this.configuration.encodeParam({name: "tenantId", value: tenantId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}/users/${this.configuration.encodeParam({name: "userId", value: userId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}`;
+src/SubscriptionAnalytics.Web/src/app/api-client/api/tenant.service.ts:     * @param tenantId 
+src/SubscriptionAnalytics.Web/src/app/api-client/api/tenant.service.ts:    public apiTenantTenantIdUsersUserIdRolePut(tenantId: string, userId: string, body?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
+src/SubscriptionAnalytics.Web/src/app/api-client/api/tenant.service.ts:    public apiTenantTenantIdUsersUserIdRolePut(tenantId: string, userId: string, body?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+src/SubscriptionAnalytics.Web/src/app/api-client/api/tenant.service.ts:    public apiTenantTenantIdUsersUserIdRolePut(tenantId: string, userId: string, body?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+src/SubscriptionAnalytics.Web/src/app/api-client/api/tenant.service.ts:    public apiTenantTenantIdUsersUserIdRolePut(tenantId: string, userId: string, body?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+src/SubscriptionAnalytics.Web/src/app/api-client/api/tenant.service.ts:        if (tenantId === null || tenantId === undefined) {
+src/SubscriptionAnalytics.Web/src/app/api-client/api/tenant.service.ts:            throw new Error('Required parameter tenantId was null or undefined when calling apiTenantTenantIdUsersUserIdRolePut.');
+src/SubscriptionAnalytics.Web/src/app/api-client/api/tenant.service.ts:            throw new Error('Required parameter userId was null or undefined when calling apiTenantTenantIdUsersUserIdRolePut.');
+src/SubscriptionAnalytics.Web/src/app/api-client/api/tenant.service.ts:        let localVarPath = `/api/Tenant/${this.configuration.encodeParam({name: "tenantId", value: tenantId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}/users/${this.configuration.encodeParam({name: "userId", value: userId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/role`;
+src/SubscriptionAnalytics.Web/src/app/api-client/api/connect.service.ts:     * @param tenantId 
+src/SubscriptionAnalytics.Web/src/app/api-client/api/connect.service.ts:    public apiConnectTenantTenantIdProviderProviderOauthCallbackGet(tenantId: string, provider: string, code?: string, state?: string, error?: string, errorDescription?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
+src/SubscriptionAnalytics.Web/src/app/api-client/api/connect.service.ts:    public apiConnectTenantTenantIdProviderProviderOauthCallbackGet(tenantId: string, provider: string, code?: string, state?: string, error?: string, errorDescription?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+src/SubscriptionAnalytics.Web/src/app/api-client/api/connect.service.ts:    public apiConnectTenantTenantIdProviderProviderOauthCallbackGet(tenantId: string, provider: string, code?: string, state?: string, error?: string, errorDescription?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+src/SubscriptionAnalytics.Web/src/app/api-client/api/connect.service.ts:    public apiConnectTenantTenantIdProviderProviderOauthCallbackGet(tenantId: string, provider: string, code?: string, state?: string, error?: string, errorDescription?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+src/SubscriptionAnalytics.Web/src/app/api-client/api/connect.service.ts:        if (tenantId === null || tenantId === undefined) {
+src/SubscriptionAnalytics.Web/src/app/api-client/api/connect.service.ts:            throw new Error('Required parameter tenantId was null or undefined when calling apiConnectTenantTenantIdProviderProviderOauthCallbackGet.');
+src/SubscriptionAnalytics.Web/src/app/api-client/api/connect.service.ts:            throw new Error('Required parameter provider was null or undefined when calling apiConnectTenantTenantIdProviderProviderOauthCallbackGet.');
+src/SubscriptionAnalytics.Web/src/app/api-client/api/connect.service.ts:        let localVarPath = `/api/connect/tenant/${this.configuration.encodeParam({name: "tenantId", value: tenantId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}/provider/${this.configuration.encodeParam({name: "provider", value: provider, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/oauth-callback`;
+src/SubscriptionAnalytics.Web/src/app/pages/tenant/create-tenant/create-tenant.component.ts:    if (this.createTenantForm.valid) {
+src/SubscriptionAnalytics.Web/src/app/pages/tenant/tenant-manage/tenant-manage.component.ts:  loadCurrentTenant(): void {
+src/SubscriptionAnalytics.Shared/DTOs/StripeOAuthDto.cs:    public Guid TenantId { get; set; }
+src/SubscriptionAnalytics.Shared/DTOs/ProviderConnectionDto.cs:    public Guid TenantId { get; set; }
+src/SubscriptionAnalytics.Shared/DTOs/TenantDto.cs:    public Guid TenantId { get; set; }
+src/SubscriptionAnalytics.Shared/DTOs/TenantDto.cs:    public Guid TenantId { get; set; }
+src/SubscriptionAnalytics.Shared/Entities/BaseTenantEntity.cs:    public Guid TenantId { get; set; }
+src/SubscriptionAnalytics.Shared/Interfaces/IConnector.cs:    Task SyncDataAsync(Guid tenantId, CancellationToken cancellationToken);
+src/SubscriptionAnalytics.Shared/Interfaces/IConnector.cs:    Task<string> GenerateOAuthUrlAsync(string state, string redirectUri, Guid tenantId);
+src/SubscriptionAnalytics.Shared/Interfaces/IConnector.cs:    Task<bool> DisconnectAsync(Guid tenantId);
+src/SubscriptionAnalytics.Shared/Interfaces/ISyncProcessor.cs:    Task SyncCustomersAsync(Guid tenantId, CancellationToken cancellationToken);
+src/SubscriptionAnalytics.Shared/Interfaces/ITenantContext.cs:    Guid TenantId { get; set; }
+src/SubscriptionAnalytics.Infrastructure/Middleware/TenantContextMiddleware.cs:public class TenantContextMiddleware
+src/SubscriptionAnalytics.Infrastructure/Middleware/TenantContextMiddleware.cs:    private readonly ILogger<TenantContextMiddleware> _logger;
+src/SubscriptionAnalytics.Infrastructure/Middleware/TenantContextMiddleware.cs:    public TenantContextMiddleware(RequestDelegate next, ILogger<TenantContextMiddleware> logger)
+src/SubscriptionAnalytics.Infrastructure/Middleware/TenantContextMiddleware.cs:            var tenantId = ExtractTenantId(context);
+src/SubscriptionAnalytics.Infrastructure/Middleware/TenantContextMiddleware.cs:            if (tenantId.HasValue)
+src/SubscriptionAnalytics.Infrastructure/Middleware/TenantContextMiddleware.cs:                tenantContext.TenantId = tenantId.Value;
+src/SubscriptionAnalytics.Infrastructure/Middleware/TenantContextMiddleware.cs:                context.Items["TenantId"] = tenantId.Value;
+src/SubscriptionAnalytics.Infrastructure/Middleware/TenantContextMiddleware.cs:                _logger.LogDebug("Tenant context set to: {TenantId}", tenantId.Value);
+src/SubscriptionAnalytics.Infrastructure/Middleware/TenantContextMiddleware.cs:                // Set a default tenant ID for now (in production, you might want to handle this differently)
+src/SubscriptionAnalytics.Infrastructure/Middleware/TenantContextMiddleware.cs:                tenantContext.TenantId = Guid.Empty;
+src/SubscriptionAnalytics.Infrastructure/Middleware/TenantContextMiddleware.cs:                context.Items["TenantId"] = Guid.Empty;
+src/SubscriptionAnalytics.Infrastructure/Middleware/TenantContextMiddleware.cs:            _logger.LogError(ex, "Error in tenant context middleware");
+src/SubscriptionAnalytics.Infrastructure/Middleware/TenantContextMiddleware.cs:    private Guid? ExtractTenantId(HttpContext context)
+src/SubscriptionAnalytics.Infrastructure/Middleware/TenantContextMiddleware.cs:        // 1. Custom header: X-Tenant-Id (HIGHEST PRIORITY)
+src/SubscriptionAnalytics.Infrastructure/Middleware/TenantContextMiddleware.cs:        // 2. URL path: /api/stripe/tenant/{tenantId}/... or /api/tenant/{tenantId}/...
+src/SubscriptionAnalytics.Infrastructure/Middleware/TenantContextMiddleware.cs:        // 3. Query parameter: tenantId
+src/SubscriptionAnalytics.Infrastructure/Middleware/TenantContextMiddleware.cs:        // 4. JWT token claim: tenant_id
+src/SubscriptionAnalytics.Infrastructure/Middleware/TenantContextMiddleware.cs:        if (context.Request.Headers.TryGetValue("X-Tenant-Id", out var headerValue))
+src/SubscriptionAnalytics.Infrastructure/Middleware/TenantContextMiddleware.cs:            if (Guid.TryParse(headerValue.ToString(), out var tenantId))
+src/SubscriptionAnalytics.Infrastructure/Middleware/TenantContextMiddleware.cs:                _logger.LogDebug("Tenant ID extracted from header: {TenantId}", tenantId);
+src/SubscriptionAnalytics.Infrastructure/Middleware/TenantContextMiddleware.cs:                return tenantId;
+src/SubscriptionAnalytics.Infrastructure/Middleware/TenantContextMiddleware.cs:        // 2. Check URL path for tenant ID
+src/SubscriptionAnalytics.Infrastructure/Middleware/TenantContextMiddleware.cs:            // Pattern: /api/stripe/tenant/{tenantId}/...
+src/SubscriptionAnalytics.Infrastructure/Middleware/TenantContextMiddleware.cs:                if (parts.Length >= 4 && Guid.TryParse(parts[3], out var tenantId))
+src/SubscriptionAnalytics.Infrastructure/Middleware/TenantContextMiddleware.cs:                    _logger.LogDebug("Tenant ID extracted from URL path: {TenantId}", tenantId);
+src/SubscriptionAnalytics.Infrastructure/Middleware/TenantContextMiddleware.cs:                    return tenantId;
+src/SubscriptionAnalytics.Infrastructure/Middleware/TenantContextMiddleware.cs:            // Pattern: /api/tenant/{tenantId}/...
+src/SubscriptionAnalytics.Infrastructure/Middleware/TenantContextMiddleware.cs:                if (parts.Length >= 3 && Guid.TryParse(parts[2], out var tenantId))
+src/SubscriptionAnalytics.Infrastructure/Middleware/TenantContextMiddleware.cs:                    _logger.LogDebug("Tenant ID extracted from URL path: {TenantId}", tenantId);
+src/SubscriptionAnalytics.Infrastructure/Middleware/TenantContextMiddleware.cs:                    return tenantId;
+src/SubscriptionAnalytics.Infrastructure/Middleware/TenantContextMiddleware.cs:        if (context.Request.Query.TryGetValue("tenantId", out var queryValue))
+src/SubscriptionAnalytics.Infrastructure/Middleware/TenantContextMiddleware.cs:            if (Guid.TryParse(queryValue.ToString(), out var tenantId))
+src/SubscriptionAnalytics.Infrastructure/Middleware/TenantContextMiddleware.cs:                _logger.LogDebug("Tenant ID extracted from query parameter: {TenantId}", tenantId);
+src/SubscriptionAnalytics.Infrastructure/Middleware/TenantContextMiddleware.cs:                return tenantId;
+src/SubscriptionAnalytics.Infrastructure/Middleware/TenantContextMiddleware.cs:            var tenantClaim = user.FindFirst("tenant_id");
+src/SubscriptionAnalytics.Infrastructure/Middleware/TenantContextMiddleware.cs:            if (tenantClaim != null && Guid.TryParse(tenantClaim.Value, out var tenantId))
+src/SubscriptionAnalytics.Infrastructure/Middleware/TenantContextMiddleware.cs:                _logger.LogDebug("Tenant ID extracted from JWT claim: {TenantId}", tenantId);
+src/SubscriptionAnalytics.Infrastructure/Middleware/TenantContextMiddleware.cs:                return tenantId;
+src/SubscriptionAnalytics.Infrastructure/Middleware/TenantContextMiddleware.cs:        //     return await GetTenantIdBySubdomain(subdomain);
+src/SubscriptionAnalytics.Infrastructure/Middleware/TenantContextMiddleware.cs:        _logger.LogDebug("No tenant ID found in any source");
+src/SubscriptionAnalytics.Infrastructure/Migrations/20250724040156_AddProviderConnections.Designer.cs:                    b.Property<Guid>("TenantId")
+src/SubscriptionAnalytics.Infrastructure/Migrations/20250724040156_AddProviderConnections.Designer.cs:                    b.HasIndex("TenantId", "ProviderName")
+src/SubscriptionAnalytics.Infrastructure/Migrations/20250724040156_AddProviderConnections.Designer.cs:                    b.Property<Guid>("TenantId")
+src/SubscriptionAnalytics.Infrastructure/Migrations/20250724040156_AddProviderConnections.Designer.cs:                    b.HasIndex("TenantId")
+src/SubscriptionAnalytics.Infrastructure/Migrations/20250724040156_AddProviderConnections.Designer.cs:                    b.Property<Guid>("TenantId")
+src/SubscriptionAnalytics.Infrastructure/Migrations/20250724040156_AddProviderConnections.Designer.cs:                    b.HasIndex("TenantId");
+src/SubscriptionAnalytics.Infrastructure/Migrations/20250724040156_AddProviderConnections.Designer.cs:                    b.Property<Guid>("TenantId")
+src/SubscriptionAnalytics.Infrastructure/Migrations/20250724040156_AddProviderConnections.Designer.cs:                    b.HasKey("UserId", "TenantId");
+src/SubscriptionAnalytics.Infrastructure/Migrations/20250724040156_AddProviderConnections.Designer.cs:                    b.HasIndex("TenantId");
+src/SubscriptionAnalytics.Infrastructure/Migrations/20250724040156_AddProviderConnections.Designer.cs:                        .HasForeignKey("TenantId")
+src/SubscriptionAnalytics.Infrastructure/Migrations/20250724040156_AddProviderConnections.Designer.cs:                        .HasForeignKey("SubscriptionAnalytics.Shared.Entities.StripeConnection", "TenantId")
+src/SubscriptionAnalytics.Infrastructure/Migrations/20250724040156_AddProviderConnections.Designer.cs:                        .HasForeignKey("TenantId")
+src/SubscriptionAnalytics.Infrastructure/Migrations/20250724040156_AddProviderConnections.Designer.cs:                        .HasForeignKey("TenantId")
+src/SubscriptionAnalytics.Infrastructure/Migrations/AppDbContextModelSnapshot.cs:                    b.Property<Guid>("TenantId")
+src/SubscriptionAnalytics.Infrastructure/Migrations/AppDbContextModelSnapshot.cs:                    b.HasIndex("TenantId", "ProviderName")
+src/SubscriptionAnalytics.Infrastructure/Migrations/AppDbContextModelSnapshot.cs:                    b.Property<Guid>("TenantId")
+src/SubscriptionAnalytics.Infrastructure/Migrations/AppDbContextModelSnapshot.cs:                    b.HasIndex("TenantId")
+src/SubscriptionAnalytics.Infrastructure/Migrations/AppDbContextModelSnapshot.cs:                    b.Property<Guid>("TenantId")
+src/SubscriptionAnalytics.Infrastructure/Migrations/AppDbContextModelSnapshot.cs:                    b.HasIndex("TenantId");
+src/SubscriptionAnalytics.Infrastructure/Migrations/AppDbContextModelSnapshot.cs:                    b.Property<Guid>("TenantId")
+src/SubscriptionAnalytics.Infrastructure/Migrations/AppDbContextModelSnapshot.cs:                    b.HasKey("UserId", "TenantId");
+src/SubscriptionAnalytics.Infrastructure/Migrations/AppDbContextModelSnapshot.cs:                    b.HasIndex("TenantId");
+src/SubscriptionAnalytics.Infrastructure/Migrations/AppDbContextModelSnapshot.cs:                        .HasForeignKey("TenantId")
+src/SubscriptionAnalytics.Infrastructure/Migrations/AppDbContextModelSnapshot.cs:                        .HasForeignKey("SubscriptionAnalytics.Shared.Entities.StripeConnection", "TenantId")
+src/SubscriptionAnalytics.Infrastructure/Migrations/AppDbContextModelSnapshot.cs:                        .HasForeignKey("TenantId")
+src/SubscriptionAnalytics.Infrastructure/Migrations/AppDbContextModelSnapshot.cs:                        .HasForeignKey("TenantId")
+src/SubscriptionAnalytics.Infrastructure/Migrations/20250722092029_InitialCreate.cs:                    table.PrimaryKey("PK_Tenants", x => x.Id);
+src/SubscriptionAnalytics.Infrastructure/Migrations/20250722092029_InitialCreate.cs:                    TenantId = table.Column<Guid>(type: "uuid", nullable: false)
+src/SubscriptionAnalytics.Infrastructure/Migrations/20250722092029_InitialCreate.cs:                        name: "FK_StripeConnections_Tenants_TenantId",
+src/SubscriptionAnalytics.Infrastructure/Migrations/20250722092029_InitialCreate.cs:                        column: x => x.TenantId,
+src/SubscriptionAnalytics.Infrastructure/Migrations/20250722092029_InitialCreate.cs:                    TenantId = table.Column<Guid>(type: "uuid", nullable: false)
+src/SubscriptionAnalytics.Infrastructure/Migrations/20250722092029_InitialCreate.cs:                        name: "FK_SyncedCustomers_Tenants_TenantId",
+src/SubscriptionAnalytics.Infrastructure/Migrations/20250722092029_InitialCreate.cs:                        column: x => x.TenantId,
+src/SubscriptionAnalytics.Infrastructure/Migrations/20250722092029_InitialCreate.cs:                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+src/SubscriptionAnalytics.Infrastructure/Migrations/20250722092029_InitialCreate.cs:                    table.PrimaryKey("PK_UserTenants", x => new { x.UserId, x.TenantId });
+src/SubscriptionAnalytics.Infrastructure/Migrations/20250722092029_InitialCreate.cs:                        name: "FK_UserTenants_Tenants_TenantId",
+src/SubscriptionAnalytics.Infrastructure/Migrations/20250722092029_InitialCreate.cs:                        column: x => x.TenantId,
+src/SubscriptionAnalytics.Infrastructure/Migrations/20250722092029_InitialCreate.cs:                name: "IX_StripeConnections_TenantId",
+src/SubscriptionAnalytics.Infrastructure/Migrations/20250722092029_InitialCreate.cs:                column: "TenantId",
+src/SubscriptionAnalytics.Infrastructure/Migrations/20250722092029_InitialCreate.cs:                name: "IX_SyncedCustomers_TenantId",
+src/SubscriptionAnalytics.Infrastructure/Migrations/20250722092029_InitialCreate.cs:                column: "TenantId");
+src/SubscriptionAnalytics.Infrastructure/Migrations/20250722092029_InitialCreate.cs:                name: "IX_UserTenants_TenantId",
+src/SubscriptionAnalytics.Infrastructure/Migrations/20250722092029_InitialCreate.cs:                column: "TenantId");
+src/SubscriptionAnalytics.Infrastructure/Migrations/20250722092029_InitialCreate.Designer.cs:                    b.Property<Guid>("TenantId")
+src/SubscriptionAnalytics.Infrastructure/Migrations/20250722092029_InitialCreate.Designer.cs:                    b.HasIndex("TenantId")
+src/SubscriptionAnalytics.Infrastructure/Migrations/20250722092029_InitialCreate.Designer.cs:                    b.Property<Guid>("TenantId")
+src/SubscriptionAnalytics.Infrastructure/Migrations/20250722092029_InitialCreate.Designer.cs:                    b.HasIndex("TenantId");
+src/SubscriptionAnalytics.Infrastructure/Migrations/20250722092029_InitialCreate.Designer.cs:                    b.Property<Guid>("TenantId")
+src/SubscriptionAnalytics.Infrastructure/Migrations/20250722092029_InitialCreate.Designer.cs:                    b.HasKey("UserId", "TenantId");
+src/SubscriptionAnalytics.Infrastructure/Migrations/20250722092029_InitialCreate.Designer.cs:                    b.HasIndex("TenantId");
+src/SubscriptionAnalytics.Infrastructure/Migrations/20250722092029_InitialCreate.Designer.cs:                        .HasForeignKey("SubscriptionAnalytics.Shared.Entities.StripeConnection", "TenantId")
+src/SubscriptionAnalytics.Infrastructure/Migrations/20250722092029_InitialCreate.Designer.cs:                        .HasForeignKey("TenantId")
+src/SubscriptionAnalytics.Infrastructure/Migrations/20250722092029_InitialCreate.Designer.cs:                        .HasForeignKey("TenantId")
+src/SubscriptionAnalytics.Infrastructure/Migrations/20250724040156_AddProviderConnections.cs:                    TenantId = table.Column<Guid>(type: "uuid", nullable: false)
+src/SubscriptionAnalytics.Infrastructure/Migrations/20250724040156_AddProviderConnections.cs:                        name: "FK_ProviderConnections_Tenants_TenantId",
+src/SubscriptionAnalytics.Infrastructure/Migrations/20250724040156_AddProviderConnections.cs:                        column: x => x.TenantId,
+src/SubscriptionAnalytics.Infrastructure/Migrations/20250724040156_AddProviderConnections.cs:                name: "IX_ProviderConnections_TenantId_ProviderName",
+src/SubscriptionAnalytics.Infrastructure/Migrations/20250724040156_AddProviderConnections.cs:                columns: new[] { "TenantId", "ProviderName" },
+src/SubscriptionAnalytics.Infrastructure/Configuration/SyncedCustomerConfiguration.cs:        builder.Property(c => c.TenantId).IsRequired();
+src/SubscriptionAnalytics.Infrastructure/Configuration/SyncedCustomerConfiguration.cs:        builder.HasIndex(c => c.TenantId);
+src/SubscriptionAnalytics.Infrastructure/Data/AppDbContext.cs:    private readonly Guid? _tenantId;
+src/SubscriptionAnalytics.Infrastructure/Data/AppDbContext.cs:    public AppDbContext(DbContextOptions<AppDbContext> options, Guid? tenantId) : base(options)
+src/SubscriptionAnalytics.Infrastructure/Data/AppDbContext.cs:        _tenantId = tenantId;
+src/SubscriptionAnalytics.Infrastructure/Data/AppDbContext.cs:        if (_tenantId.HasValue)
+src/SubscriptionAnalytics.Infrastructure/Data/AppDbContext.cs:            modelBuilder.Entity<UserTenant>().HasQueryFilter(ut => ut.TenantId == _tenantId.Value);
+src/SubscriptionAnalytics.Infrastructure/Data/AppDbContext.cs:            modelBuilder.Entity<SyncedCustomer>().HasQueryFilter(c => c.TenantId == _tenantId.Value);
+src/SubscriptionAnalytics.Infrastructure/Data/AppDbContext.cs:            modelBuilder.Entity<StripeConnection>().HasQueryFilter(sc => sc.TenantId == _tenantId.Value);
+src/SubscriptionAnalytics.Infrastructure/Data/AppDbContext.cs:            modelBuilder.Entity<ProviderConnection>().HasQueryFilter(pc => pc.TenantId == _tenantId.Value);
+src/SubscriptionAnalytics.Infrastructure/Data/EntityConfigurations/ProviderConnectionConfiguration.cs:        builder.HasIndex(x => new { x.TenantId, x.ProviderName })
+src/SubscriptionAnalytics.Infrastructure/Data/EntityConfigurations/StripeConnectionConfiguration.cs:        builder.HasIndex(e => e.TenantId).IsUnique();
+src/SubscriptionAnalytics.Infrastructure/Data/EntityConfigurations/StripeConnectionConfiguration.cs:        builder.Property(e => e.TenantId).IsRequired();
+src/SubscriptionAnalytics.Infrastructure/Data/EntityConfigurations/StripeConnectionConfiguration.cs:            .HasForeignKey<StripeConnection>(e => e.TenantId)
+src/SubscriptionAnalytics.Infrastructure/Data/EntityConfigurations/UserTenantConfiguration.cs:        builder.HasKey(ut => new { ut.UserId, ut.TenantId });
+src/SubscriptionAnalytics.Infrastructure/Data/EntityConfigurations/UserTenantConfiguration.cs:        builder.Property(ut => ut.TenantId).IsRequired();
+src/SubscriptionAnalytics.Infrastructure/Data/EntityConfigurations/UserTenantConfiguration.cs:            .HasForeignKey(ut => ut.TenantId)
+src/SubscriptionAnalytics.Infrastructure/Data/EntityConfigurations/SyncedCustomerConfiguration.cs:        builder.Property(sc => sc.TenantId).IsRequired();
+src/SubscriptionAnalytics.Infrastructure/Data/EntityConfigurations/SyncedCustomerConfiguration.cs:            .HasForeignKey(sc => sc.TenantId)
+src/SubscriptionAnalytics.Infrastructure/Services/TenantContext.cs:    public Guid TenantId { get; set; }
