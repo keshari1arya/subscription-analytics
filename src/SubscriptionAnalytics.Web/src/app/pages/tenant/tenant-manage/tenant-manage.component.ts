@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { TenantService } from '../../../core/services/tenant.service';
 import { UserTenantDto } from '../../../api-client';
 
@@ -13,7 +14,10 @@ export class TenantManageComponent implements OnInit {
   loading = false;
   error: string | null = null;
 
-  constructor(private tenantService: TenantService) {}
+  constructor(
+    private tenantService: TenantService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.loadCurrentTenant();
@@ -45,5 +49,9 @@ export class TenantManageComponent implements OnInit {
         }
       });
     }
+  }
+
+  createTenant(): void {
+    this.router.navigate(['/tenant/create']);
   }
 } 

@@ -7,9 +7,16 @@ import { LayoutComponent } from './layouts/layout.component';
 
 export const routes: Routes = [
     {
-        path: "",
+        path: "landing",
         loadChildren: () =>
             import("./landing/landing.module").then((m) => m.LandingModule),
+    },
+    {
+        path: "tenant",
+        component: LayoutComponent,
+        loadChildren: () =>
+            import("./pages/tenant/tenant.module").then((m) => m.TenantModule),
+        canActivate: [AuthGuard],
     },
     {
         path: "app",
@@ -19,9 +26,11 @@ export const routes: Routes = [
         canActivate: [AuthGuard, TenantGuard],
     },
     {
-        path: "auth",
+        path: "providers",
+        component: LayoutComponent,
         loadChildren: () =>
-            import("./account/account.module").then((m) => m.AccountModule),
+            import("./pages/providers/providers.module").then((m) => m.ProvidersModule),
+        canActivate: [AuthGuard, TenantGuard],
     },
     {
         path: "auth",

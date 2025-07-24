@@ -23,7 +23,8 @@ import * as ProvidersSelectors from 'src/app/store/providers/providers.selectors
     ModalModule,
     BsDropdownModule,
     AlertModule
-  ]
+  ],
+  providers: [BsModalService]
 })
 export class ProviderDashboardComponent implements OnInit {
   providers$: Observable<SubscriptionAnalyticsApiControllersConnectorInfo[]>;
