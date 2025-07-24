@@ -1,0 +1,77 @@
+<div class="row">
+  <div class="col-12">
+    <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+      <h4 class="mb-sm-0 font-size-18">Manage Tenant</h4>
+      <div class="page-title-right">
+        <ol class="breadcrumb m-0">
+          <li class="breadcrumb-item"><a href="javascript: void(0);">Tenant</a></li>
+          <li class="breadcrumb-item active">Manage</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h4 class="card-title">Current Tenant Information</h4>
+      </div>
+      <div class="card-body">
+        <div *ngIf="loading" class="text-center">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="mt-2">Loading tenant information...</p>
+        </div>
+
+        <div *ngIf="error" class="alert alert-danger" role="alert">
+          {{ error }}
+        </div>
+
+        <div *ngIf="!loading && !error && currentTenant" class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Tenant Name</label>
+              <p class="form-control-plaintext">{{ currentTenant.tenantName || 'N/A' }}</p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Tenant ID</label>
+              <p class="form-control-plaintext">{{ currentTenant.tenantId || 'N/A' }}</p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label fw-semibold">User Role</label>
+              <p class="form-control-plaintext">
+                <span class="badge bg-primary">{{ currentTenant.role || 'N/A' }}</span>
+              </p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label fw-semibold">User Email</label>
+              <p class="form-control-plaintext">{{ currentTenant.userEmail || 'N/A' }}</p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Created At</label>
+              <p class="form-control-plaintext">{{ currentTenant.createdAt | date:'medium' }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="!loading && !error && !currentTenant" class="text-center">
+          <div class="alert alert-info" role="alert">
+            <i class="bx bx-info-circle me-2"></i>
+            No tenant information available. Please contact your administrator.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

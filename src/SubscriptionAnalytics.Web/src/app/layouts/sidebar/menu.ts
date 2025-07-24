@@ -198,6 +198,43 @@ export const MENU: MenuItem[] = [
                 ]
             },
         ]
+    },
+    {
+        id: 200,
+        label: 'MENUITEMS.SUBSCRIPTION.TEXT',
+        isTitle: true
+    },
+    {
+        id: 201,
+        label: 'MENUITEMS.PROVIDERS.TEXT',
+        icon: 'bx-plug',
+        subItems: [
+            {
+                id: 202,
+                label: 'MENUITEMS.PROVIDERS.LIST.DASHBOARD',
+                link: '/providers',
+                parentId: 201
+            }
+        ]
+    },
+    {
+        id: 203,
+        label: 'MENUITEMS.TENANT.TEXT',
+        icon: 'bx-building',
+        subItems: [
+            {
+                id: 204,
+                label: 'MENUITEMS.TENANT.LIST.MANAGE',
+                link: '/tenant/manage',
+                parentId: 203
+            },
+            {
+                id: 205,
+                label: 'MENUITEMS.TENANT.LIST.SETTINGS',
+                link: '/tenant/settings',
+                parentId: 203
+            }
+        ]
     }
 ];
 

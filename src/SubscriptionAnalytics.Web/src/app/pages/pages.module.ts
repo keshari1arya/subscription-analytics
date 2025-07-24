@@ -35,6 +35,7 @@ import { IconsModule } from './icons/icons.module';
 import { ChartModule } from './chart/chart.module';
 import { CalendarComponent } from './calendar/calendar.component';
 import { MapsModule } from './maps/maps.module';
+import { ProvidersModule } from './providers/providers.module';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 @NgModule(
@@ -63,6 +64,7 @@ import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http'
                         IconsModule,
                         ChartModule,
                         MapsModule,
+                        ProvidersModule,
                         FullCalendarModule,
                         TabsModule.forRoot(),
                         TooltipModule.forRoot(),

@@ -1,0 +1,81 @@
+<app-page-title [breadcrumbItems]="breadCrumbItems" [title]="'Connect Your Apps'"></app-page-title>
+
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h4 class="card-title">Available Integrations</h4>
+        <p class="card-title-desc">Connect your payment processors and other services to sync data automatically.</p>
+      </div>
+      <div class="card-body">
+        <!-- Loading State -->
+        <div *ngIf="loading$ | async" class="text-center py-4">
+          <app-loader></app-loader>
+          <p class="text-muted mt-2">Loading providers...</p>
+        </div>
+
+        <!-- Error State -->
+        <div *ngIf="error$ | async as error" class="alert alert-danger" role="alert">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          {{ error }}
+          <button type="button" class="btn-close" (click)="clearError()"></button>
+        </div>
+
+        <!-- Providers Grid -->
+        <div *ngIf="!(loading$ | async) && !(error$ | async)" class="row">
+          <div class="col-lg-4 col-md-6" *ngFor="let provider of providers$ | async">
+            <div class="card border shadow-none">
+              <div class="card-body text-center">
+                <!-- Provider Icon -->
+                <div class="mb-3">
+                  <img [src]="getProviderIcon(provider.providerName)" 
+                       [alt]="provider.displayName || provider.providerName"
+                       class="img-fluid" 
+                       style="height: 60px; max-width: 120px;">
+                </div>
+
+                <!-- Provider Name -->
+                <h5 class="card-title mb-2">
+                  {{ provider.displayName || provider.providerName }}
+                </h5>
+
+                <!-- Provider Description -->
+                <p class="card-text text-muted mb-3">
+                  {{ getProviderDescription(provider.providerName) }}
+                </p>
+
+                <!-- OAuth Support Badge -->
+                <div class="mb-3">
+                  <span *ngIf="provider.supportsOAuth" class="badge bg-success">
+                    <i class="fas fa-shield-alt me-1"></i>Secure OAuth
+                  </span>
+                  <span *ngIf="!provider.supportsOAuth" class="badge bg-warning">
+                    <i class="fas fa-key me-1"></i>API Key
+                  </span>
+                </div>
+
+                <!-- Install Button -->
+                <button type="button" 
+                        class="btn btn-primary btn-sm"
+                        [disabled]="(installingProvider$ | async) === provider.providerName"
+                        (click)="installProvider(provider)">
+                  <i class="fas fa-plug me-1"></i>
+                  {{ (installingProvider$ | async) === provider.providerName ? 'Installing...' : 'Connect' }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="!(loading$ | async) && !(error$ | async) && (providers$ | async)?.length === 0" class="text-center py-5">
+          <div class="mb-3">
+            <i class="fas fa-plug fa-3x text-muted"></i>
+          </div>
+          <h5 class="text-muted">No providers available</h5>
+          <p class="text-muted">Check back later for available integrations.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

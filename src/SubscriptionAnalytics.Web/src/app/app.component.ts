@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { AppInitService } from './core/services/app-init.service';
 
 @Component({
   selector: 'app-root',
@@ -10,6 +11,10 @@ import { RouterOutlet } from '@angular/router';
 })
 export class AppComponent implements OnInit {
 
+  constructor(private appInitService: AppInitService) {}
+
   ngOnInit() {
+    // Initialize app data from localStorage
+    this.appInitService.initializeApp();
   }
 }

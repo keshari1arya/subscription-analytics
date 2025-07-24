@@ -1,14 +1,15 @@
 import { Injectable, Inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { map, switchMap, catchError, exhaustMap, tap, first } from 'rxjs/operators';
+import { map, switchMap, catchError, exhaustMap, tap, first, mergeMap } from 'rxjs/operators';
 import { from, of } from 'rxjs';
 import { IdentityService } from '../../api-client/api/identity.service';
-import { MicrosoftAspNetCoreIdentityDataLoginRequest, MicrosoftAspNetCoreIdentityDataRegisterRequest, MicrosoftAspNetCoreAuthenticationBearerTokenAccessTokenResponse } from '../../api-client/model/models';
+import { LoginRequest, RegisterRequest, AccessTokenResponse } from '../../api-client/model/models';
 import { login, loginSuccess, loginFailure, logout, logoutSuccess, Register, RegisterSuccess, RegisterFailure } from './authentication.actions';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 import { UserProfileService } from 'src/app/core/services/user.service';
 import { TokenService } from '../../core/services/token.service';
+import { TenantService } from 'src/app/core/services/tenant.service';
 
 @Injectable()
 export class AuthenticationEffects {
@@ -49,7 +50,7 @@ export class AuthenticationEffects {
             })
           );
         } else {
-          const registerRequest: MicrosoftAspNetCoreIdentityDataRegisterRequest = {
+          const registerRequest: RegisterRequest = {
             email: email,
             password: password
           };
@@ -95,13 +96,13 @@ export class AuthenticationEffects {
     this.actions$.pipe(
       ofType(login),
       exhaustMap(({ email, password }) => {
-        const loginRequest: MicrosoftAspNetCoreIdentityDataLoginRequest = {
+        const loginRequest: LoginRequest = {
           email: email,
           password: password
         };
 
         return this.identityService.apiIdentityLoginPost(undefined, undefined, loginRequest, 'body', false).pipe(
-          map((response: MicrosoftAspNetCoreAuthenticationBearerTokenAccessTokenResponse) => {
+          mergeMap((response: AccessTokenResponse) => {
             const user = {
               id: 1,
               email: email,
@@ -111,8 +112,20 @@ export class AuthenticationEffects {
             // Store tokens using TokenService
             this.tokenService.setTokens(response.accessToken, response.refreshToken);
             this.tokenService.setCurrentUser(user);
-            this.router.navigate(['/']);
-            return loginSuccess({ user });
+            
+            // Initialize tenant context after successful login
+            return this.tenantService.initializeTenantContext().pipe(
+              map((hasTenants) => {
+                if (hasTenants) {
+                  // User has tenants, navigate to main app
+                  this.router.navigate(['/']);
+                                  } else {
+                    // User has no tenants, redirect to create tenant page
+                    this.router.navigate(['/tenant']);
+                  }
+                return loginSuccess({ user });
+              })
+            );
           }),
           catchError((error) => {
             console.error('Login error:', error);
@@ -153,6 +166,8 @@ export class AuthenticationEffects {
       tap(() => {
         // Clear tokens using TokenService
         this.tokenService.clearTokens();
+        // Clear tenant context
+        this.tenantService.clearTenantContext();
       }),
       exhaustMap(() => of(logoutSuccess()))
     )
@@ -163,6 +178,7 @@ export class AuthenticationEffects {
     private identityService: IdentityService,
     private tokenService: TokenService,
     private userService: UserProfileService,
+    private tenantService: TenantService,
     private router: Router) { }
 
 }

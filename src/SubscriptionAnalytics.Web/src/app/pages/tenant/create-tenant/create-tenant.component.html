@@ -1,0 +1,68 @@
+<div class="account-pages my-5 pt-sm-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-8 col-lg-6 col-xl-5">
+        <div class="card overflow-hidden">
+          <div class="bg-primary bg-soft">
+            <div class="row">
+              <div class="col-7">
+                <div class="text-primary p-4">
+                  <h5 class="text-primary">Create Your Organization</h5>
+                  <p>Set up your workspace to get started</p>
+                </div>
+              </div>
+              <div class="col-5 align-self-end">
+                <img src="assets/images/profile-img.png" alt="" class="img-fluid">
+              </div>
+            </div>
+          </div>
+          <div class="card-body pt-0">
+            <div class="p-2">
+              <form [formGroup]="createTenantForm" (ngSubmit)="onSubmit()" class="form-horizontal">
+                <div class="mb-3">
+                  <label for="tenantName" class="form-label">Organization Name *</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="tenantName"
+                    formControlName="name"
+                    placeholder="Enter your organization name"
+                    [class.is-invalid]="name?.invalid && name?.touched"
+                  >
+                  <div class="invalid-feedback" *ngIf="name?.invalid && name?.touched">
+                    <div *ngIf="name?.errors?.['required']">Organization name is required</div>
+                    <div *ngIf="name?.errors?.['minlength']">Organization name must be at least 2 characters</div>
+                    <div *ngIf="name?.errors?.['maxlength']">Organization name cannot exceed 100 characters</div>
+                  </div>
+                </div>
+
+                <div class="alert alert-danger" *ngIf="error">
+                  {{ error }}
+                </div>
+
+                <div class="mt-3">
+                  <button
+                    class="btn btn-primary w-100 waves-effect waves-light"
+                    type="submit"
+                    [disabled]="createTenantForm.invalid || loading"
+                  >
+                    <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status"></span>
+                    {{ loading ? 'Creating...' : 'Create Organization' }}
+                  </button>
+                </div>
+
+                <div class="mt-4 text-center">
+                  <p class="mb-0 text-muted">
+                    <small>
+                      You will be automatically assigned as the administrator of this organization.
+                    </small>
+                  </p>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

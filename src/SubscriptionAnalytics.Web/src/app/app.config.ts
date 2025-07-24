@@ -1,6 +1,6 @@
 import { ApplicationConfig, enableProdMode, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
-import { HttpClient, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common/http';
 
 
 
@@ -28,13 +28,15 @@ import { tasklistEffects } from './store/Tasks/tasks.effect';
 import { OrdersEffects } from './store/Crypto/crypto.effects';
 import { CustomerEffects } from './store/customer/customer.effects';
 import { MailEffects } from './store/Email/email.effects';
+import { ProvidersEffects } from './store/providers/providers.effects';
 import { routes } from './app.routes';
 import { provideRouter } from '@angular/router';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { BsDropdownConfig } from 'ngx-bootstrap/dropdown';
 import { ApiModule } from './api-client/api.module';
 import { Configuration } from './api-client/configuration';
-import { AuthInterceptor } from './core/interceptors/auth.interceptor';
+import { authInterceptor } from './core/interceptors/auth.interceptor';
+import { tenantInterceptor } from './core/interceptors/tenant.interceptor';
 import { environment } from '../environments/environment';
 
 export function createTranslateLoader(http: HttpClient): any {
@@ -61,11 +63,11 @@ export const appConfig: ApplicationConfig = {
         tasklistEffects,
         OrdersEffects,
         CustomerEffects,
-        MailEffects
+        MailEffects,
+        ProvidersEffects
       ]
     ),
-    provideHttpClient(withInterceptorsFromDi()),
-    { provide: AuthInterceptor, useClass: AuthInterceptor },
+    provideHttpClient(withInterceptors([authInterceptor, tenantInterceptor])),
     importProvidersFrom(
       TranslateModule.forRoot({
         loader: {

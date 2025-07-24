@@ -336,6 +336,22 @@
           }
         }
       }
+    },
+    "SUBSCRIPTION": {
+      "TEXT": "Subscription Analytics"
+    },
+    "PROVIDERS": {
+      "TEXT": "Providers",
+      "LIST": {
+        "DASHBOARD": "Provider Dashboard"
+      }
+    },
+    "TENANT": {
+      "TEXT": "Tenant Management",
+      "LIST": {
+        "MANAGE": "Manage Tenant",
+        "SETTINGS": "Tenant Settings"
+      }
     }
   }
 }
