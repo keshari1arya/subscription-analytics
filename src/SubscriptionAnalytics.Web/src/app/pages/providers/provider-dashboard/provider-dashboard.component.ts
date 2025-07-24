@@ -7,9 +7,11 @@ import { LoaderComponent } from 'src/app/shared/ui/loader/loader.component';
 import { BsModalService, BsModalRef, ModalModule } from 'ngx-bootstrap/modal';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { AlertModule } from 'ngx-bootstrap/alert';
-import { Observable } from 'rxjs';
+import { Observable, combineLatest } from 'rxjs';
+import { map } from 'rxjs/operators';
 import * as ProvidersActions from 'src/app/store/providers/providers.actions';
 import * as ProvidersSelectors from 'src/app/store/providers/providers.selectors';
+
 
 @Component({
   selector: 'app-provider-dashboard',
@@ -31,6 +33,8 @@ export class ProviderDashboardComponent implements OnInit {
   loading$: Observable<boolean>;
   error$: Observable<string | null>;
   installingProvider$: Observable<string | null>;
+  connections$: Observable<any[]>;
+  providersWithStatus$: Observable<any[]>;
   modalRef?: BsModalRef;
 
   breadCrumbItems: Array<{}> = [
@@ -47,14 +51,39 @@ export class ProviderDashboardComponent implements OnInit {
     this.loading$ = this.store.select(ProvidersSelectors.selectProvidersLoading);
     this.error$ = this.store.select(ProvidersSelectors.selectProvidersError);
     this.installingProvider$ = this.store.select(ProvidersSelectors.selectInstallingProvider);
+    this.connections$ = this.store.select(ProvidersSelectors.selectConnections);
+    
+    // Combine providers with connection status
+    this.providersWithStatus$ = combineLatest([
+      this.providers$,
+      this.connections$
+    ]).pipe(
+      map(([providers, connections]) => {
+        return providers.map(provider => ({
+          ...provider,
+          isConnected: connections.some(conn => 
+            conn.providerName?.toLowerCase() === provider.providerName?.toLowerCase() && 
+            conn.status === 'Connected'
+          ),
+          connection: connections.find(conn => 
+            conn.providerName?.toLowerCase() === provider.providerName?.toLowerCase()
+          )
+        }));
+      })
+    );
   }
 
   ngOnInit() {
     this.loadProviders();
+    this.loadConnections();
   }
 
   loadProviders() {
     this.store.dispatch(ProvidersActions.loadProviders());
+  }
+
+  loadConnections() {
+    this.store.dispatch(ProvidersActions.loadConnections());
   }
 
   installProvider(provider: SubscriptionAnalyticsApiControllersConnectorInfo) {
@@ -89,5 +118,26 @@ export class ProviderDashboardComponent implements OnInit {
       default:
         return 'Connect your account to sync data and subscriptions.';
     }
+  }
+
+  getConnectionStatus(provider: any): string {
+    if (provider.isConnected) {
+      return 'Connected';
+    }
+    return 'Not Connected';
+  }
+
+  getConnectionStatusClass(provider: any): string {
+    if (provider.isConnected) {
+      return 'success';
+    }
+    return 'secondary';
+  }
+
+  getConnectionDate(provider: any): string {
+    if (provider.connection?.connectedAt) {
+      return new Date(provider.connection.connectedAt).toLocaleDateString();
+    }
+    return '';
   }
 } 

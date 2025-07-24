@@ -6,7 +6,12 @@ export const initialState: ProvidersState = {
   providers: [],
   loading: false,
   error: null,
-  installingProvider: null
+  installingProvider: null,
+  connections: [],
+  connectionsLoading: false,
+  connectionsError: null,
+  oauthCallbackLoading: false,
+  oauthCallbackError: null
 };
 
 export const providersReducer = createReducer(
@@ -51,6 +56,45 @@ export const providersReducer = createReducer(
     ...state,
     installingProvider: null,
     error
+  })),
+  
+  // Load Connections
+  on(ProvidersActions.loadConnections, (state) => ({
+    ...state,
+    connectionsLoading: true,
+    connectionsError: null
+  })),
+  
+  on(ProvidersActions.loadConnectionsSuccess, (state, { connections }) => ({
+    ...state,
+    connections,
+    connectionsLoading: false,
+    connectionsError: null
+  })),
+  
+  on(ProvidersActions.loadConnectionsFailure, (state, { error }) => ({
+    ...state,
+    connectionsLoading: false,
+    connectionsError: error
+  })),
+  
+  // Handle OAuth Callback
+  on(ProvidersActions.handleOAuthCallback, (state) => ({
+    ...state,
+    oauthCallbackLoading: true,
+    oauthCallbackError: null
+  })),
+  
+  on(ProvidersActions.handleOAuthCallbackSuccess, (state, { provider, result }) => ({
+    ...state,
+    oauthCallbackLoading: false,
+    oauthCallbackError: null
+  })),
+  
+  on(ProvidersActions.handleOAuthCallbackFailure, (state, { error }) => ({
+    ...state,
+    oauthCallbackLoading: false,
+    oauthCallbackError: error
   })),
   
   // Clear Error

@@ -16,11 +16,15 @@ public class StripeConnector : IStripeConnector, IConnector
 
     public StripeConnector(IConfiguration configuration, ILogger<StripeConnector> logger)
     {
+        // Use configuration first, then fall back to environment variables
         _clientId = configuration["Stripe:ConnectClientId"]
+            ?? Environment.GetEnvironmentVariable("STRIPE_CONNECT_CLIENT_ID")
             ?? throw new InvalidOperationException("Stripe Connect Client ID is not configured");
         _clientSecret = configuration["Stripe:ConnectClientSecret"]
+            ?? Environment.GetEnvironmentVariable("STRIPE_CONNECT_CLIENT_SECRET")
             ?? throw new InvalidOperationException("Stripe Connect Client Secret is not configured");
         _apiKey = configuration["Stripe:ApiKey"]
+            ?? Environment.GetEnvironmentVariable("STRIPE_API_KEY")
             ?? throw new InvalidOperationException("Stripe API Key is not configured");
         _logger = logger;
 

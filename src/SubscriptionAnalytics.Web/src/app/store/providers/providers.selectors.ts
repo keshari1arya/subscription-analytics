@@ -22,3 +22,28 @@ export const selectInstallingProvider = createSelector(
   selectProvidersState,
   (state) => state.installingProvider
 ); 
+
+export const selectConnections = createSelector(
+  selectProvidersState,
+  (state) => state.connections
+);
+
+export const selectConnectionsLoading = createSelector(
+  selectProvidersState,
+  (state) => state.connectionsLoading
+);
+
+export const selectConnectionsError = createSelector(
+  selectProvidersState,
+  (state) => state.connectionsError
+);
+
+export const selectOAuthCallbackLoading = createSelector(
+  selectProvidersState,
+  (state) => state.oauthCallbackLoading
+);
+
+export const selectOAuthCallbackError = createSelector(
+  selectProvidersState,
+  (state) => state.oauthCallbackError
+); 

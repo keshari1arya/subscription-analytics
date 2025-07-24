@@ -23,7 +23,7 @@
 
         <!-- Providers Grid -->
         <div *ngIf="!(loading$ | async) && !(error$ | async)" class="row">
-          <div class="col-lg-4 col-md-6" *ngFor="let provider of providers$ | async">
+          <div class="col-lg-4 col-md-6" *ngFor="let provider of providersWithStatus$ | async">
             <div class="card border shadow-none">
               <div class="card-body text-center">
                 <!-- Provider Icon -->
@@ -39,6 +39,17 @@
                   {{ provider.displayName || provider.providerName }}
                 </h5>
 
+                <!-- Connection Status -->
+                <div class="mb-3">
+                  <span class="badge bg-{{ getConnectionStatusClass(provider) }}">
+                    <i class="fas fa-{{ provider.isConnected ? 'check-circle' : 'circle' }} me-1"></i>
+                    {{ getConnectionStatus(provider) }}
+                  </span>
+                  <div *ngIf="provider.isConnected" class="mt-1">
+                    <small class="text-muted">Connected {{ getConnectionDate(provider) }}</small>
+                  </div>
+                </div>
+
                 <!-- Provider Description -->
                 <p class="card-text text-muted mb-3">
                   {{ getProviderDescription(provider.providerName) }}
@@ -46,7 +57,7 @@
 
                 <!-- OAuth Support Badge -->
                 <div class="mb-3">
-                  <span *ngIf="provider.supportsOAuth" class="badge bg-success">
+                  <span *ngIf="provider.supportsOAuth" class="badge bg-info">
                     <i class="fas fa-shield-alt me-1"></i>Secure OAuth
                   </span>
                   <span *ngIf="!provider.supportsOAuth" class="badge bg-warning">
@@ -54,13 +65,22 @@
                   </span>
                 </div>
 
-                <!-- Install Button -->
-                <button type="button" 
+                <!-- Action Button -->
+                <button *ngIf="!provider.isConnected" 
+                        type="button" 
                         class="btn btn-primary btn-sm"
                         [disabled]="(installingProvider$ | async) === provider.providerName"
                         (click)="installProvider(provider)">
                   <i class="fas fa-plug me-1"></i>
                   {{ (installingProvider$ | async) === provider.providerName ? 'Installing...' : 'Connect' }}
+                </button>
+                
+                <button *ngIf="provider.isConnected" 
+                        type="button" 
+                        class="btn btn-success btn-sm"
+                        disabled>
+                  <i class="fas fa-check me-1"></i>
+                  Connected
                 </button>
               </div>
             </div>
@@ -68,7 +88,7 @@
         </div>
 
         <!-- Empty State -->
-        <div *ngIf="!(loading$ | async) && !(error$ | async) && (providers$ | async)?.length === 0" class="text-center py-5">
+        <div *ngIf="!(loading$ | async) && !(error$ | async) && (providersWithStatus$ | async)?.length === 0" class="text-center py-5">
           <div class="mb-3">
             <i class="fas fa-plug fa-3x text-muted"></i>
           </div>

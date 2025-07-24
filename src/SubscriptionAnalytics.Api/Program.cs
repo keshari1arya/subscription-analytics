@@ -13,6 +13,7 @@ using SubscriptionAnalytics.Connectors.Stripe.Services;
 using SubscriptionAnalytics.Connectors.PayPal.Abstractions;
 using SubscriptionAnalytics.Connectors.PayPal.Services;
 using SubscriptionAnalytics.Shared.DTOs;
+using SubscriptionAnalytics.Api.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -93,6 +94,9 @@ var isTestEnv = builder.Environment.EnvironmentName == "Test";
 builder.Services.AddScoped<ITenantService, TenantService>();
 builder.Services.AddScoped<ITenantContext, TenantContext>();
 builder.Services.AddScoped<IProviderConnectionService, ProviderConnectionService>();
+
+// Add API Configuration
+builder.Services.AddApiConfiguration(builder.Configuration);
 
 // Connector Services
 builder.Services.AddScoped<IStripeConnector, StripeConnector>();

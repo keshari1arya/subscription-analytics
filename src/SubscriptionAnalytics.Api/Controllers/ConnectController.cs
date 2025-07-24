@@ -4,6 +4,8 @@ using SubscriptionAnalytics.Application.Services;
 using SubscriptionAnalytics.Shared.Enums;
 using SubscriptionAnalytics.Shared.Interfaces;
 using SubscriptionAnalytics.Shared.DTOs;
+using SubscriptionAnalytics.Api.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace SubscriptionAnalytics.Api.Controllers;
 
@@ -16,17 +18,20 @@ public class ConnectController : ControllerBase
     private readonly IProviderConnectionService _connectionService;
     private readonly ITenantContext _tenantContext;
     private readonly ILogger<ConnectController> _logger;
+    private readonly IOptions<OAuthConfiguration> _oauthConfig;
 
     public ConnectController(
         IConnectorFactory connectorFactory,
         IProviderConnectionService connectionService,
         ITenantContext tenantContext,
-        ILogger<ConnectController> logger)
+        ILogger<ConnectController> logger,
+        IOptions<OAuthConfiguration> oauthConfig)
     {
         _connectorFactory = connectorFactory;
         _connectionService = connectionService;
         _tenantContext = tenantContext;
         _logger = logger;
+        _oauthConfig = oauthConfig;
     }
 
     /// <summary>
@@ -84,7 +89,9 @@ public class ConnectController : ControllerBase
 
         var connector = _connectorFactory.GetConnector(connectorType);
         var state = Guid.NewGuid().ToString();
-        var redirectUri = $"https://localhost:7001/api/connect/tenant/{tenantId}/provider/{provider}/oauth-callback";
+        
+        // Use UI callback URL from configuration
+        var redirectUri = $"{_oauthConfig.Value.UiCallbackUrl}?provider={provider}";
 
         var authUrl = await connector.GenerateOAuthUrlAsync(state, redirectUri, tenantId);
 
@@ -93,6 +100,49 @@ public class ConnectController : ControllerBase
             AuthorizationUrl = authUrl,
             State = state,
             Provider = provider
+        });
+    }
+
+    /// <summary>
+    /// Handles OAuth callback from UI (after user authorizes on provider site)
+    /// </summary>
+    [HttpPost("oauth-callback-from-ui")]
+    public async Task<IActionResult> HandleOAuthCallbackFromUI(
+        [FromBody] OAuthCallbackRequest request)
+    {
+        // Get tenant ID from header (set by TenantInterceptor)
+        var tenantId = _tenantContext.TenantId;
+        
+        if (tenantId == Guid.Empty)
+        {
+            return BadRequest(new ErrorResponseDto("Tenant context not found. Please provide X-Tenant-Id header."));
+        }
+
+        if (!Enum.TryParse<ConnectorType>(request.Provider, true, out var connectorType))
+        {
+            return BadRequest(new ErrorResponseDto($"Unsupported provider: {request.Provider}"));
+        }
+
+        var connector = _connectorFactory.GetConnector(connectorType);
+        
+        // Exchange authorization code for access token
+        var tokenResponse = await connector.ExchangeOAuthCodeAsync(request.Code, request.State);
+
+        if (tokenResponse == null || string.IsNullOrEmpty(tokenResponse.AccessToken))
+        {
+            return BadRequest(new ErrorResponseDto("Failed to exchange authorization code for access token"));
+        }
+
+        // Save connection to database
+        await _connectionService.SaveConnectionAsync(tenantId, request.Provider, tokenResponse);
+
+        _logger.LogInformation("OAuth flow completed successfully for tenant {TenantId} with provider {Provider}", 
+            tenantId, request.Provider);
+
+        return Ok(new { 
+            success = true, 
+            message = $"{request.Provider} connected successfully",
+            providerAccountId = tokenResponse.ProviderAccountId
         });
     }
 

@@ -2,12 +2,14 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 using SubscriptionAnalytics.Shared.Enums;
 using SubscriptionAnalytics.Shared.Interfaces;
 using SubscriptionAnalytics.Shared.DTOs;
 using SubscriptionAnalytics.Application.Services;
 using SubscriptionAnalytics.Api.Controllers;
+using SubscriptionAnalytics.Api.Configuration;
 using System.Text.Json;
 using Xunit;
 
@@ -17,7 +19,9 @@ public class ConnectControllerTests
 {
     private readonly Mock<IConnectorFactory> _connectorFactoryMock;
     private readonly Mock<IProviderConnectionService> _connectionServiceMock;
+    private readonly Mock<ITenantContext> _tenantContextMock;
     private readonly Mock<ILogger<ConnectController>> _loggerMock;
+    private readonly Mock<IOptions<OAuthConfiguration>> _oauthConfigMock;
     private readonly Mock<IConnector> _stripeConnectorMock;
     private readonly Mock<IConnector> _payPalConnectorMock;
     private readonly ConnectController _controller;
@@ -26,14 +30,24 @@ public class ConnectControllerTests
     {
         _connectorFactoryMock = new Mock<IConnectorFactory>();
         _connectionServiceMock = new Mock<IProviderConnectionService>();
+        _tenantContextMock = new Mock<ITenantContext>();
         _loggerMock = new Mock<ILogger<ConnectController>>();
+        _oauthConfigMock = new Mock<IOptions<OAuthConfiguration>>();
         _stripeConnectorMock = new Mock<IConnector>();
         _payPalConnectorMock = new Mock<IConnector>();
+
+        // Setup OAuth configuration
+        _oauthConfigMock.Setup(x => x.Value).Returns(new OAuthConfiguration
+        {
+            UiCallbackUrl = "http://localhost:4200/providers/oauth-callback"
+        });
 
         _controller = new ConnectController(
             _connectorFactoryMock.Object,
             _connectionServiceMock.Object,
-            _loggerMock.Object);
+            _tenantContextMock.Object,
+            _loggerMock.Object,
+            _oauthConfigMock.Object);
 
         // Setup default connector mocks
         _stripeConnectorMock.Setup(x => x.ProviderName).Returns("stripe");
@@ -81,14 +95,15 @@ public class ConnectControllerTests
         // Arrange
         var tenantId = Guid.NewGuid();
         var provider = "stripe";
-        var expectedUrl = "https://connect.stripe.com/oauth/authorize?response_type=code&client_id=test&scope=read_write&redirect_uri=https%3A%2F%2Flocalhost%3A7001%2Fapi%2Fconnect%2Ftenant%2F" + tenantId + "%2Fprovider%2Fstripe%2Foauth-callback&state=";
+        var expectedUrl = "https://connect.stripe.com/oauth/authorize?response_type=code&client_id=test&scope=read_write&redirect_uri=http%3A%2F%2Flocalhost%3A4200%2Fproviders%2Foauth-callback%3Fprovider%3Dstripe&state=";
 
+        _tenantContextMock.Setup(x => x.TenantId).Returns(tenantId);
         _connectorFactoryMock.Setup(x => x.GetConnector(ConnectorType.Stripe)).Returns(_stripeConnectorMock.Object);
         _stripeConnectorMock.Setup(x => x.GenerateOAuthUrlAsync(It.IsAny<string>(), It.IsAny<string>(), tenantId))
             .ReturnsAsync(expectedUrl);
 
         // Act
-        var result = await _controller.InitiateConnection(tenantId, provider);
+        var result = await _controller.InitiateConnection(provider);
 
         // Assert
         result.Should().BeOfType<ActionResult<InitiateConnectionResponse>>();
@@ -108,14 +123,15 @@ public class ConnectControllerTests
         // Arrange
         var tenantId = Guid.NewGuid();
         var provider = "paypal";
-        var expectedUrl = "https://www.paypal.com/connect?flowentry=static&client_id=test&scope=openid%20email%20profile%20https%3A%2F%2Furi.paypal.com%2Fservices%2Fpaypalattributes&redirect_uri=https%3A%2F%2Flocalhost%3A7001%2Fapi%2Fconnect%2Ftenant%2F" + tenantId + "%2Fprovider%2Fpaypal%2Foauth-callback&state=";
+        var expectedUrl = "https://www.paypal.com/connect?flowentry=static&client_id=test&scope=openid%20email%20profile%20https%3A%2F%2Furi.paypal.com%2Fservices%2Fpaypalattributes&redirect_uri=http%3A%2F%2Flocalhost%3A4200%2Fproviders%2Foauth-callback%3Fprovider%3Dpaypal&state=test_state";
 
+        _tenantContextMock.Setup(x => x.TenantId).Returns(tenantId);
         _connectorFactoryMock.Setup(x => x.GetConnector(ConnectorType.PayPal)).Returns(_payPalConnectorMock.Object);
         _payPalConnectorMock.Setup(x => x.GenerateOAuthUrlAsync(It.IsAny<string>(), It.IsAny<string>(), tenantId))
             .ReturnsAsync(expectedUrl);
 
         // Act
-        var result = await _controller.InitiateConnection(tenantId, provider);
+        var result = await _controller.InitiateConnection(provider);
 
         // Assert
         result.Should().BeOfType<ActionResult<InitiateConnectionResponse>>();
@@ -136,15 +152,17 @@ public class ConnectControllerTests
         var tenantId = Guid.NewGuid();
         var provider = "invalid_provider";
 
+        _tenantContextMock.Setup(x => x.TenantId).Returns(tenantId);
+
         // Act
-        var result = await _controller.InitiateConnection(tenantId, provider);
+        var result = await _controller.InitiateConnection(provider);
 
         // Assert
         result.Should().BeOfType<ActionResult<InitiateConnectionResponse>>();
         var actionResult = result as ActionResult<InitiateConnectionResponse>;
         actionResult!.Result.Should().BeOfType<BadRequestObjectResult>();
         var badRequestResult = actionResult.Result as BadRequestObjectResult;
-        
+
         var jsonString = JsonSerializer.Serialize(badRequestResult!.Value);
         var errorResponse = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonString);
         errorResponse!["error"].Should().Contain("Unsupported provider");
@@ -161,12 +179,13 @@ public class ConnectControllerTests
         var tenantId = Guid.NewGuid();
         var expectedUrl = "https://test.com/oauth";
 
+        _tenantContextMock.Setup(x => x.TenantId).Returns(tenantId);
         _connectorFactoryMock.Setup(x => x.GetConnector(expectedType)).Returns(_stripeConnectorMock.Object);
         _stripeConnectorMock.Setup(x => x.GenerateOAuthUrlAsync(It.IsAny<string>(), It.IsAny<string>(), tenantId))
             .ReturnsAsync(expectedUrl);
 
         // Act
-        var result = await _controller.InitiateConnection(tenantId, provider);
+        var result = await _controller.InitiateConnection(provider);
 
         // Assert
         result.Should().BeOfType<ActionResult<InitiateConnectionResponse>>();
@@ -218,7 +237,7 @@ public class ConnectControllerTests
         // Assert
         result.Should().BeOfType<OkObjectResult>();
         var okResult = result as OkObjectResult;
-        
+
         var jsonString = JsonSerializer.Serialize(okResult!.Value);
         var responseDict = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(jsonString);
         responseDict!["message"].GetString().Should().Contain("stripe account connected successfully");
@@ -265,7 +284,7 @@ public class ConnectControllerTests
         // Assert
         result.Should().BeOfType<OkObjectResult>();
         var okResult = result as OkObjectResult;
-        
+
         var jsonString = JsonSerializer.Serialize(okResult!.Value);
         var responseDict = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(jsonString);
         responseDict!["message"].GetString().Should().Contain("paypal account connected successfully");
@@ -287,7 +306,7 @@ public class ConnectControllerTests
         // Assert
         result.Should().BeOfType<BadRequestObjectResult>();
         var badRequestResult = result as BadRequestObjectResult;
-        
+
         var jsonString = JsonSerializer.Serialize(badRequestResult!.Value);
         var errorResponse = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonString);
         errorResponse!["error"].Should().Be(error);
@@ -308,7 +327,7 @@ public class ConnectControllerTests
         // Assert
         result.Should().BeOfType<BadRequestObjectResult>();
         var badRequestResult = result as BadRequestObjectResult;
-        
+
         var jsonString = JsonSerializer.Serialize(badRequestResult!.Value);
         var errorResponse = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonString);
         errorResponse!["error"].Should().Be(error);
@@ -329,7 +348,7 @@ public class ConnectControllerTests
         // Assert
         result.Should().BeOfType<BadRequestObjectResult>();
         var badRequestResult = result as BadRequestObjectResult;
-        
+
         var jsonString = JsonSerializer.Serialize(badRequestResult!.Value);
         var errorResponse = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonString);
         errorResponse!["error"].Should().Be("Missing required OAuth parameters");
@@ -349,7 +368,7 @@ public class ConnectControllerTests
         // Assert
         result.Should().BeOfType<BadRequestObjectResult>();
         var badRequestResult = result as BadRequestObjectResult;
-        
+
         var jsonString = JsonSerializer.Serialize(badRequestResult!.Value);
         var errorResponse = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonString);
         errorResponse!["error"].Should().Be("Missing required OAuth parameters");
@@ -370,7 +389,7 @@ public class ConnectControllerTests
         // Assert
         result.Should().BeOfType<BadRequestObjectResult>();
         var badRequestResult = result as BadRequestObjectResult;
-        
+
         var jsonString = JsonSerializer.Serialize(badRequestResult!.Value);
         var errorResponse = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonString);
         errorResponse!["error"].Should().Contain("Unsupported provider");
@@ -393,11 +412,12 @@ public class ConnectControllerTests
             Scope = "read_write"
         };
 
+        _tenantContextMock.Setup(x => x.TenantId).Returns(tenantId);
         _connectionServiceMock.Setup(x => x.GetConnectionAsync(tenantId, provider))
             .ReturnsAsync(connectionDto);
 
         // Act
-        var result = await _controller.GetConnection(tenantId, provider);
+        var result = await _controller.GetConnection(provider);
 
         // Assert
         result.Should().BeOfType<ActionResult<ProviderConnectionDto>>();
@@ -417,18 +437,19 @@ public class ConnectControllerTests
         var tenantId = Guid.NewGuid();
         var provider = "stripe";
 
+        _tenantContextMock.Setup(x => x.TenantId).Returns(tenantId);
         _connectionServiceMock.Setup(x => x.GetConnectionAsync(tenantId, provider))
             .ReturnsAsync((ProviderConnectionDto?)null);
 
         // Act
-        var result = await _controller.GetConnection(tenantId, provider);
+        var result = await _controller.GetConnection(provider);
 
         // Assert
         result.Should().BeOfType<ActionResult<ProviderConnectionDto>>();
         var actionResult = result as ActionResult<ProviderConnectionDto>;
         actionResult!.Result.Should().BeOfType<NotFoundObjectResult>();
         var notFoundResult = actionResult.Result as NotFoundObjectResult;
-        
+
         var jsonString = JsonSerializer.Serialize(notFoundResult!.Value);
         var errorResponse = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonString);
         errorResponse!["error"].Should().Contain("No stripe connection found");
@@ -463,11 +484,12 @@ public class ConnectControllerTests
             }
         };
 
+        _tenantContextMock.Setup(x => x.TenantId).Returns(tenantId);
         _connectionServiceMock.Setup(x => x.GetConnectionsAsync(tenantId))
             .ReturnsAsync(connections);
 
         // Act
-        var result = await _controller.GetConnections(tenantId);
+        var result = await _controller.GetConnections();
 
         // Assert
         result.Should().BeOfType<ActionResult<IEnumerable<ProviderConnectionDto>>>();
@@ -488,11 +510,12 @@ public class ConnectControllerTests
         var tenantId = Guid.NewGuid();
         var emptyConnections = new List<ProviderConnectionDto>();
 
+        _tenantContextMock.Setup(x => x.TenantId).Returns(tenantId);
         _connectionServiceMock.Setup(x => x.GetConnectionsAsync(tenantId))
             .ReturnsAsync(emptyConnections);
 
         // Act
-        var result = await _controller.GetConnections(tenantId);
+        var result = await _controller.GetConnections();
 
         // Assert
         result.Should().BeOfType<ActionResult<IEnumerable<ProviderConnectionDto>>>();
@@ -511,11 +534,12 @@ public class ConnectControllerTests
         var tenantId = Guid.NewGuid();
         var provider = "stripe";
 
+        _tenantContextMock.Setup(x => x.TenantId).Returns(tenantId);
         _connectionServiceMock.Setup(x => x.DisconnectAsync(tenantId, provider))
             .ReturnsAsync(true);
 
         // Act
-        var result = await _controller.DisconnectProvider(tenantId, provider);
+        var result = await _controller.DisconnectProvider(provider);
 
         // Assert
         result.Should().BeOfType<NoContentResult>();
@@ -528,16 +552,17 @@ public class ConnectControllerTests
         var tenantId = Guid.NewGuid();
         var provider = "stripe";
 
+        _tenantContextMock.Setup(x => x.TenantId).Returns(tenantId);
         _connectionServiceMock.Setup(x => x.DisconnectAsync(tenantId, provider))
             .ReturnsAsync(false);
 
         // Act
-        var result = await _controller.DisconnectProvider(tenantId, provider);
+        var result = await _controller.DisconnectProvider(provider);
 
         // Assert
         result.Should().BeOfType<NotFoundObjectResult>();
         var notFoundResult = result as NotFoundObjectResult;
-        
+
         var jsonString = JsonSerializer.Serialize(notFoundResult!.Value);
         var errorResponse = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonString);
         errorResponse!["error"].Should().Contain("No stripe connection found");
@@ -553,13 +578,223 @@ public class ConnectControllerTests
         // Arrange
         var tenantId = Guid.NewGuid();
 
+        _tenantContextMock.Setup(x => x.TenantId).Returns(tenantId);
         _connectionServiceMock.Setup(x => x.DisconnectAsync(tenantId, provider))
             .ReturnsAsync(true);
 
         // Act
-        var result = await _controller.DisconnectProvider(tenantId, provider);
+        var result = await _controller.DisconnectProvider(provider);
 
         // Assert
         result.Should().BeOfType<NoContentResult>();
     }
-} 
+
+    // ===== NEW OAUTH FROM UI TESTS =====
+
+    [Fact]
+    public async Task HandleOAuthCallbackFromUI_WithValidStripeCallback_Should_ReturnSuccess()
+    {
+        // Arrange
+        var tenantId = Guid.NewGuid();
+        var request = new OAuthCallbackRequest
+        {
+            Provider = "stripe",
+            Code = "test_auth_code",
+            State = "test_state"
+        };
+
+        var tokenResponse = new OAuthTokenResponse
+        {
+            AccessToken = "test_access_token",
+            TokenType = "Bearer",
+            ExpiresIn = 3600,
+            ProviderAccountId = "acct_test123"
+        };
+
+        _tenantContextMock.Setup(x => x.TenantId).Returns(tenantId);
+        _connectorFactoryMock.Setup(x => x.GetConnector(ConnectorType.Stripe)).Returns(_stripeConnectorMock.Object);
+        _stripeConnectorMock.Setup(x => x.ExchangeOAuthCodeAsync(request.Code, request.State))
+            .ReturnsAsync(tokenResponse);
+        _connectionServiceMock.Setup(x => x.SaveConnectionAsync(tenantId, request.Provider, tokenResponse))
+            .ReturnsAsync(new ProviderConnectionDto());
+
+        // Act
+        var result = await _controller.HandleOAuthCallbackFromUI(request);
+
+        // Assert
+        result.Should().BeOfType<OkObjectResult>();
+        var okResult = result as OkObjectResult;
+        var response = okResult!.Value as dynamic;
+        ((bool)response.success).Should().Be(true);
+        ((string)response.message).Should().Contain("stripe connected successfully");
+        ((string)response.providerAccountId).Should().Be("acct_test123");
+    }
+
+    [Fact]
+    public async Task HandleOAuthCallbackFromUI_WithValidPayPalCallback_Should_ReturnSuccess()
+    {
+        // Arrange
+        var tenantId = Guid.NewGuid();
+        var request = new OAuthCallbackRequest
+        {
+            Provider = "paypal",
+            Code = "test_auth_code",
+            State = "test_state"
+        };
+
+        var tokenResponse = new OAuthTokenResponse
+        {
+            AccessToken = "test_access_token",
+            TokenType = "Bearer",
+            ExpiresIn = 3600,
+            ProviderAccountId = "paypal_account_123"
+        };
+
+        _tenantContextMock.Setup(x => x.TenantId).Returns(tenantId);
+        _connectorFactoryMock.Setup(x => x.GetConnector(ConnectorType.PayPal)).Returns(_payPalConnectorMock.Object);
+        _payPalConnectorMock.Setup(x => x.ExchangeOAuthCodeAsync(request.Code, request.State))
+            .ReturnsAsync(tokenResponse);
+        _connectionServiceMock.Setup(x => x.SaveConnectionAsync(tenantId, request.Provider, tokenResponse))
+            .ReturnsAsync(new ProviderConnectionDto());
+
+        // Act
+        var result = await _controller.HandleOAuthCallbackFromUI(request);
+
+        // Assert
+        result.Should().BeOfType<OkObjectResult>();
+        var okResult = result as OkObjectResult;
+        var response = okResult!.Value as dynamic;
+        ((bool)response.success).Should().Be(true);
+        ((string)response.message).Should().Contain("paypal connected successfully");
+        ((string)response.providerAccountId).Should().Be("paypal_account_123");
+    }
+
+    [Fact]
+    public async Task HandleOAuthCallbackFromUI_WithInvalidProvider_Should_ReturnBadRequest()
+    {
+        // Arrange
+        var tenantId = Guid.NewGuid();
+        var request = new OAuthCallbackRequest
+        {
+            Provider = "invalid-provider",
+            Code = "test_auth_code",
+            State = "test_state"
+        };
+
+        _tenantContextMock.Setup(x => x.TenantId).Returns(tenantId);
+
+        // Act
+        var result = await _controller.HandleOAuthCallbackFromUI(request);
+
+        // Assert
+        result.Should().BeOfType<BadRequestObjectResult>();
+        var badRequestResult = result as BadRequestObjectResult;
+        var errorResponse = badRequestResult!.Value as ErrorResponseDto;
+        errorResponse!.Error.Should().Contain("Unsupported provider");
+    }
+
+    [Fact]
+    public async Task HandleOAuthCallbackFromUI_WithEmptyTenantId_Should_ReturnBadRequest()
+    {
+        // Arrange
+        var request = new OAuthCallbackRequest
+        {
+            Provider = "stripe",
+            Code = "test_auth_code",
+            State = "test_state"
+        };
+
+        _tenantContextMock.Setup(x => x.TenantId).Returns(Guid.Empty);
+
+        // Act
+        var result = await _controller.HandleOAuthCallbackFromUI(request);
+
+        // Assert
+        result.Should().BeOfType<BadRequestObjectResult>();
+        var badRequestResult = result as BadRequestObjectResult;
+        var errorResponse = badRequestResult!.Value as ErrorResponseDto;
+        errorResponse!.Error.Should().Contain("Tenant context not found");
+    }
+
+    [Fact]
+    public async Task HandleOAuthCallbackFromUI_WithFailedTokenExchange_Should_ReturnBadRequest()
+    {
+        // Arrange
+        var tenantId = Guid.NewGuid();
+        var request = new OAuthCallbackRequest
+        {
+            Provider = "stripe",
+            Code = "test_auth_code",
+            State = "test_state"
+        };
+
+        _tenantContextMock.Setup(x => x.TenantId).Returns(tenantId);
+        _connectorFactoryMock.Setup(x => x.GetConnector(ConnectorType.Stripe)).Returns(_stripeConnectorMock.Object);
+        _stripeConnectorMock.Setup(x => x.ExchangeOAuthCodeAsync(request.Code, request.State))
+            .ReturnsAsync((OAuthTokenResponse)null);
+
+        // Act
+        var result = await _controller.HandleOAuthCallbackFromUI(request);
+
+        // Assert
+        result.Should().BeOfType<BadRequestObjectResult>();
+        var badRequestResult = result as BadRequestObjectResult;
+        var errorResponse = badRequestResult!.Value as ErrorResponseDto;
+        errorResponse!.Error.Should().Contain("Failed to exchange authorization code");
+    }
+
+    [Fact]
+    public async Task HandleOAuthCallbackFromUI_WithEmptyAccessToken_Should_ReturnBadRequest()
+    {
+        // Arrange
+        var tenantId = Guid.NewGuid();
+        var request = new OAuthCallbackRequest
+        {
+            Provider = "stripe",
+            Code = "test_auth_code",
+            State = "test_state"
+        };
+
+        var tokenResponse = new OAuthTokenResponse
+        {
+            AccessToken = "",
+            TokenType = "Bearer",
+            ExpiresIn = 3600,
+            ProviderAccountId = "acct_test123"
+        };
+
+        _tenantContextMock.Setup(x => x.TenantId).Returns(tenantId);
+        _connectorFactoryMock.Setup(x => x.GetConnector(ConnectorType.Stripe)).Returns(_stripeConnectorMock.Object);
+        _stripeConnectorMock.Setup(x => x.ExchangeOAuthCodeAsync(request.Code, request.State))
+            .ReturnsAsync(tokenResponse);
+
+        // Act
+        var result = await _controller.HandleOAuthCallbackFromUI(request);
+
+        // Assert
+        result.Should().BeOfType<BadRequestObjectResult>();
+        var badRequestResult = result as BadRequestObjectResult;
+        var errorResponse = badRequestResult!.Value as ErrorResponseDto;
+        errorResponse!.Error.Should().Contain("Failed to exchange authorization code");
+    }
+
+    [Fact]
+    public async Task InitiateConnection_WithEmptyTenantId_Should_ReturnBadRequest()
+    {
+        // Arrange
+        var provider = "stripe";
+
+        _tenantContextMock.Setup(x => x.TenantId).Returns(Guid.Empty);
+
+        // Act
+        var result = await _controller.InitiateConnection(provider);
+
+        // Assert
+        result.Should().BeOfType<ActionResult<InitiateConnectionResponse>>();
+        var actionResult = result as ActionResult<InitiateConnectionResponse>;
+        actionResult!.Result.Should().BeOfType<BadRequestObjectResult>();
+        var badRequestResult = actionResult.Result as BadRequestObjectResult;
+        var errorResponse = badRequestResult!.Value as ErrorResponseDto;
+        errorResponse!.Error.Should().Contain("Tenant context not found");
+    }
+}
