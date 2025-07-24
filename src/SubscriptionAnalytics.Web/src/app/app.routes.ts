@@ -7,16 +7,26 @@ import { LayoutComponent } from './layouts/layout.component';
 
 export const routes: Routes = [
     {
+        path: "",
+        loadChildren: () =>
+            import("./landing/landing.module").then((m) => m.LandingModule),
+    },
+    {
+        path: "app",
+        component: LayoutComponent,
+        loadChildren: () =>
+            import("./pages/pages.module").then((m) => m.PagesModule),
+        canActivate: [AuthGuard, TenantGuard],
+    },
+    {
         path: "auth",
         loadChildren: () =>
             import("./account/account.module").then((m) => m.AccountModule),
     },
     {
-        path: "",
-        component: LayoutComponent,
+        path: "auth",
         loadChildren: () =>
-            import("./pages/pages.module").then((m) => m.PagesModule),
-        canActivate: [AuthGuard, TenantGuard],
+            import("./account/account.module").then((m) => m.AccountModule),
     },
     {
         path: "pages",

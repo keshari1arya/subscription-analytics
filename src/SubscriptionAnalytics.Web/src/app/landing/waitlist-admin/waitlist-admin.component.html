@@ -1,0 +1,88 @@
+<div class="container mt-5">
+  <div class="row">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Waitlist Analytics Dashboard</h2>
+        <div>
+          <button class="btn btn-primary me-2" (click)="exportData()">
+            <i class="fas fa-download me-2"></i>Export Data
+          </button>
+          <button class="btn btn-danger" (click)="clearData()">
+            <i class="fas fa-trash me-2"></i>Clear Data
+          </button>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="!loading">
+        <!-- Total Signups -->
+        <div class="col-md-3 mb-4">
+          <div class="card bg-primary text-white">
+            <div class="card-body text-center">
+              <h3 class="card-title">{{ stats.totalSignups || 0 }}</h3>
+              <p class="card-text">Total Signups</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Signups by Role -->
+        <div class="col-md-9 mb-4">
+          <div class="card">
+            <div class="card-header">
+              <h5>Signups by Role</h5>
+            </div>
+            <div class="card-body">
+              <div class="row" *ngIf="stats.byRole">
+                <div class="col-md-3 mb-2" *ngFor="let role of getObjectKeys(stats.byRole)">
+                  <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+                    <span class="text-capitalize">{{ role }}</span>
+                    <span class="badge bg-primary">{{ stats.byRole[role] }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Signups -->
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <h5>Recent Signups</h5>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-striped">
+                  <thead>
+                    <tr>
+                      <th>Email</th>
+                      <th>Company</th>
+                      <th>Role</th>
+                      <th>Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let signup of stats.recentSignups">
+                      <td>{{ signup.email }}</td>
+                      <td>{{ signup.company }}</td>
+                      <td><span class="badge bg-secondary text-capitalize">{{ signup.role }}</span></td>
+                      <td>{{ signup.timestamp | date:'short' }}</td>
+                    </tr>
+                    <tr *ngIf="!stats.recentSignups || stats.recentSignups.length === 0">
+                      <td colspan="4" class="text-center text-muted">No signups yet</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center" *ngIf="loading">
+        <div class="spinner-border" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

@@ -118,11 +118,11 @@ export class AuthenticationEffects {
               map((hasTenants) => {
                 if (hasTenants) {
                   // User has tenants, navigate to main app
-                  this.router.navigate(['/']);
-                                  } else {
-                    // User has no tenants, redirect to create tenant page
-                    this.router.navigate(['/tenant']);
-                  }
+                  this.router.navigate(['/app']);
+                } else {
+                  // User has no tenants, redirect to create tenant page
+                  this.router.navigate(['/tenant']);
+                }
                 return loginSuccess({ user });
               })
             );

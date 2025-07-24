@@ -46,7 +46,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     if (localStorage.getItem('currentUser')) {
-      this.router.navigate(['/']);
+      this.router.navigate(['/app']);
     }
     // form validation
     this.loginForm = this.formBuilder.group({

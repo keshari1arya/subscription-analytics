@@ -46,7 +46,7 @@ export class CreateTenantComponent implements OnInit {
           console.log('Tenant created successfully:', tenant);
           this.loading = false;
           // Redirect to main application
-          this.router.navigate(['/']);
+          this.router.navigate(['/app']);
         },
         error: (error) => {
           console.error('Error creating tenant:', error);

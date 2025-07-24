@@ -1,0 +1,655 @@
+<!-- Navigation -->
+<app-landing-nav></app-landing-nav>
+
+<!-- Hero Section -->
+<section class="hero-section bg-gradient-primary text-white py-5">
+  <div class="container">
+    <!-- Hero Content - Clean & Centered -->
+    <div class="row justify-content-center text-center mb-4">
+      <div class="col-lg-8">
+        <h1 class="display-6 fw-bold mb-3 text-center">
+          <div class="typing-container">
+            <span class="typing-text" id="typing-text"></span><span class="cursor"></span>
+          </div>
+        </h1>
+                       <p class="lead mb-4 fs-5">
+                 We're building the ultimate subscription analytics platform. Connect Stripe, PayPal, and other payment providers in one unified dashboard. Get early access and be among the first to experience powerful subscription insights.
+               </p>
+        
+        <div class="hero-cta d-flex justify-content-center gap-3 mb-4">
+          <button class="btn btn-warning btn-lg px-4 py-3" (click)="scrollToSection('signup')">
+            <i class="fas fa-rocket me-2"></i>Get Early Access
+          </button>
+          <button class="btn btn-outline-light btn-lg px-4 py-3" (click)="scrollToSection('features')">
+            <i class="fas fa-play me-2"></i>See How It Works
+          </button>
+        </div>
+        
+                       <!-- Trust Indicators - Larger & More Prominent -->
+               <div class="trust-indicators mb-4">
+                 <p class="text-light mb-4 fw-semibold">Integrating with leading payment providers</p>
+          <div class="trust-logos-container">
+            <div class="trust-logo">
+              <div class="logo-bg bg-white rounded p-3 shadow-sm">
+                <i class="fab fa-stripe fa-3x text-primary"></i>
+              </div>
+            </div>
+            <div class="trust-logo">
+              <div class="logo-bg bg-white rounded p-3 shadow-sm">
+                <i class="fab fa-paypal fa-3x text-info"></i>
+              </div>
+            </div>
+            <div class="trust-logo">
+              <div class="logo-bg bg-white rounded p-3 shadow-sm">
+                <i class="fab fa-shopify fa-3x text-success"></i>
+              </div>
+            </div>
+            <div class="trust-logo">
+              <div class="logo-bg bg-white rounded p-3 shadow-sm">
+                <i class="fab fa-woocommerce fa-3x text-warning"></i>
+              </div>
+            </div>
+            <div class="trust-logo">
+              <div class="logo-bg bg-white rounded p-3 shadow-sm">
+                <i class="fas fa-shield-alt fa-3x text-danger"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Dashboard Mockup - Compact & Professional -->
+    <div class="row justify-content-center">
+      <div class="col-lg-9">
+        <div class="dashboard-mockup-hero">
+          <div class="mockup-header bg-dark p-3 rounded-top">
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="d-flex align-items-center">
+                <div class="status-dot bg-success me-2"></div>
+                <span class="text-white fw-semibold">SubscriptionAnalytics Dashboard</span>
+              </div>
+              <div class="d-flex">
+                <div class="status-dot bg-warning me-1"></div>
+                <div class="status-dot bg-success me-1"></div>
+                <div class="status-dot bg-danger"></div>
+              </div>
+            </div>
+          </div>
+          <div class="mockup-content bg-white p-3 rounded-bottom">
+            <!-- Key Metrics - Compact Row -->
+            <div class="row g-2 mb-3">
+              <div class="col-md-3">
+                <div class="metric-card bg-light p-2 rounded text-center">
+                  <h5 class="text-primary mb-1">$45,230</h5>
+                  <small class="text-muted">MRR</small>
+                  <div class="metric-change positive small">+12.5%</div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="metric-card bg-light p-2 rounded text-center">
+                  <h5 class="text-success mb-1">2,847</h5>
+                  <small class="text-muted">Active Subscribers</small>
+                  <div class="metric-change positive small">+8.3%</div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="metric-card bg-light p-2 rounded text-center">
+                  <h5 class="text-info mb-1">4.2%</h5>
+                  <small class="text-muted">Churn Rate</small>
+                  <div class="metric-change negative small">-0.5%</div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="metric-card bg-light p-2 rounded text-center">
+                  <h5 class="text-warning mb-1">$156</h5>
+                  <small class="text-muted">LTV</small>
+                  <div class="metric-change positive small">+15.2%</div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Chart and Table - Side by Side -->
+            <div class="row g-3">
+              <div class="col-md-7">
+                <div class="chart-section">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="chart-title mb-0">Monthly Revenue Trend</h6>
+                    <span class="badge bg-success">+12.5%</span>
+                  </div>
+                  <div class="chart-container">
+                    <div class="chart-bars d-flex align-items-end justify-content-between" style="height: 100px;">
+                      <div class="chart-bar" style="height: 60%; background: linear-gradient(to top, #28a745, #20c997);"></div>
+                      <div class="chart-bar" style="height: 80%; background: linear-gradient(to top, #007bff, #17a2b8);"></div>
+                      <div class="chart-bar" style="height: 45%; background: linear-gradient(to top, #ffc107, #fd7e14);"></div>
+                      <div class="chart-bar" style="height: 95%; background: linear-gradient(to top, #28a745, #20c997);"></div>
+                      <div class="chart-bar" style="height: 70%; background: linear-gradient(to top, #007bff, #17a2b8);"></div>
+                      <div class="chart-bar" style="height: 85%; background: linear-gradient(to top, #ffc107, #fd7e14);"></div>
+                      <div class="chart-bar" style="height: 100%; background: linear-gradient(to top, #28a745, #20c997);"></div>
+                    </div>
+                    <div class="chart-labels d-flex justify-content-between mt-2">
+                      <span class="text-muted small">Jan</span>
+                      <span class="text-muted small">Feb</span>
+                      <span class="text-muted small">Mar</span>
+                      <span class="text-muted small">Apr</span>
+                      <span class="text-muted small">May</span>
+                      <span class="text-muted small">Jun</span>
+                      <span class="text-muted small">Jul</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-md-5">
+                <div class="table-section">
+                  <h6 class="table-title mb-2">Recent Transactions</h6>
+                  <div class="table-container">
+                    <table class="table table-sm mb-0">
+                      <thead>
+                        <tr>
+                          <th class="small">Customer</th>
+                          <th class="small">Amount</th>
+                          <th class="small">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td class="small">John Doe</td>
+                          <td class="small">$29.99</td>
+                          <td><span class="badge bg-success small">Paid</span></td>
+                        </tr>
+                        <tr>
+                          <td class="small">Jane Smith</td>
+                          <td class="small">$49.99</td>
+                          <td><span class="badge bg-success small">Paid</span></td>
+                        </tr>
+                        <tr>
+                          <td class="small">Bob Wilson</td>
+                          <td class="small">$19.99</td>
+                          <td><span class="badge bg-warning small">Pending</span></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+               <!-- Social Proof Stats - Clean & Readable -->
+           <div class="row justify-content-center mt-4">
+             <div class="col-lg-8">
+               <div class="social-proof-stats">
+                 <div class="row text-center">
+                   <div class="col-md-3">
+                     <div class="stat-highlight">
+                       <h4 class="text-primary mb-1">Coming Soon</h4>
+                       <small class="text-light">Launch Date</small>
+                     </div>
+                   </div>
+                   <div class="col-md-3">
+                     <div class="stat-highlight">
+                       <h4 class="text-success mb-1">Stripe + PayPal</h4>
+                       <small class="text-light">Integrations</small>
+                     </div>
+                   </div>
+                   <div class="col-md-3">
+                     <div class="stat-highlight">
+                       <h4 class="text-info mb-1">Early Access</h4>
+                       <small class="text-light">Join Waitlist</small>
+                     </div>
+                   </div>
+                   <div class="col-md-3">
+                     <div class="stat-highlight">
+                       <h4 class="text-warning mb-1">Free Beta</h4>
+                       <small class="text-light">Limited Time</small>
+                     </div>
+                   </div>
+                 </div>
+               </div>
+             </div>
+           </div>
+  </div>
+</section>
+
+<!-- Problem Section -->
+<section class="problem-section py-5 bg-light" id="problem">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 mx-auto text-center">
+        <h2 class="display-5 fw-bold mb-4">The Problem: Your Data is Scattered</h2>
+        <p class="lead mb-5">
+          Most businesses use multiple payment providers, but their analytics are fragmented across different platforms.
+        </p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-4 mb-4">
+        <div class="problem-card text-center p-4 bg-white rounded shadow-sm">
+          <div class="problem-icon mb-3">
+            <i class="fas fa-chart-line text-danger fa-3x"></i>
+          </div>
+          <h4>Multiple Dashboards</h4>
+          <p class="text-muted">Jumping between Stripe, PayPal, and other platforms to understand your business</p>
+        </div>
+      </div>
+      <div class="col-md-4 mb-4">
+        <div class="problem-card text-center p-4 bg-white rounded shadow-sm">
+          <div class="problem-icon mb-3">
+            <i class="fas fa-clock text-warning fa-3x"></i>
+          </div>
+          <h4>Time-Consuming Reports</h4>
+          <p class="text-muted">Manual data aggregation and report generation takes hours every week</p>
+        </div>
+      </div>
+      <div class="col-md-4 mb-4">
+        <div class="problem-card text-center p-4 bg-white rounded shadow-sm">
+          <div class="problem-icon mb-3">
+            <i class="fas fa-eye-slash text-info fa-3x"></i>
+          </div>
+          <h4>Missing Insights</h4>
+          <p class="text-muted">No unified view of customer behavior, churn patterns, or revenue trends</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section py-5" id="features">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 mx-auto text-center">
+        <h2 class="display-5 fw-bold mb-4">The Solution: Unified Analytics</h2>
+        <p class="lead mb-5">
+          One dashboard that brings all your subscription data together with intelligent insights.
+        </p>
+      </div>
+    </div>
+    
+    <!-- Additional Dashboard Mockup -->
+    <div class="row mb-5">
+      <div class="col-12">
+        <div class="text-center">
+          <div class="dashboard-mockup" style="max-width: 800px; margin: 0 auto;">
+            <div class="mockup-header bg-dark p-3 rounded-top">
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                  <div class="status-dot bg-success me-2"></div>
+                  <span class="text-white">Advanced Analytics Dashboard</span>
+                </div>
+                <div class="d-flex">
+                  <div class="status-dot bg-warning me-1"></div>
+                  <div class="status-dot bg-success me-1"></div>
+                  <div class="status-dot bg-danger"></div>
+                </div>
+              </div>
+            </div>
+            <div class="mockup-content bg-white p-4 rounded-bottom">
+              <div class="row g-3">
+                <!-- Simplified Charts -->
+                <div class="col-md-6">
+                  <div class="chart-section">
+                    <h6 class="chart-title mb-3">Customer Retention</h6>
+                    <div class="d-flex align-items-end" style="height: 100px;">
+                      <div class="chart-bar me-2" style="height: 80%; background: linear-gradient(to top, #28a745, #20c997);"></div>
+                      <div class="chart-bar me-2" style="height: 65%; background: linear-gradient(to top, #007bff, #17a2b8);"></div>
+                      <div class="chart-bar me-2" style="height: 45%; background: linear-gradient(to top, #ffc107, #fd7e14);"></div>
+                      <div class="chart-bar me-2" style="height: 30%; background: linear-gradient(to top, #dc3545, #fd7e14);"></div>
+                      <div class="chart-bar me-2" style="height: 20%; background: linear-gradient(to top, #6c757d, #495057);"></div>
+                      <div class="chart-bar" style="height: 15%; background: linear-gradient(to top, #6c757d, #495057);"></div>
+                    </div>
+                    <div class="d-flex justify-content-between mt-2">
+                      <span class="text-muted small">Month 1</span>
+                      <span class="text-muted small">Month 6</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Provider Stats -->
+                <div class="col-md-6">
+                  <div class="chart-section">
+                    <h6 class="chart-title mb-3">Provider Performance</h6>
+                    <div class="row g-2">
+                      <div class="col-6">
+                        <div class="metric-card bg-light p-3 rounded">
+                          <div class="d-flex align-items-center mb-2">
+                            <i class="fab fa-stripe text-primary me-2"></i>
+                            <span class="fw-bold">Stripe</span>
+                          </div>
+                          <div class="text-primary fw-bold">$28,450</div>
+                          <small class="text-muted">1,247 transactions</small>
+                        </div>
+                      </div>
+                      <div class="col-6">
+                        <div class="metric-card bg-light p-3 rounded">
+                          <div class="d-flex align-items-center mb-2">
+                            <i class="fab fa-paypal text-info me-2"></i>
+                            <span class="fw-bold">PayPal</span>
+                          </div>
+                          <div class="text-info fw-bold">$12,230</div>
+                          <small class="text-muted">456 transactions</small>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Churn Alerts -->
+                <div class="col-12">
+                  <div class="chart-section">
+                    <h6 class="chart-title mb-3">High Churn Risk Customers</h6>
+                    <div class="table-responsive">
+                      <table class="table table-sm">
+                        <thead>
+                          <tr>
+                            <th>Customer</th>
+                            <th>Plan</th>
+                            <th>Risk Level</th>
+                            <th>Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td>John Smith</td>
+                            <td>Pro Plan</td>
+                            <td><span class="badge bg-danger">High Risk</span></td>
+                            <td><button class="btn btn-sm btn-outline-primary">Contact</button></td>
+                          </tr>
+                          <tr>
+                            <td>Sarah Johnson</td>
+                            <td>Basic Plan</td>
+                            <td><span class="badge bg-warning">Medium Risk</span></td>
+                            <td><button class="btn btn-sm btn-outline-primary">Contact</button></td>
+                          </tr>
+                          <tr>
+                            <td>Mike Wilson</td>
+                            <td>Enterprise</td>
+                            <td><span class="badge bg-danger">High Risk</span></td>
+                            <td><button class="btn btn-sm btn-outline-primary">Contact</button></td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-lg-6 mb-4">
+        <div class="feature-item d-flex">
+          <div class="feature-icon me-4">
+            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+              <i class="fas fa-plug fa-2x"></i>
+            </div>
+          </div>
+          <div class="feature-content">
+            <h4>Multi-Provider Integration</h4>
+            <p class="text-muted">Connect Stripe, PayPal, Square, and more with our plugin-based architecture. Add new providers in minutes.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 mb-4">
+        <div class="feature-item d-flex">
+          <div class="feature-icon me-4">
+            <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+              <i class="fas fa-chart-bar fa-2x"></i>
+            </div>
+          </div>
+          <div class="feature-content">
+            <h4>Real-time Analytics</h4>
+            <p class="text-muted">Track MRR, ARR, churn rate, customer LTV, and 50+ other metrics in real-time across all platforms.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 mb-4">
+        <div class="feature-item d-flex">
+          <div class="feature-icon me-4">
+            <div class="bg-warning text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+              <i class="fas fa-brain fa-2x"></i>
+            </div>
+          </div>
+          <div class="feature-content">
+            <h4>Predictive Insights</h4>
+            <p class="text-muted">AI-powered churn prediction, revenue forecasting, and customer behavior analysis.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 mb-4">
+        <div class="feature-item d-flex">
+          <div class="feature-icon me-4">
+            <div class="bg-info text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+              <i class="fas fa-shield-alt fa-2x"></i>
+            </div>
+          </div>
+          <div class="feature-content">
+            <h4>Enterprise Security</h4>
+            <p class="text-muted">Bank-level encryption, SOC 2 compliance, and multi-tenant isolation for your data security.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Pricing Section -->
+<section class="pricing-section py-5 bg-light" id="pricing">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 mx-auto text-center">
+        <h2 class="display-5 fw-bold mb-4">Simple, Transparent Pricing</h2>
+        <p class="lead mb-5">
+          Start free, scale as you grow. No hidden fees, no surprises.
+        </p>
+      </div>
+    </div>
+    <div class="row justify-content-center">
+      <div class="col-lg-4 col-md-6 mb-4">
+        <div class="pricing-card bg-white rounded shadow-sm p-4 text-center">
+          <h4 class="text-primary mb-3">Starter</h4>
+          <div class="price mb-3">
+            <span class="display-4 fw-bold">$0</span>
+            <span class="text-muted">/month</span>
+          </div>
+          <p class="text-muted mb-4">Perfect for early-stage startups</p>
+          <ul class="list-unstyled mb-4">
+            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>2 Payment Providers</li>
+            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Basic Analytics</li>
+            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Email Support</li>
+            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>1,000 Transactions/month</li>
+          </ul>
+          <button class="btn btn-outline-primary w-100">Get Started Free</button>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-6 mb-4">
+        <div class="pricing-card bg-primary text-white rounded shadow p-4 text-center position-relative">
+          <div class="position-absolute top-0 start-50 translate-middle">
+            <span class="badge bg-warning text-dark px-3 py-2">Most Popular</span>
+          </div>
+          <h4 class="mb-3">Growth</h4>
+          <div class="price mb-3">
+            <span class="display-4 fw-bold">$49</span>
+            <span>/month</span>
+          </div>
+          <p class="mb-4">For growing businesses</p>
+          <ul class="list-unstyled mb-4">
+            <li class="mb-2"><i class="fas fa-check me-2"></i>Unlimited Providers</li>
+            <li class="mb-2"><i class="fas fa-check me-2"></i>Advanced Analytics</li>
+            <li class="mb-2"><i class="fas fa-check me-2"></i>Priority Support</li>
+            <li class="mb-2"><i class="fas fa-check me-2"></i>50,000 Transactions/month</li>
+            <li class="mb-2"><i class="fas fa-check me-2"></i>Custom Reports</li>
+          </ul>
+          <button class="btn btn-warning w-100">Start Growth Plan</button>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-6 mb-4">
+        <div class="pricing-card bg-white rounded shadow-sm p-4 text-center">
+          <h4 class="text-primary mb-3">Enterprise</h4>
+          <div class="price mb-3">
+            <span class="display-4 fw-bold">Custom</span>
+          </div>
+          <p class="text-muted mb-4">For large organizations</p>
+          <ul class="list-unstyled mb-4">
+            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Everything in Growth</li>
+            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>White-label Solution</li>
+            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>API Access</li>
+            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Dedicated Support</li>
+            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Custom Integrations</li>
+          </ul>
+          <button class="btn btn-outline-primary w-100">Contact Sales</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Signup Section -->
+<section class="signup-section py-5" id="signup">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8 text-center">
+        <h2 class="display-5 fw-bold mb-4">Get Early Access</h2>
+        <p class="lead mb-5">
+          Join the waitlist and be among the first to experience unified subscription analytics. 
+          No credit card required.
+        </p>
+        
+        <div class="signup-form bg-light rounded p-5" *ngIf="!submitted">
+          <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <input 
+                  type="email" 
+                  class="form-control form-control-lg" 
+                  placeholder="Your email"
+                  formControlName="email"
+                  [class.is-invalid]="signupForm.get('email')?.invalid && signupForm.get('email')?.touched">
+                <div class="invalid-feedback" *ngIf="signupForm.get('email')?.invalid && signupForm.get('email')?.touched">
+                  Please enter a valid email address.
+                </div>
+              </div>
+              <div class="col-md-4 mb-3">
+                <input 
+                  type="text" 
+                  class="form-control form-control-lg" 
+                  placeholder="Company name"
+                  formControlName="company"
+                  [class.is-invalid]="signupForm.get('company')?.invalid && signupForm.get('company')?.touched">
+                <div class="invalid-feedback" *ngIf="signupForm.get('company')?.invalid && signupForm.get('company')?.touched">
+                  Please enter your company name.
+                </div>
+              </div>
+              <div class="col-md-4 mb-3">
+                <select 
+                  class="form-select form-select-lg" 
+                  formControlName="role"
+                  [class.is-invalid]="signupForm.get('role')?.invalid && signupForm.get('role')?.touched">
+                  <option value="">Your role</option>
+                  <option value="founder">Founder/CEO</option>
+                  <option value="product">Product Manager</option>
+                  <option value="finance">Finance/Operations</option>
+                  <option value="marketing">Marketing</option>
+                  <option value="other">Other</option>
+                </select>
+                <div class="invalid-feedback" *ngIf="signupForm.get('role')?.invalid && signupForm.get('role')?.touched">
+                  Please select your role.
+                </div>
+              </div>
+            </div>
+            <button 
+              type="submit" 
+              class="btn btn-primary btn-lg px-5"
+              [disabled]="signupForm.invalid || isSubmitting">
+              <span *ngIf="!isSubmitting">Join Waitlist</span>
+              <span *ngIf="isSubmitting">
+                <i class="fas fa-spinner fa-spin me-2"></i>Joining...
+              </span>
+            </button>
+          </form>
+        </div>
+
+        <div class="success-message" *ngIf="submitted">
+          <div class="bg-success text-white rounded p-4">
+            <i class="fas fa-check-circle fa-3x mb-3"></i>
+            <h4>Welcome to the waitlist!</h4>
+            <p class="mb-0">We'll notify you as soon as SubscriptionAnalytics is ready. Redirecting to signup...</p>
+          </div>
+        </div>
+
+        <div class="trust-indicators mt-4">
+          <p class="text-muted mb-3">Trusted by 500+ companies worldwide</p>
+          <div class="d-flex justify-content-center align-items-center flex-wrap">
+            <div class="trust-logo mx-3 mb-2">
+              <i class="fab fa-stripe fa-2x text-primary"></i>
+            </div>
+            <div class="trust-logo mx-3 mb-2">
+              <i class="fab fa-paypal fa-2x text-info"></i>
+            </div>
+            <div class="trust-logo mx-3 mb-2">
+              <i class="fab fa-shopify fa-2x text-success"></i>
+            </div>
+            <div class="trust-logo mx-3 mb-2">
+              <i class="fab fa-woocommerce fa-2x text-warning"></i>
+            </div>
+            <div class="trust-logo mx-3 mb-2">
+              <i class="fas fa-shield-alt fa-2x text-danger"></i>
+            </div>
+          </div>
+          
+          <!-- Social Proof Stats -->
+          <div class="social-proof-stats mt-4">
+            <div class="row text-center">
+              <div class="col-md-3">
+                <div class="stat-highlight">
+                  <h4 class="text-primary mb-1">500+</h4>
+                  <small class="text-muted">Companies</small>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="stat-highlight">
+                  <h4 class="text-success mb-1">$2.5M+</h4>
+                  <small class="text-muted">Revenue Tracked</small>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="stat-highlight">
+                  <h4 class="text-info mb-1">99.9%</h4>
+                  <small class="text-muted">Uptime</small>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="stat-highlight">
+                  <h4 class="text-warning mb-1">24/7</h4>
+                  <small class="text-muted">Support</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer bg-dark text-white py-4">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6">
+        <h5>SubscriptionAnalytics</h5>
+        <p class="text-muted">Unified subscription intelligence for modern businesses.</p>
+      </div>
+      <div class="col-md-6 text-md-end">
+        <p class="text-muted mb-0">&copy; 2024 SubscriptionAnalytics. All rights reserved.</p>
+      </div>
+    </div>
+  </div>
+</footer> 
