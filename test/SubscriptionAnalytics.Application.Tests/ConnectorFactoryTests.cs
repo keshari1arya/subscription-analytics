@@ -32,11 +32,20 @@ public class ConnectorFactoryTests
         _payPalConnectorMock.Setup(x => x.DisplayName).Returns("PayPal");
         _payPalConnectorMock.Setup(x => x.SupportsOAuth).Returns(true);
 
-        // Create factory with mocked connectors that implement IConnector
-        _factory = new ConnectorFactory(
-            _stripeConnectorMock.Object as IStripeConnector ?? Mock.Of<IStripeConnector>(),
-            _payPalConnectorMock.Object as IPayPalConnector ?? Mock.Of<IPayPalConnector>(),
-            _loggerMock.Object);
+        // Create factory with proper mocked connectors
+        var stripeConnector = Mock.Of<IStripeConnector>();
+        var payPalConnector = Mock.Of<IPayPalConnector>();
+
+        // Setup the mocks to return the correct values
+        Mock.Get(stripeConnector).Setup(x => x.ProviderName).Returns("Stripe");
+        Mock.Get(stripeConnector).Setup(x => x.DisplayName).Returns("Stripe");
+        Mock.Get(stripeConnector).Setup(x => x.SupportsOAuth).Returns(true);
+
+        Mock.Get(payPalConnector).Setup(x => x.ProviderName).Returns("PayPal");
+        Mock.Get(payPalConnector).Setup(x => x.DisplayName).Returns("PayPal");
+        Mock.Get(payPalConnector).Setup(x => x.SupportsOAuth).Returns(true);
+
+        _factory = new ConnectorFactory(stripeConnector, payPalConnector, _loggerMock.Object);
     }
 
     [Fact]

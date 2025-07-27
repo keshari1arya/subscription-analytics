@@ -350,7 +350,7 @@ public class StripeInstallationServiceTests
         var tokenResponse = new StripeOAuthTokenResponse
         {
             AccessToken = "access_token_123",
-            RefreshToken = null,
+            RefreshToken = null!,
             StripeAccountId = "acct_test123"
         };
 

@@ -219,7 +219,7 @@ public class ProviderConnectionServiceTests : IDisposable
         var tokenResponse = new OAuthTokenResponse
         {
             AccessToken = "test_access_token",
-            RefreshToken = null,
+            RefreshToken = null!,
             TokenType = "Bearer",
             ExpiresIn = 3600,
             ProviderAccountId = "acct_test123"

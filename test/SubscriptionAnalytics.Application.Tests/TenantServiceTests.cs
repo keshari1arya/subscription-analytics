@@ -33,7 +33,7 @@ public class TenantServiceTests
     private static Mock<UserManager<IdentityUser>> MockUserManager()
     {
         var store = new Mock<IUserStore<IdentityUser>>();
-        return new Mock<UserManager<IdentityUser>>(store.Object, null, null, null, null, null, null, null, null);
+        return new Mock<UserManager<IdentityUser>>(store.Object, null!, null!, null!, null!, null!, null!, null!, null!);
     }
 
     [Fact]

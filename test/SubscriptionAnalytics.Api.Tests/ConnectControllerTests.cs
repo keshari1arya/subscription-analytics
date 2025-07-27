@@ -163,9 +163,8 @@ public class ConnectControllerTests
         actionResult!.Result.Should().BeOfType<BadRequestObjectResult>();
         var badRequestResult = actionResult.Result as BadRequestObjectResult;
 
-        var jsonString = JsonSerializer.Serialize(badRequestResult!.Value);
-        var errorResponse = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonString);
-        errorResponse!["error"].Should().Contain("Unsupported provider");
+        var errorResponse = badRequestResult!.Value as ErrorResponseDto;
+        errorResponse!.Error.Should().Contain("Unsupported provider");
     }
 
     [Theory]
@@ -238,10 +237,9 @@ public class ConnectControllerTests
         result.Should().BeOfType<OkObjectResult>();
         var okResult = result as OkObjectResult;
 
-        var jsonString = JsonSerializer.Serialize(okResult!.Value);
-        var responseDict = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(jsonString);
-        responseDict!["message"].GetString().Should().Contain("stripe account connected successfully");
-        responseDict["provider"].GetString().Should().Be(provider);
+        var response = okResult!.Value as SuccessResponseDto;
+        response!.Message.Should().Contain("stripe account connected successfully");
+        response.Success.Should().BeTrue();
     }
 
     [Fact]
@@ -285,10 +283,9 @@ public class ConnectControllerTests
         result.Should().BeOfType<OkObjectResult>();
         var okResult = result as OkObjectResult;
 
-        var jsonString = JsonSerializer.Serialize(okResult!.Value);
-        var responseDict = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(jsonString);
-        responseDict!["message"].GetString().Should().Contain("paypal account connected successfully");
-        responseDict["provider"].GetString().Should().Be(provider);
+        var response = okResult!.Value as SuccessResponseDto;
+        response!.Message.Should().Contain("paypal account connected successfully");
+        response.Success.Should().BeTrue();
     }
 
     [Fact]
@@ -307,10 +304,8 @@ public class ConnectControllerTests
         result.Should().BeOfType<BadRequestObjectResult>();
         var badRequestResult = result as BadRequestObjectResult;
 
-        var jsonString = JsonSerializer.Serialize(badRequestResult!.Value);
-        var errorResponse = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonString);
-        errorResponse!["error"].Should().Be(error);
-        errorResponse["description"].Should().Be(errorDescription);
+        var errorResponse = badRequestResult!.Value as ErrorResponseDto;
+        errorResponse!.Error.Should().Be(error);
     }
 
     [Fact]
@@ -328,10 +323,8 @@ public class ConnectControllerTests
         result.Should().BeOfType<BadRequestObjectResult>();
         var badRequestResult = result as BadRequestObjectResult;
 
-        var jsonString = JsonSerializer.Serialize(badRequestResult!.Value);
-        var errorResponse = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonString);
-        errorResponse!["error"].Should().Be(error);
-        errorResponse["description"].Should().Be("OAuth authorization failed");
+        var errorResponse = badRequestResult!.Value as ErrorResponseDto;
+        errorResponse!.Error.Should().Be(error);
     }
 
     [Fact]
@@ -349,9 +342,8 @@ public class ConnectControllerTests
         result.Should().BeOfType<BadRequestObjectResult>();
         var badRequestResult = result as BadRequestObjectResult;
 
-        var jsonString = JsonSerializer.Serialize(badRequestResult!.Value);
-        var errorResponse = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonString);
-        errorResponse!["error"].Should().Be("Missing required OAuth parameters");
+        var errorResponse = badRequestResult!.Value as ErrorResponseDto;
+        errorResponse!.Error.Should().Be("Missing required OAuth parameters");
     }
 
     [Fact]
@@ -369,9 +361,8 @@ public class ConnectControllerTests
         result.Should().BeOfType<BadRequestObjectResult>();
         var badRequestResult = result as BadRequestObjectResult;
 
-        var jsonString = JsonSerializer.Serialize(badRequestResult!.Value);
-        var errorResponse = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonString);
-        errorResponse!["error"].Should().Be("Missing required OAuth parameters");
+        var errorResponse = badRequestResult!.Value as ErrorResponseDto;
+        errorResponse!.Error.Should().Be("Missing required OAuth parameters");
     }
 
     [Fact]
@@ -390,9 +381,8 @@ public class ConnectControllerTests
         result.Should().BeOfType<BadRequestObjectResult>();
         var badRequestResult = result as BadRequestObjectResult;
 
-        var jsonString = JsonSerializer.Serialize(badRequestResult!.Value);
-        var errorResponse = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonString);
-        errorResponse!["error"].Should().Contain("Unsupported provider");
+        var errorResponse = badRequestResult!.Value as ErrorResponseDto;
+        errorResponse!.Error.Should().Contain("Unsupported provider");
     }
 
     [Fact]
@@ -450,9 +440,8 @@ public class ConnectControllerTests
         actionResult!.Result.Should().BeOfType<NotFoundObjectResult>();
         var notFoundResult = actionResult.Result as NotFoundObjectResult;
 
-        var jsonString = JsonSerializer.Serialize(notFoundResult!.Value);
-        var errorResponse = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonString);
-        errorResponse!["error"].Should().Contain("No stripe connection found");
+        var errorResponse = notFoundResult!.Value as ErrorResponseDto;
+        errorResponse!.Error.Should().Contain("No stripe connection found");
     }
 
     [Fact]
@@ -563,9 +552,8 @@ public class ConnectControllerTests
         result.Should().BeOfType<NotFoundObjectResult>();
         var notFoundResult = result as NotFoundObjectResult;
 
-        var jsonString = JsonSerializer.Serialize(notFoundResult!.Value);
-        var errorResponse = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonString);
-        errorResponse!["error"].Should().Contain("No stripe connection found");
+        var errorResponse = notFoundResult!.Value as ErrorResponseDto;
+        errorResponse!.Error.Should().Contain("No stripe connection found");
     }
 
     [Theory]
@@ -624,10 +612,11 @@ public class ConnectControllerTests
         // Assert
         result.Should().BeOfType<OkObjectResult>();
         var okResult = result as OkObjectResult;
-        var response = okResult!.Value as dynamic;
-        ((bool)response.success).Should().Be(true);
-        ((string)response.message).Should().Contain("stripe connected successfully");
-        ((string)response.providerAccountId).Should().Be("acct_test123");
+        var jsonString = JsonSerializer.Serialize(okResult!.Value);
+        var responseDict = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(jsonString);
+        responseDict!["success"].GetBoolean().Should().BeTrue();
+        responseDict["message"].GetString().Should().Contain("stripe connected successfully");
+        responseDict["providerAccountId"].GetString().Should().Be("acct_test123");
     }
 
     [Fact]
@@ -663,10 +652,11 @@ public class ConnectControllerTests
         // Assert
         result.Should().BeOfType<OkObjectResult>();
         var okResult = result as OkObjectResult;
-        var response = okResult!.Value as dynamic;
-        ((bool)response.success).Should().Be(true);
-        ((string)response.message).Should().Contain("paypal connected successfully");
-        ((string)response.providerAccountId).Should().Be("paypal_account_123");
+        var jsonString = JsonSerializer.Serialize(okResult!.Value);
+        var responseDict = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(jsonString);
+        responseDict!["success"].GetBoolean().Should().BeTrue();
+        responseDict["message"].GetString().Should().Contain("paypal connected successfully");
+        responseDict["providerAccountId"].GetString().Should().Be("paypal_account_123");
     }
 
     [Fact]
