@@ -57,13 +57,13 @@ public class AppDbContextTests
     }
 
     [Fact]
-    public void AppDbContext_Should_HaveSyncedCustomersDbSet()
+    public void AppDbContext_Should_HaveCustomersDbSet()
     {
         // Arrange
         using var context = new AppDbContext(_options);
 
         // Act & Assert
-        context.SyncedCustomers.Should().NotBeNull();
+        context.Customers.Should().NotBeNull();
     }
 
     [Fact]
@@ -238,13 +238,13 @@ public class AppDbContextTests
     }
 
     [Fact]
-    public void AppDbContext_Should_HaveSyncedCustomerEntityType()
+    public void AppDbContext_Should_HaveCustomerEntityType()
     {
         // Arrange
         using var context = new AppDbContext(_options);
 
         // Act & Assert
-        context.Model.FindEntityType(typeof(SyncedCustomer)).Should().NotBeNull();
+        context.Model.FindEntityType(typeof(Customer)).Should().NotBeNull();
     }
 
     [Fact]
@@ -333,7 +333,7 @@ public class AppDbContextTests
                 context.Tenants.Should().NotBeNull();
                 context.UserTenants.Should().NotBeNull();
                 context.StripeConnections.Should().NotBeNull();
-                context.SyncedCustomers.Should().NotBeNull();
+                context.Customers.Should().NotBeNull();
             }));
         }
 
@@ -681,4 +681,4 @@ public class AppDbContextTests
         // Assert
         entityType.Should().NotBeNull();
     }
-} 
+}

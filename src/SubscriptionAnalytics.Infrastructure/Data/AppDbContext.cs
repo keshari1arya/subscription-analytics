@@ -9,7 +9,8 @@ public class AppDbContext : IdentityDbContext<IdentityUser>
 {
     public DbSet<Tenant> Tenants { get; set; } = null!;
     public DbSet<UserTenant> UserTenants { get; set; } = null!;
-    public DbSet<SyncedCustomer> SyncedCustomers { get; set; } = null!;
+    public DbSet<Customer> Customers { get; set; } = null!;
+    public DbSet<StripeCustomer> StripeCustomers { get; set; } = null!;
     public DbSet<StripeConnection> StripeConnections { get; set; } = null!;
     public DbSet<ProviderConnection> ProviderConnections { get; set; } = null!;
 
@@ -35,9 +36,10 @@ public class AppDbContext : IdentityDbContext<IdentityUser>
         if (_tenantId.HasValue)
         {
             modelBuilder.Entity<UserTenant>().HasQueryFilter(ut => ut.TenantId == _tenantId.Value);
-            modelBuilder.Entity<SyncedCustomer>().HasQueryFilter(c => c.TenantId == _tenantId.Value);
+            modelBuilder.Entity<Customer>().HasQueryFilter(c => c.TenantId == _tenantId.Value);
+            modelBuilder.Entity<StripeCustomer>().HasQueryFilter(sc => sc.TenantId == _tenantId.Value);
             modelBuilder.Entity<StripeConnection>().HasQueryFilter(sc => sc.TenantId == _tenantId.Value);
             modelBuilder.Entity<ProviderConnection>().HasQueryFilter(pc => pc.TenantId == _tenantId.Value);
         }
     }
-} 
+}

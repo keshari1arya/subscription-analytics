@@ -12,5 +12,5 @@ public class Tenant : BaseEntity
     // Navigation properties
     public virtual StripeConnection? StripeConnection { get; set; }
     public virtual ICollection<UserTenant> UserTenants { get; set; } = new List<UserTenant>();
-    public virtual ICollection<SyncedCustomer> SyncedCustomers { get; set; } = new List<SyncedCustomer>();
-} 
+    public virtual ICollection<Customer> Customers { get; set; } = new List<Customer>();
+}

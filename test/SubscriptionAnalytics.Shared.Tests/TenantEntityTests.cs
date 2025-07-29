@@ -86,14 +86,14 @@ public class TenantEntityTests
     }
 
     [Fact]
-    public void Tenant_Should_HaveSyncedCustomersProperty()
+    public void Tenant_Should_HaveCustomersProperty()
     {
         // Act
-        var property = typeof(Tenant).GetProperty("SyncedCustomers");
+        var property = typeof(Tenant).GetProperty("Customers");
 
         // Assert
         property.Should().NotBeNull();
-        property!.PropertyType.Should().Be(typeof(ICollection<SyncedCustomer>));
+        property!.PropertyType.Should().Be(typeof(ICollection<Customer>));
         property.CanRead.Should().BeTrue();
         property.CanWrite.Should().BeTrue();
         property.GetGetMethod()!.IsVirtual.Should().BeTrue();
@@ -141,14 +141,14 @@ public class TenantEntityTests
     }
 
     [Fact]
-    public void SyncedCustomers_Should_DefaultToEmptyList()
+    public void Customers_Should_DefaultToEmptyList()
     {
         // Act
         var tenant = new Tenant();
 
         // Assert
-        tenant.SyncedCustomers.Should().NotBeNull();
-        tenant.SyncedCustomers.Should().BeEmpty();
+        tenant.Customers.Should().NotBeNull();
+        tenant.Customers.Should().BeEmpty();
     }
 
     [Fact]
@@ -160,21 +160,21 @@ public class TenantEntityTests
         var isActive = false;
         var stripeConnection = new StripeConnection();
         var userTenants = new List<UserTenant> { new UserTenant() };
-        var syncedCustomers = new List<SyncedCustomer> { new SyncedCustomer() };
+        var customers = new List<Customer> { new Customer() };
 
         // Act
         tenant.Name = name;
         tenant.IsActive = isActive;
         tenant.StripeConnection = stripeConnection;
         tenant.UserTenants = userTenants;
-        tenant.SyncedCustomers = syncedCustomers;
+        tenant.Customers = customers;
 
         // Assert
         tenant.Name.Should().Be(name);
         tenant.IsActive.Should().Be(isActive);
         tenant.StripeConnection.Should().Be(stripeConnection);
         tenant.UserTenants.Should().BeEquivalentTo(userTenants);
-        tenant.SyncedCustomers.Should().BeEquivalentTo(syncedCustomers);
+        tenant.Customers.Should().BeEquivalentTo(customers);
     }
 
     [Fact]
@@ -423,4 +423,4 @@ public class TenantEntityTests
         // Act & Assert
         typeof(Tenant).IsMarshalByRef.Should().BeFalse();
     }
-} 
+}
