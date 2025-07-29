@@ -3,12 +3,11 @@ import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup,
 import { ActivatedRoute, Router } from '@angular/router';
 
 
-import { first } from 'rxjs/operators';
-import { UserProfileService } from '../../../core/services/user.service';
-import { Store } from '@ngrx/store';
-import { Register } from 'src/app/store/Authentication/authentication.actions';
 import { CommonModule } from '@angular/common';
+import { Store } from '@ngrx/store';
 import { SlickCarouselModule } from 'ngx-slick-carousel';
+import { Register } from 'src/app/store/Authentication/authentication.actions';
+import { UserProfileService } from '../../../core/services/user.service';
 
 @Component({
   selector: 'app-register2',
@@ -33,8 +32,8 @@ export class Register2Component implements OnInit {
     document.body.classList.add("auth-body-bg");
 
     this.signupForm = this.formBuilder.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
+      email: ['admin@themesbrand.com', [Validators.required, Validators.email]],
+      password: ['Asdf@12345', [Validators.required, Validators.minLength(6)]],
     });
   }
 

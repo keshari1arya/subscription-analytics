@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { TenantService } from '../../../core/services/tenant.service';
 import { UserTenantDto } from '../../../api-client';
+import { TenantService } from '../../../core/services/tenant.service';
 
 @Component({
   selector: 'app-tenant-manage',
@@ -26,10 +25,10 @@ export class TenantManageComponent implements OnInit {
   loadCurrentTenant(): void {
     this.loading = true;
     this.error = null;
-    
+
     // Get current tenant info from service
     this.currentTenant = this.tenantService.getCurrentTenantInfo();
-    
+
     if (this.currentTenant) {
       this.loading = false;
     } else {
@@ -39,6 +38,8 @@ export class TenantManageComponent implements OnInit {
           if (tenants.length > 0) {
             this.currentTenant = tenants[0];
             this.tenantService.setCurrentTenantInfo(tenants[0]);
+          } else {
+            this.router.navigate(['/tenant/create']);
           }
           this.loading = false;
         },
@@ -54,4 +55,4 @@ export class TenantManageComponent implements OnInit {
   createTenant(): void {
     this.router.navigate(['/tenant/create']);
   }
-} 
+}
