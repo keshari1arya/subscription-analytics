@@ -1,24 +1,23 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 
 // import { AuthenticationService } from '../../../core/services/auth.service';
-import { environment } from '../../../../environments/environment';
-import { first } from 'rxjs/operators';
-import { UserProfileService } from '../../../core/services/user.service';
-import { Store } from '@ngrx/store';
-import { Register, RegisterFailure } from 'src/app/store/Authentication/authentication.actions';
 import { CommonModule } from '@angular/common';
-import { PasswordValidator } from '../../../core/validators/password.validator';
-import { AuthenticationState } from 'src/app/store/Authentication/authentication.reducer';
+import { Store } from '@ngrx/store';
+import { AlertModule } from 'ngx-bootstrap/alert';
 import { Observable, Subscription } from 'rxjs';
+import { Register } from 'src/app/store/Authentication/authentication.actions';
+import { AuthenticationState } from 'src/app/store/Authentication/authentication.reducer';
+import { UserProfileService } from '../../../core/services/user.service';
+import { PasswordValidator } from '../../../core/validators/password.validator';
 
 @Component({
   selector: 'app-signup',
   templateUrl: './signup.component.html',
   styleUrls: ['./signup.component.scss'],
   standalone:true,
-  imports:[CommonModule,FormsModule,ReactiveFormsModule]
+  imports:[CommonModule,FormsModule,ReactiveFormsModule,AlertModule,RouterModule]
 })
 export class SignupComponent implements OnInit, OnDestroy {
 
@@ -29,12 +28,12 @@ export class SignupComponent implements OnInit, OnDestroy {
   passwordStrength: number = 0;
   passwordStrengthLabel: string = '';
   passwordStrengthColor: string = 'danger';
-  
+
   // Store observables
   authState$: Observable<AuthenticationState>;
   loading$: Observable<boolean>;
   error$: Observable<string | null>;
-  
+
   private subscriptions = new Subscription();
 
   // set the currenr year
@@ -42,7 +41,7 @@ export class SignupComponent implements OnInit, OnDestroy {
 
   // tslint:disable-next-line: max-line-length
   constructor(private formBuilder: UntypedFormBuilder, private route: ActivatedRoute, private router: Router,
-    private userService: UserProfileService, public store: Store) { 
+    private userService: UserProfileService, public store: Store) {
     // Initialize store observables
     this.authState$ = this.store.select((state: any) => state.auth);
     this.loading$ = this.store.select((state: any) => state.auth.registerLoading);
@@ -71,12 +70,12 @@ export class SignupComponent implements OnInit, OnDestroy {
   passwordMatchValidator(form: UntypedFormGroup) {
     const password = form.get('password');
     const confirmPassword = form.get('confirmPassword');
-    
+
     if (password && confirmPassword && password.value !== confirmPassword.value) {
       confirmPassword.setErrors({ passwordMismatch: true });
       return { passwordMismatch: true };
     }
-    
+
     return null;
   }
 
@@ -99,13 +98,12 @@ export class SignupComponent implements OnInit, OnDestroy {
     const confirmPassword = this.signupFormControls['confirmPassword'].value;
 
     if (password !== confirmPassword) {
-      // Dispatch error action for password mismatch
-      this.store.dispatch(RegisterFailure({ error: 'Passwords do not match' }));
+      this.error = 'Passwords do not match';
       return;
     }
 
-    //Dispatch Action
-    this.store.dispatch(Register({ email: email, password: password }));
+    // Dispatch register action
+    this.store.dispatch(Register({ email, password }));
   }
 
   ngOnDestroy() {

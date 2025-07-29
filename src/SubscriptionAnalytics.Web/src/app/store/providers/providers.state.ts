@@ -1,7 +1,8 @@
-import { SubscriptionAnalyticsApiControllersConnectorInfo } from 'src/app/api-client/model/subscriptionAnalyticsApiControllersConnectorInfo';
+
+import { ConnectorInfo } from 'src/app/api-client/model/connectorInfo';
 
 export interface ProvidersState {
-  providers: SubscriptionAnalyticsApiControllersConnectorInfo[];
+  providers: ConnectorInfo[];
   loading: boolean;
   error: string | null;
   installingProvider: string | null;
@@ -10,4 +11,4 @@ export interface ProvidersState {
   connectionsError: string | null;
   oauthCallbackLoading: boolean;
   oauthCallbackError: string | null;
-} 
+}

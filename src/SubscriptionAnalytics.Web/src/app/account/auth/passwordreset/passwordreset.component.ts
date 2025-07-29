@@ -1,16 +1,15 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
-import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-
-
 import { CommonModule } from '@angular/common';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { AlertModule } from 'ngx-bootstrap/alert';
 
 @Component({
   selector: 'app-passwordreset',
   templateUrl: './passwordreset.component.html',
   styleUrls: ['./passwordreset.component.scss'],
   standalone:true,
-  imports:[CommonModule,FormsModule,ReactiveFormsModule]
+  imports:[CommonModule,FormsModule,ReactiveFormsModule,RouterModule,AlertModule]
 })
 
 /**

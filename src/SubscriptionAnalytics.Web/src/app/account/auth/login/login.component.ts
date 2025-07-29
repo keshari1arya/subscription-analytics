@@ -1,19 +1,20 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { login } from '../../../store/Authentication/authentication.actions';
 
-import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { AuthenticationState } from '../../../store/Authentication/authentication.reducer';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { AlertModule } from 'ngx-bootstrap/alert';
 import { Observable, Subscription } from 'rxjs';
+import { AuthenticationState } from '../../../store/Authentication/authentication.reducer';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
   standalone:true,
-  imports:[CommonModule,FormsModule,ReactiveFormsModule]
+  imports:[CommonModule,FormsModule,ReactiveFormsModule,AlertModule,RouterModule]
 })
 
 /**
@@ -25,19 +26,19 @@ export class LoginComponent implements OnInit, OnDestroy {
   submitted: any = false;
   returnUrl: string;
   fieldTextType!: boolean;
-  
+
   // Store observables
   authState$: Observable<AuthenticationState>;
   loading$: Observable<boolean>;
   error$: Observable<string | null>;
-  
+
   private subscriptions = new Subscription();
 
   // set the currenr year
   year: number = new Date().getFullYear();
 
   // tslint:disable-next-line: max-line-length
-  constructor(private formBuilder: UntypedFormBuilder, private route: ActivatedRoute, private router: Router, private store: Store) { 
+  constructor(private formBuilder: UntypedFormBuilder, private route: ActivatedRoute, private router: Router, private store: Store) {
     // Initialize store observables
     this.authState$ = this.store.select((state: any) => state.auth);
     this.loading$ = this.store.select((state: any) => state.auth.loading);

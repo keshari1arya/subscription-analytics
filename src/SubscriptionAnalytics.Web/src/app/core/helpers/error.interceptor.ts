@@ -1,9 +1,9 @@
+import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { TokenService } from '../services/token.service';
-import { Router } from '@angular/router';
 
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor {
@@ -15,13 +15,13 @@ export class ErrorInterceptor implements HttpInterceptor {
 
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
         return next.handle(request).pipe(catchError(err => {
-            if (err.status === 401) {
-                // auto logout if 401 response returned from api
-                this.tokenService.logout();
-                this.router.navigate(['/auth/login']);
+            // Don't handle 401 errors here as they're handled by token refresh interceptor
+            // Only handle other errors
+            if (err.status !== 401) {
+                const error = err.error?.message || err.statusText || 'An error occurred';
+                return throwError(() => error);
             }
-            const error = err.error.message || err.statusText;
-            return throwError(error);
+            return throwError(() => err);
         }))
     }
 }

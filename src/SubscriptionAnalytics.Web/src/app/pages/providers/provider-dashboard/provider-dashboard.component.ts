@@ -1,14 +1,14 @@
-import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { SubscriptionAnalyticsApiControllersConnectorInfo } from 'src/app/api-client/model/subscriptionAnalyticsApiControllersConnectorInfo';
-import { PagetitleComponent } from 'src/app/shared/ui/pagetitle/pagetitle.component';
-import { LoaderComponent } from 'src/app/shared/ui/loader/loader.component';
-import { BsModalService, BsModalRef, ModalModule } from 'ngx-bootstrap/modal';
-import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { AlertModule } from 'ngx-bootstrap/alert';
+import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
+import { BsModalRef, BsModalService, ModalModule } from 'ngx-bootstrap/modal';
 import { Observable, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { ConnectorInfo } from 'src/app/api-client';
+import { LoaderComponent } from 'src/app/shared/ui/loader/loader.component';
+import { PagetitleComponent } from 'src/app/shared/ui/pagetitle/pagetitle.component';
 import * as ProvidersActions from 'src/app/store/providers/providers.actions';
 import * as ProvidersSelectors from 'src/app/store/providers/providers.selectors';
 
@@ -29,7 +29,7 @@ import * as ProvidersSelectors from 'src/app/store/providers/providers.selectors
   providers: [BsModalService]
 })
 export class ProviderDashboardComponent implements OnInit {
-  providers$: Observable<SubscriptionAnalyticsApiControllersConnectorInfo[]>;
+  providers$: Observable<ConnectorInfo[]>;
   loading$: Observable<boolean>;
   error$: Observable<string | null>;
   installingProvider$: Observable<string | null>;
@@ -52,7 +52,7 @@ export class ProviderDashboardComponent implements OnInit {
     this.error$ = this.store.select(ProvidersSelectors.selectProvidersError);
     this.installingProvider$ = this.store.select(ProvidersSelectors.selectInstallingProvider);
     this.connections$ = this.store.select(ProvidersSelectors.selectConnections);
-    
+
     // Combine providers with connection status
     this.providersWithStatus$ = combineLatest([
       this.providers$,
@@ -61,11 +61,11 @@ export class ProviderDashboardComponent implements OnInit {
       map(([providers, connections]) => {
         return providers.map(provider => ({
           ...provider,
-          isConnected: connections.some(conn => 
-            conn.providerName?.toLowerCase() === provider.providerName?.toLowerCase() && 
+          isConnected: connections.some(conn =>
+            conn.providerName?.toLowerCase() === provider.providerName?.toLowerCase() &&
             conn.status === 'Connected'
           ),
-          connection: connections.find(conn => 
+          connection: connections.find(conn =>
             conn.providerName?.toLowerCase() === provider.providerName?.toLowerCase()
           )
         }));
@@ -86,7 +86,7 @@ export class ProviderDashboardComponent implements OnInit {
     this.store.dispatch(ProvidersActions.loadConnections());
   }
 
-  installProvider(provider: SubscriptionAnalyticsApiControllersConnectorInfo) {
+  installProvider(provider: ConnectorInfo) {
     if (!provider.providerName) {
       return;
     }
@@ -140,4 +140,4 @@ export class ProviderDashboardComponent implements OnInit {
     }
     return '';
   }
-} 
+}
