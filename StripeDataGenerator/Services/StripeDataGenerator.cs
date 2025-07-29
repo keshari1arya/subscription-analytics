@@ -178,12 +178,20 @@ public class StripeDataGenerator
                 Limit = 1000
             });
 
+            _logger.LogInformation("Found {Count} subscriptions to delete", subscriptions.Data.Count);
+            var deletedSubscriptions = 0;
+
             foreach (var subscription in subscriptions.Data)
             {
                 try
                 {
                     await new SubscriptionService().CancelAsync(subscription.Id);
-                    _logger.LogInformation("Deleted subscription: {SubscriptionId}", subscription.Id);
+                    deletedSubscriptions++;
+
+                    if (deletedSubscriptions % 10 == 0)
+                    {
+                        _logger.LogInformation("Deleted {Count} subscriptions...", deletedSubscriptions);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -191,18 +199,28 @@ public class StripeDataGenerator
                 }
             }
 
+            _logger.LogInformation("Successfully deleted {Count} subscriptions", deletedSubscriptions);
+
             // Delete all customers
             var customers = await new CustomerService().ListAsync(new CustomerListOptions
             {
                 Limit = 1000
             });
 
+            _logger.LogInformation("Found {Count} customers to delete", customers.Data.Count);
+            var deletedCustomers = 0;
+
             foreach (var customer in customers.Data)
             {
                 try
                 {
                     await new CustomerService().DeleteAsync(customer.Id);
-                    _logger.LogInformation("Deleted customer: {CustomerId}", customer.Id);
+                    deletedCustomers++;
+
+                    if (deletedCustomers % 10 == 0)
+                    {
+                        _logger.LogInformation("Deleted {Count} customers...", deletedCustomers);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -210,31 +228,63 @@ public class StripeDataGenerator
                 }
             }
 
-            // Note: Stripe doesn't allow direct deletion of prices, they remain for audit purposes
-            // We'll just log the existing prices for reference
+            _logger.LogInformation("Successfully deleted {Count} customers", deletedCustomers);
+
+            // Deactivate all prices first (required before product deletion)
             var prices = await new PriceService().ListAsync(new PriceListOptions
             {
                 Active = true,
                 Limit = 1000
             });
 
-            if (prices.Data.Any())
+            _logger.LogInformation("Found {Count} prices to deactivate", prices.Data.Count);
+            var deactivatedPrices = 0;
+
+            foreach (var price in prices.Data)
             {
-                _logger.LogInformation("Found {Count} existing prices (prices cannot be deleted in Stripe)", prices.Data.Count);
+                try
+                {
+                    // Deactivate the price
+                    var priceUpdateOptions = new PriceUpdateOptions
+                    {
+                        Active = false
+                    };
+                    await new PriceService().UpdateAsync(price.Id, priceUpdateOptions);
+                    deactivatedPrices++;
+
+                    if (deactivatedPrices % 10 == 0)
+                    {
+                        _logger.LogInformation("Deactivated {Count} prices...", deactivatedPrices);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning("Failed to deactivate price {PriceId}: {Error}", price.Id, ex.Message);
+                }
             }
 
-            // Delete all products
+            _logger.LogInformation("Successfully deactivated {Count} prices", deactivatedPrices);
+
+            // Now delete all products (prices are deactivated, so products can be deleted)
             var products = await new ProductService().ListAsync(new ProductListOptions
             {
                 Limit = 1000
             });
+
+            _logger.LogInformation("Found {Count} products to delete", products.Data.Count);
+            var deletedProducts = 0;
 
             foreach (var product in products.Data)
             {
                 try
                 {
                     await new ProductService().DeleteAsync(product.Id);
-                    _logger.LogInformation("Deleted product: {ProductId}", product.Id);
+                    deletedProducts++;
+
+                    if (deletedProducts % 5 == 0)
+                    {
+                        _logger.LogInformation("Deleted {Count} products...", deletedProducts);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -242,6 +292,7 @@ public class StripeDataGenerator
                 }
             }
 
+            _logger.LogInformation("Successfully deleted {Count} products", deletedProducts);
             _logger.LogInformation("Cleanup completed successfully!");
         }
         catch (Exception ex)
@@ -366,7 +417,7 @@ public class StripeDataGenerator
 
             customers.Add(customer);
 
-            if ((i + 1) % 100 == 0)
+            if ((i + 1) % 10 == 0)
             {
                 _logger.LogInformation("Created {Count} customers...", i + 1);
             }
@@ -490,7 +541,7 @@ public class StripeDataGenerator
                 var subscription = await new SubscriptionService().CreateAsync(subscriptionOptions);
                 createdSubscriptions++;
 
-                if ((i + 1) % 100 == 0)
+                if ((i + 1) % 10 == 0)
                 {
                     _logger.LogInformation("Created {Count} subscriptions...", i + 1);
                 }
