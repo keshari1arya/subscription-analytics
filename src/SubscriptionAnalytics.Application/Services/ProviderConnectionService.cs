@@ -35,8 +35,8 @@ public class ProviderConnectionService : IProviderConnectionService
     public async Task<ProviderConnectionDto?> GetConnectionAsync(Guid tenantId, string providerName)
     {
         var connection = await _dbContext.ProviderConnections
-            .FirstOrDefaultAsync(c => c.TenantId == tenantId && 
-                                     c.ProviderName == providerName && 
+            .FirstOrDefaultAsync(c => c.TenantId == tenantId &&
+                                     c.ProviderName == providerName &&
                                      c.Status == "Connected");
 
         return connection != null ? MapToDto(connection) : null;
@@ -47,7 +47,7 @@ public class ProviderConnectionService : IProviderConnectionService
         // Remove any existing connection for this tenant and provider
         var existingConnection = await _dbContext.ProviderConnections
             .FirstOrDefaultAsync(c => c.TenantId == tenantId && c.ProviderName == providerName);
-        
+
         if (existingConnection != null)
         {
             _dbContext.ProviderConnections.Remove(existingConnection);
@@ -68,8 +68,8 @@ public class ProviderConnectionService : IProviderConnectionService
             ProviderName = providerName,
             ProviderAccountId = tokenResponse.ProviderAccountId ?? string.Empty,
             AccessToken = _encryptionService.Encrypt(tokenResponse.AccessToken),
-            RefreshToken = !string.IsNullOrEmpty(tokenResponse.RefreshToken) 
-                ? _encryptionService.Encrypt(tokenResponse.RefreshToken) 
+            RefreshToken = !string.IsNullOrEmpty(tokenResponse.RefreshToken)
+                ? _encryptionService.Encrypt(tokenResponse.RefreshToken)
                 : null,
             TokenType = tokenResponse.TokenType,
             ExpiresIn = tokenResponse.ExpiresIn,
@@ -78,7 +78,7 @@ public class ProviderConnectionService : IProviderConnectionService
             ConnectedAt = DateTime.UtcNow,
             Status = "Connected",
             AdditionalData = tokenResponse.AdditionalData?.ToDictionary(
-                kvp => kvp.Key, 
+                kvp => kvp.Key,
                 kvp => kvp.Value?.ToString() ?? string.Empty)
         };
 
@@ -128,4 +128,4 @@ public class ProviderConnectionService : IProviderConnectionService
             Scope = connection.Scope
         };
     }
-} 
+}

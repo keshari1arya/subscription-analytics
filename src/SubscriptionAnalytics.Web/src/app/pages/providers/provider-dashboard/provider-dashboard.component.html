@@ -28,9 +28,9 @@
               <div class="card-body text-center">
                 <!-- Provider Icon -->
                 <div class="mb-3">
-                  <img [src]="getProviderIcon(provider.providerName)" 
+                  <img [src]="getProviderIcon(provider.providerName)"
                        [alt]="provider.displayName || provider.providerName"
-                       class="img-fluid" 
+                       class="img-fluid"
                        style="height: 60px; max-width: 120px;">
                 </div>
 
@@ -66,17 +66,17 @@
                 </div>
 
                 <!-- Action Button -->
-                <button *ngIf="!provider.isConnected" 
-                        type="button" 
+                <button *ngIf="!provider.isConnected"
+                        type="button"
                         class="btn btn-primary btn-sm"
                         [disabled]="(installingProvider$ | async) === provider.providerName"
                         (click)="installProvider(provider)">
                   <i class="fas fa-plug me-1"></i>
                   {{ (installingProvider$ | async) === provider.providerName ? 'Installing...' : 'Connect' }}
                 </button>
-                
-                <button *ngIf="provider.isConnected" 
-                        type="button" 
+
+                <button *ngIf="provider.isConnected"
+                        type="button"
                         class="btn btn-success btn-sm"
                         disabled>
                   <i class="fas fa-check me-1"></i>
@@ -98,4 +98,4 @@
       </div>
     </div>
   </div>
-</div> 
+</div>

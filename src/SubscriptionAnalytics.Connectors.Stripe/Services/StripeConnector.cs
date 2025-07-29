@@ -78,7 +78,7 @@ public class StripeConnector : IStripeConnector, IConnector
         // TODO: Implement Stripe data synchronization
         // This would involve fetching customers, subscriptions, payments, etc. from Stripe
         _logger.LogInformation("Syncing Stripe data for tenant: {TenantId}", tenantId);
-        
+
         // Placeholder implementation
         await Task.Delay(100, cancellationToken); // Simulate async work
     }
@@ -92,7 +92,12 @@ public class StripeConnector : IStripeConnector, IConnector
                       $"&scope=read_write" +
                       $"&redirect_uri={Uri.EscapeDataString(redirectUri)}" +
                       $"&state={Uri.EscapeDataString(state)}";
-        
+
+        if (_apiKey.StartsWith("sk_test"))
+        {
+            oauthUrl += "&stripe_user[test]=true";
+        }
+
         return Task.FromResult(oauthUrl);
     }
 
@@ -150,4 +155,4 @@ public class StripeConnector : IStripeConnector, IConnector
             return false;
         }
     }
-} 
+}
