@@ -13,6 +13,7 @@ public class AppDbContext : IdentityDbContext<IdentityUser>
     public DbSet<StripeCustomer> StripeCustomers { get; set; } = null!;
     public DbSet<StripeConnection> StripeConnections { get; set; } = null!;
     public DbSet<ProviderConnection> ProviderConnections { get; set; } = null!;
+    public DbSet<SyncJob> SyncJobs { get; set; } = null!;
 
     private readonly Guid? _tenantId;
 
@@ -40,6 +41,7 @@ public class AppDbContext : IdentityDbContext<IdentityUser>
             modelBuilder.Entity<StripeCustomer>().HasQueryFilter(sc => sc.TenantId == _tenantId.Value);
             modelBuilder.Entity<StripeConnection>().HasQueryFilter(sc => sc.TenantId == _tenantId.Value);
             modelBuilder.Entity<ProviderConnection>().HasQueryFilter(pc => pc.TenantId == _tenantId.Value);
+            modelBuilder.Entity<SyncJob>().HasQueryFilter(sj => sj.TenantId == _tenantId.Value);
         }
     }
 }

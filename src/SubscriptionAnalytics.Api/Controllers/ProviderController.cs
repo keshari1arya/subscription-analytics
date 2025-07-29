@@ -6,6 +6,7 @@ using SubscriptionAnalytics.Shared.Interfaces;
 using SubscriptionAnalytics.Shared.DTOs;
 using SubscriptionAnalytics.Api.Configuration;
 using Microsoft.Extensions.Options;
+using SubscriptionAnalytics.Application.Interfaces;
 
 namespace SubscriptionAnalytics.Api.Controllers;
 
@@ -19,19 +20,25 @@ public class ProviderController : ControllerBase
     private readonly ITenantContext _tenantContext;
     private readonly ILogger<ProviderController> _logger;
     private readonly IOptions<OAuthConfiguration> _oauthConfig;
+    private readonly ISyncJobService _syncJobService;
+    private readonly ISyncJobProcessor _syncJobProcessor;
 
     public ProviderController(
         IConnectorFactory connectorFactory,
         IProviderConnectionService connectionService,
         ITenantContext tenantContext,
         ILogger<ProviderController> logger,
-        IOptions<OAuthConfiguration> oauthConfig)
+        IOptions<OAuthConfiguration> oauthConfig,
+        ISyncJobService syncJobService,
+        ISyncJobProcessor syncJobProcessor)
     {
         _connectorFactory = connectorFactory;
         _connectionService = connectionService;
         _tenantContext = tenantContext;
         _logger = logger;
         _oauthConfig = oauthConfig;
+        _syncJobService = syncJobService;
+        _syncJobProcessor = syncJobProcessor;
     }
 
     /// <summary>
@@ -267,6 +274,109 @@ public class ProviderController : ControllerBase
         }
 
         return NoContent();
+    }
+
+    /// <summary>
+    /// Initiates a sync operation for a provider
+    /// </summary>
+    [HttpPost("sync/{provider}")]
+    public async Task<ActionResult<SyncJobResponseDto>> SyncProvider([FromRoute] string provider)
+    {
+        if (_tenantContext == null)
+        {
+            _logger.LogError("TenantContext is null in ProviderController");
+            return BadRequest(new ErrorResponseDto("Tenant context service is not available."));
+        }
+
+        var tenantId = _tenantContext.TenantId;
+
+        if (tenantId == Guid.Empty)
+        {
+            return BadRequest(new ErrorResponseDto("Tenant context not found. Please provide X-Tenant-Id header."));
+        }
+
+        try
+        {
+            // Create a new sync job
+            var syncJob = await _syncJobService.CreateJobAsync(tenantId, SyncJobType.FullSync, provider);
+
+            // Process the sync job immediately (no queue)
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _syncJobProcessor.ProcessFullSyncAsync(syncJob);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error processing sync job {JobId}", syncJob.Id);
+                }
+            });
+
+            return Ok(new SyncJobResponseDto
+            {
+                JobId = syncJob.Id,
+                Status = syncJob.Status.ToString(),
+                Message = "Sync job created and started"
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error creating sync job for provider {Provider}", provider);
+            return StatusCode(500, new ErrorResponseDto("Failed to create sync job"));
+        }
+    }
+
+    /// <summary>
+    /// Gets the status of a sync job
+    /// </summary>
+    [HttpGet("sync/status/{jobId:guid}")]
+    public async Task<ActionResult<SyncJobStatusResponseDto>> GetSyncJobStatus([FromRoute] Guid jobId)
+    {
+        if (_tenantContext == null)
+        {
+            _logger.LogError("TenantContext is null in ProviderController");
+            return BadRequest(new ErrorResponseDto("Tenant context service is not available."));
+        }
+
+        var tenantId = _tenantContext.TenantId;
+
+        if (tenantId == Guid.Empty)
+        {
+            return BadRequest(new ErrorResponseDto("Tenant context not found. Please provide X-Tenant-Id header."));
+        }
+
+        try
+        {
+            var syncJob = await _syncJobService.GetJobAsync(jobId);
+
+            if (syncJob == null)
+            {
+                return NotFound(new ErrorResponseDto("Sync job not found"));
+            }
+
+            // Ensure the job belongs to the current tenant
+            if (syncJob.TenantId != tenantId)
+            {
+                return Forbid();
+            }
+
+            return Ok(new SyncJobStatusResponseDto
+            {
+                JobId = syncJob.Id,
+                Status = syncJob.Status.ToString(),
+                Progress = syncJob.Progress,
+                ErrorMessage = syncJob.ErrorMessage,
+                StartedAt = syncJob.StartedAt,
+                CompletedAt = syncJob.CompletedAt,
+                RetryCount = syncJob.RetryCount
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting sync job status for job {JobId}", jobId);
+            return StatusCode(500, new ErrorResponseDto("Failed to get sync job status"));
+        }
     }
 }
 

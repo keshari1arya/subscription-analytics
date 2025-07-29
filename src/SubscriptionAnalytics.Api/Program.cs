@@ -6,6 +6,7 @@ using SubscriptionAnalytics.Application.Services;
 using SubscriptionAnalytics.Infrastructure.Data;
 using SubscriptionAnalytics.Infrastructure.Middleware;
 using SubscriptionAnalytics.Infrastructure.Services;
+using SubscriptionAnalytics.Infrastructure.Repositories;
 using SubscriptionAnalytics.Shared.Interfaces;
 using SubscriptionAnalytics.Api.Middleware;
 using SubscriptionAnalytics.Connectors.Stripe.Abstractions;
@@ -95,6 +96,11 @@ builder.Services.AddScoped<ITenantService, TenantService>();
 builder.Services.AddScoped<ITenantContext, TenantContext>();
 builder.Services.AddScoped<IProviderConnectionService, ProviderConnectionService>();
 
+// Sync Job Services
+builder.Services.AddScoped<ISyncJobRepository, SyncJobRepository>();
+builder.Services.AddScoped<ISyncJobService, SyncJobService>();
+builder.Services.AddScoped<ISyncJobProcessor, SyncJobProcessor>();
+
 // Add API Configuration
 builder.Services.AddApiConfiguration(builder.Configuration);
 
@@ -138,7 +144,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // Map Identity API endpoints
-var group = app.MapGroup("/api/identity").WithTags("Identity");  
+var group = app.MapGroup("/api/identity").WithTags("Identity");
 group.MapIdentityApi<IdentityUser>();
 
 app.MapControllers();
@@ -147,7 +153,7 @@ app.MapControllers();
 app.MapGet("/", () => "SubscriptionAnalytics API is running! 🚀");
 
 app.MapGet("/api/health", () => new HealthResponseDto(
-    Status: "Healthy", 
+    Status: "Healthy",
     Timestamp: DateTime.UtcNow,
     Version: "1.0.0"
 ));

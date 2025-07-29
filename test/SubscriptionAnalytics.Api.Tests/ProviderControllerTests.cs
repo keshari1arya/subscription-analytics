@@ -8,6 +8,7 @@ using SubscriptionAnalytics.Shared.Enums;
 using SubscriptionAnalytics.Shared.Interfaces;
 using SubscriptionAnalytics.Shared.DTOs;
 using SubscriptionAnalytics.Application.Services;
+using SubscriptionAnalytics.Application.Interfaces;
 using SubscriptionAnalytics.Api.Controllers;
 using SubscriptionAnalytics.Api.Configuration;
 using System.Text.Json;
@@ -22,6 +23,8 @@ public class ProviderControllerTests
     private readonly Mock<ITenantContext> _tenantContextMock;
     private readonly Mock<ILogger<ProviderController>> _loggerMock;
     private readonly Mock<IOptions<OAuthConfiguration>> _oauthConfigMock;
+    private readonly Mock<ISyncJobService> _syncJobServiceMock;
+    private readonly Mock<ISyncJobProcessor> _syncJobProcessorMock;
     private readonly Mock<IConnector> _stripeConnectorMock;
     private readonly Mock<IConnector> _payPalConnectorMock;
     private readonly ProviderController _controller;
@@ -42,12 +45,17 @@ public class ProviderControllerTests
             UiCallbackUrl = "http://localhost:4200/providers/oauth-callback"
         });
 
+        _syncJobServiceMock = new Mock<ISyncJobService>();
+        _syncJobProcessorMock = new Mock<ISyncJobProcessor>();
+
         _controller = new ProviderController(
             _connectorFactoryMock.Object,
             _connectionServiceMock.Object,
             _tenantContextMock.Object,
             _loggerMock.Object,
-            _oauthConfigMock.Object);
+            _oauthConfigMock.Object,
+            _syncJobServiceMock.Object,
+            _syncJobProcessorMock.Object);
 
         // Setup default connector mocks
         _stripeConnectorMock.Setup(x => x.ProviderName).Returns("stripe");
