@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
-import { map, mergeMap, catchError } from 'rxjs/operators';
-import { ConnectService } from 'src/app/api-client/api/connect.service';
+import { catchError, map, mergeMap } from 'rxjs/operators';
+import { ProviderService } from 'src/app/api-client/api/provider.service';
 import { OAuthCallbackRequest } from 'src/app/api-client/model/oAuthCallbackRequest';
 import * as ProvidersActions from './providers.actions';
 
@@ -11,7 +11,7 @@ export class ProvidersEffects {
 
   loadProviders$ = createEffect(() => this.actions$.pipe(
     ofType(ProvidersActions.loadProviders),
-    mergeMap(() => this.connectService.apiConnectProvidersGet()
+    mergeMap(() => this.providerService.apiProviderListGet()
       .pipe(
         map(providers => ProvidersActions.loadProvidersSuccess({ providers })),
         catchError(error => of(ProvidersActions.loadProvidersFailure({ error: error.message || 'Failed to load providers' })))
@@ -20,7 +20,7 @@ export class ProvidersEffects {
 
   installProvider$ = createEffect(() => this.actions$.pipe(
     ofType(ProvidersActions.installProvider),
-    mergeMap(({ providerName }) => this.connectService.apiConnectProviderProviderPost(providerName)
+    mergeMap(({ providerName }) => this.providerService.apiProviderConnectProviderPost(providerName)
       .pipe(
         map(response => {
           // If response has an authorization URL, it's an OAuth redirect
@@ -37,7 +37,7 @@ export class ProvidersEffects {
 
   loadConnections$ = createEffect(() => this.actions$.pipe(
     ofType(ProvidersActions.loadConnections),
-    mergeMap(() => this.connectService.apiConnectConnectionsGet()
+    mergeMap(() => this.providerService.apiProviderConnectionsGet()
       .pipe(
         map(connections => ProvidersActions.loadConnectionsSuccess({ connections })),
         catchError(error => of(ProvidersActions.loadConnectionsFailure({ error: error.message || 'Failed to load connections' })))
@@ -52,8 +52,8 @@ export class ProvidersEffects {
         code: code,
         state: state
       };
-      
-      return this.connectService.apiConnectOauthCallbackFromUiPost(oauthData)
+
+      return this.providerService.apiProviderOauthCallbackPost(oauthData)
         .pipe(
           map(result => ProvidersActions.handleOAuthCallbackSuccess({ provider, result })),
           catchError(error => of(ProvidersActions.handleOAuthCallbackFailure({ error: error.error?.message || 'Failed to complete OAuth flow' })))
@@ -63,6 +63,6 @@ export class ProvidersEffects {
 
   constructor(
     private actions$: Actions,
-    private connectService: ConnectService
+    private providerService: ProviderService
   ) {}
-} 
+}

@@ -10,21 +10,21 @@ using Microsoft.Extensions.Options;
 namespace SubscriptionAnalytics.Api.Controllers;
 
 [ApiController]
-[Route("api/connect")]
+[Route("api/provider")]
 // [Authorize] // Temporarily disabled for testing
-public class ConnectController : ControllerBase
+public class ProviderController : ControllerBase
 {
     private readonly IConnectorFactory _connectorFactory;
     private readonly IProviderConnectionService _connectionService;
     private readonly ITenantContext _tenantContext;
-    private readonly ILogger<ConnectController> _logger;
+    private readonly ILogger<ProviderController> _logger;
     private readonly IOptions<OAuthConfiguration> _oauthConfig;
 
-    public ConnectController(
+    public ProviderController(
         IConnectorFactory connectorFactory,
         IProviderConnectionService connectionService,
         ITenantContext tenantContext,
-        ILogger<ConnectController> logger,
+        ILogger<ProviderController> logger,
         IOptions<OAuthConfiguration> oauthConfig)
     {
         _connectorFactory = connectorFactory;
@@ -70,7 +70,7 @@ public class ConnectController : ControllerBase
         // Add null check and debugging
         if (_tenantContext == null)
         {
-            _logger.LogError("TenantContext is null in ConnectController");
+            _logger.LogError("TenantContext is null in ProviderController");
             return BadRequest(new ErrorResponseDto("Tenant context service is not available."));
         }
 
@@ -89,7 +89,7 @@ public class ConnectController : ControllerBase
 
         var connector = _connectorFactory.GetConnector(connectorType);
         var state = Guid.NewGuid().ToString();
-        
+
         // Use UI callback URL from configuration
         var redirectUri = $"{_oauthConfig.Value.UiCallbackUrl}?provider={provider}";
 
@@ -112,7 +112,7 @@ public class ConnectController : ControllerBase
     {
         // Get tenant ID from header (set by TenantInterceptor)
         var tenantId = _tenantContext.TenantId;
-        
+
         if (tenantId == Guid.Empty)
         {
             return BadRequest(new ErrorResponseDto("Tenant context not found. Please provide X-Tenant-Id header."));
@@ -124,7 +124,7 @@ public class ConnectController : ControllerBase
         }
 
         var connector = _connectorFactory.GetConnector(connectorType);
-        
+
         // Exchange authorization code for access token
         var tokenResponse = await connector.ExchangeOAuthCodeAsync(request.Code, request.State);
 
@@ -136,11 +136,12 @@ public class ConnectController : ControllerBase
         // Save connection to database
         await _connectionService.SaveConnectionAsync(tenantId, request.Provider, tokenResponse);
 
-        _logger.LogInformation("OAuth flow completed successfully for tenant {TenantId} with provider {Provider}", 
+        _logger.LogInformation("OAuth flow completed successfully for tenant {TenantId} with provider {Provider}",
             tenantId, request.Provider);
 
-        return Ok(new { 
-            success = true, 
+        return Ok(new
+        {
+            success = true,
             message = $"{request.Provider} connected successfully",
             providerAccountId = tokenResponse.ProviderAccountId
         });
@@ -195,7 +196,7 @@ public class ConnectController : ControllerBase
     {
         if (_tenantContext == null)
         {
-            _logger.LogError("TenantContext is null in ConnectController");
+            _logger.LogError("TenantContext is null in ProviderController");
             return BadRequest(new ErrorResponseDto("Tenant context service is not available."));
         }
 
@@ -224,7 +225,7 @@ public class ConnectController : ControllerBase
     {
         if (_tenantContext == null)
         {
-            _logger.LogError("TenantContext is null in ConnectController");
+            _logger.LogError("TenantContext is null in ProviderController");
             return BadRequest(new ErrorResponseDto("Tenant context service is not available."));
         }
 
@@ -247,7 +248,7 @@ public class ConnectController : ControllerBase
     {
         if (_tenantContext == null)
         {
-            _logger.LogError("TenantContext is null in ConnectController");
+            _logger.LogError("TenantContext is null in ProviderController");
             return BadRequest(new ErrorResponseDto("Tenant context service is not available."));
         }
 

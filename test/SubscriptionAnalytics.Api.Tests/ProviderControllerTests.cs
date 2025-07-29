@@ -15,23 +15,23 @@ using Xunit;
 
 namespace SubscriptionAnalytics.Api.Tests;
 
-public class ConnectControllerTests
+public class ProviderControllerTests
 {
     private readonly Mock<IConnectorFactory> _connectorFactoryMock;
     private readonly Mock<IProviderConnectionService> _connectionServiceMock;
     private readonly Mock<ITenantContext> _tenantContextMock;
-    private readonly Mock<ILogger<ConnectController>> _loggerMock;
+    private readonly Mock<ILogger<ProviderController>> _loggerMock;
     private readonly Mock<IOptions<OAuthConfiguration>> _oauthConfigMock;
     private readonly Mock<IConnector> _stripeConnectorMock;
     private readonly Mock<IConnector> _payPalConnectorMock;
-    private readonly ConnectController _controller;
+    private readonly ProviderController _controller;
 
-    public ConnectControllerTests()
+    public ProviderControllerTests()
     {
         _connectorFactoryMock = new Mock<IConnectorFactory>();
         _connectionServiceMock = new Mock<IProviderConnectionService>();
         _tenantContextMock = new Mock<ITenantContext>();
-        _loggerMock = new Mock<ILogger<ConnectController>>();
+        _loggerMock = new Mock<ILogger<ProviderController>>();
         _oauthConfigMock = new Mock<IOptions<OAuthConfiguration>>();
         _stripeConnectorMock = new Mock<IConnector>();
         _payPalConnectorMock = new Mock<IConnector>();
@@ -42,7 +42,7 @@ public class ConnectControllerTests
             UiCallbackUrl = "http://localhost:4200/providers/oauth-callback"
         });
 
-        _controller = new ConnectController(
+        _controller = new ProviderController(
             _connectorFactoryMock.Object,
             _connectionServiceMock.Object,
             _tenantContextMock.Object,
@@ -64,7 +64,7 @@ public class ConnectControllerTests
     {
         // Assert
         _controller.Should().NotBeNull();
-        _controller.Should().BeOfType<ConnectController>();
+        _controller.Should().BeOfType<ProviderController>();
     }
 
     [Fact]
