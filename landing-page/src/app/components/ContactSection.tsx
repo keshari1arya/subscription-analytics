@@ -64,8 +64,8 @@ const ContactSection: React.FC = () => {
         reset();
 
         // Track analytics
-        if (typeof window !== 'undefined' && (window as any).gtag) {
-          (window as any).gtag('event', 'contact_form_submit', {
+        if (typeof window !== 'undefined' && (window as unknown as { gtag?: unknown }).gtag) {
+          ((window as unknown as { gtag: unknown }).gtag as (event: string, params: Record<string, unknown>) => void)('contact_form_submit', {
             event_category: 'engagement',
             event_label: 'contact_form',
           });

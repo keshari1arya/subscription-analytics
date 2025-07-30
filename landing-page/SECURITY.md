@@ -1,7 +1,7 @@
 # 🔒 Security Implementation
 
 ## Overview
-This document outlines the security measures implemented in the SubscriptionAnalytics landing page API endpoints.
+This document outlines the security measures implemented in the SubscriptionAnalytics landing page API endpoints using Next.js-specific patterns.
 
 ## 🛡️ Security Features
 
@@ -52,28 +52,45 @@ This document outlines the security measures implemented in the SubscriptionAnal
 
 ## 🔧 Implementation Details
 
-### Rate Limiting
+### Rate Limiting (Next.js Implementation)
 ```typescript
-// In-memory store (for production, use Redis)
+// In-memory store (for production, use Redis or similar)
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
 
-// Cleanup every hour
-setInterval(() => {
-  const now = Date.now();
-  for (const [ip, record] of rateLimitStore.entries()) {
-    if (now > record.resetTime) {
-      rateLimitStore.delete(ip);
+// Simple rate limiter implementation for Next.js
+const rateLimiter = (maxRequests: number = 100, windowMs: number = 15 * 60 * 1000) => {
+  return (req: NextRequest) => {
+    const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
+    const now = Date.now();
+
+    const record = rateLimitStore.get(ip);
+
+    if (!record || now > record.resetTime) {
+      // First request or window expired
+      rateLimitStore.set(ip, { count: 1, resetTime: now + windowMs });
+      return null; // Allow request
     }
-  }
-}, 60 * 60 * 1000);
+
+    if (record.count >= maxRequests) {
+      // Rate limit exceeded
+      return createErrorResponse('Too many requests from this IP, please try again later.', 429);
+    }
+
+    // Increment count
+    record.count++;
+    rateLimitStore.set(ip, record);
+    return null; // Allow request
+  };
+};
 ```
 
-### CORS Implementation
+### CORS Implementation (Next.js)
 ```typescript
-const corsMiddleware = (req: NextRequest) => {
+export const corsMiddleware = (req: NextRequest): NextResponse | null => {
   const origin = req.headers.get('origin');
   const allowedOrigins = corsOptions.origin;
 
+  // Check if origin is allowed
   const isAllowedOrigin = allowedOrigins.some(allowedOrigin => {
     if (allowedOrigin.includes('*')) {
       return origin?.includes(allowedOrigin.replace('*', ''));
@@ -171,4 +188,4 @@ This security implementation should be reviewed and updated regularly:
 
 ---
 
-**Note**: This security implementation provides a solid foundation but should be enhanced based on your specific requirements and threat model.
+**Note**: This security implementation provides a solid foundation for Next.js API routes and should be enhanced based on your specific requirements and threat model.

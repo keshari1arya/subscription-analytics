@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { corsOptions, createErrorResponse, createSuccessResponse, securityHeaders, validateRequest } from './security';
+import { corsMiddleware, createErrorResponse, createSuccessResponse, securityHeadersMiddleware, validateRequest } from './security';
 
 // In-memory store for rate limiting (in production, use Redis or similar)
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
@@ -30,34 +30,6 @@ const rateLimiter = (maxRequests: number = 100, windowMs: number = 15 * 60 * 100
   };
 };
 
-// CORS middleware for Next.js
-const corsMiddleware = (req: NextRequest) => {
-  const origin = req.headers.get('origin');
-  const allowedOrigins = corsOptions.origin;
-
-  // Check if origin is allowed
-  const isAllowedOrigin = allowedOrigins.some(allowedOrigin => {
-    if (allowedOrigin.includes('*')) {
-      return origin?.includes(allowedOrigin.replace('*', ''));
-    }
-    return origin === allowedOrigin;
-  });
-
-  if (!isAllowedOrigin && origin) {
-    return createErrorResponse('CORS: Origin not allowed', 403);
-  }
-
-  return null; // Allow request
-};
-
-// Security headers middleware
-const securityHeadersMiddleware = (response: NextResponse) => {
-  Object.entries(securityHeaders).forEach(([key, value]) => {
-    response.headers.set(key, value);
-  });
-  return response;
-};
-
 // Main middleware wrapper
 export const withSecurity = (
   handler: (req: NextRequest) => Promise<NextResponse>,
@@ -84,7 +56,7 @@ export const withSecurity = (
 
       // Validate request
       if (options.validateFields) {
-        const validation = validateRequest(req, options.validateFields);
+        const validation = validateRequest(req);
         if (!validation.isValid) {
           return createErrorResponse('Invalid request', 400, validation.errors);
         }

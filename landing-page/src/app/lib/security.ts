@@ -1,24 +1,11 @@
-import rateLimit from 'express-rate-limit';
 import { NextRequest, NextResponse } from 'next/server';
 
-// Rate limiting configuration
-export const createRateLimiter = (options: {
+// Rate limiting configuration for Next.js
+export interface RateLimitConfig {
   windowMs?: number;
   max?: number;
   message?: string;
-  keyGenerator?: (req: any) => string;
-}) => {
-  const limiter = rateLimit({
-    windowMs: options.windowMs || 15 * 60 * 1000, // 15 minutes
-    max: options.max || 100, // limit each IP to 100 requests per windowMs
-    message: options.message || 'Too many requests from this IP, please try again later.',
-    keyGenerator: options.keyGenerator || ((req) => req.ip || req.connection.remoteAddress || 'unknown'),
-    standardHeaders: true,
-    legacyHeaders: false,
-  });
-
-  return limiter;
-};
+}
 
 // CORS configuration
 export const corsOptions = {
@@ -58,7 +45,7 @@ export const sanitizeInput = (input: string): string => {
 };
 
 // Request validation middleware
-export const validateRequest = (req: NextRequest, requiredFields: string[]): { isValid: boolean; errors: string[] } => {
+export const validateRequest = (req: NextRequest): { isValid: boolean; errors: string[] } => {
   const errors: string[] = [];
 
   // Check if request is too large
@@ -81,7 +68,7 @@ export const validateRequest = (req: NextRequest, requiredFields: string[]): { i
 // API response wrapper
 export const createApiResponse = (
   success: boolean,
-  data?: any,
+  data?: unknown,
   message?: string,
   statusCode: number = 200
 ): NextResponse => {
@@ -99,16 +86,44 @@ export const createApiResponse = (
 export const createErrorResponse = (
   message: string,
   statusCode: number = 400,
-  errors?: any
+  errors?: unknown
 ): NextResponse => {
   return createApiResponse(false, errors, message, statusCode);
 };
 
 // Success response wrapper
 export const createSuccessResponse = (
-  data: any,
+  data: unknown,
   message?: string,
   statusCode: number = 200
 ): NextResponse => {
   return createApiResponse(true, data, message, statusCode);
+};
+
+// CORS middleware for Next.js
+export const corsMiddleware = (req: NextRequest): NextResponse | null => {
+  const origin = req.headers.get('origin');
+  const allowedOrigins = corsOptions.origin;
+
+  // Check if origin is allowed
+  const isAllowedOrigin = allowedOrigins.some(allowedOrigin => {
+    if (allowedOrigin.includes('*')) {
+      return origin?.includes(allowedOrigin.replace('*', ''));
+    }
+    return origin === allowedOrigin;
+  });
+
+  if (!isAllowedOrigin && origin) {
+    return createErrorResponse('CORS: Origin not allowed', 403);
+  }
+
+  return null; // Allow request
+};
+
+// Security headers middleware
+export const securityHeadersMiddleware = (response: NextResponse): NextResponse => {
+  Object.entries(securityHeaders).forEach(([key, value]) => {
+    response.headers.set(key, value);
+  });
+  return response;
 };

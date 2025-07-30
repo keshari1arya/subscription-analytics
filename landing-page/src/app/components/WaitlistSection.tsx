@@ -52,8 +52,8 @@ const WaitlistSection: React.FC = () => {
         reset();
 
         // Track analytics
-        if (typeof window !== 'undefined' && (window as any).gtag) {
-          (window as any).gtag('event', 'waitlist_signup', {
+        if (typeof window !== 'undefined' && (window as unknown as { gtag?: unknown }).gtag) {
+          ((window as unknown as { gtag: unknown }).gtag as (event: string, params: Record<string, unknown>) => void)('waitlist_signup', {
             event_category: 'engagement',
             event_label: 'waitlist_form',
           });
