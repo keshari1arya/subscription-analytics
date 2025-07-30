@@ -25,22 +25,22 @@
         <div *ngIf="!(loading$ | async) && !(error$ | async)" class="row">
           <div class="col-lg-4 col-md-6" *ngFor="let provider of providersWithStatus$ | async">
             <div class="card border shadow-none">
-              <div class="card-body text-center">
+              <div class="card-body">
                 <!-- Provider Icon -->
-                <div class="mb-3">
+                <div class="text-center mb-3">
                   <img [src]="getProviderIcon(provider.providerName)"
                        [alt]="provider.displayName || provider.providerName"
                        class="img-fluid"
-                       style="height: 60px; max-width: 120px;">
+                       style="height: 60px; width: 120px; object-fit: contain;">
                 </div>
 
                 <!-- Provider Name -->
-                <h5 class="card-title mb-2">
+                <h5 class="card-title mb-2 text-center">
                   {{ provider.displayName || provider.providerName }}
                 </h5>
 
                 <!-- Connection Status -->
-                <div class="mb-3">
+                <div class="mb-3 text-center">
                   <span class="badge bg-{{ getConnectionStatusClass(provider) }}">
                     <i class="fas fa-{{ provider.isConnected ? 'check-circle' : 'circle' }} me-1"></i>
                     {{ getConnectionStatus(provider) }}
@@ -51,12 +51,12 @@
                 </div>
 
                 <!-- Provider Description -->
-                <p class="card-text text-muted mb-3">
-                  {{ getProviderDescription(provider.providerName) }}
+                <p class="card-text text-muted mb-3 text-center">
+                  {{ getProviderDescription(provider) }}
                 </p>
 
                 <!-- OAuth Support Badge -->
-                <div class="mb-3">
+                <div class="mb-3 text-center">
                   <span *ngIf="provider.supportsOAuth" class="badge bg-info">
                     <i class="fas fa-shield-alt me-1"></i>Secure OAuth
                   </span>
@@ -74,59 +74,60 @@
                           [disabled]="(installingProvider$ | async) === provider.providerName"
                           (click)="installProvider(provider)">
                     <i class="fas fa-plug me-1"></i>
-                    {{ (installingProvider$ | async) === provider.providerName ? 'Installing...' : 'Connect' }}
+                    {{ (installingProvider$ | async) === provider.providerName ? 'Connecting...' : 'Connect' }}
                   </button>
 
-                  <button *ngIf="provider.isConnected"
-                          type="button"
-                          class="btn btn-success btn-sm"
-                          disabled>
-                    <i class="fas fa-check me-1"></i>
-                    Connected
-                  </button>
+                  <!-- Connected Provider Actions -->
+                  <div *ngIf="provider.isConnected" class="d-flex gap-2">
+                    <!-- Disconnect Button -->
+                    <button type="button"
+                            class="btn btn-outline-danger btn-sm flex-fill"
+                            (click)="disconnectProvider(provider)">
+                      <i class="fas fa-unlink me-1"></i>
+                      Disconnect
+                    </button>
 
-                  <!-- Sync Button (only show for connected providers) -->
-                  <div *ngIf="provider.isConnected" class="mt-2">
                     <!-- Sync Button -->
-                    <button *ngIf="!isSyncing(provider.providerName)"
+                    <button *ngIf="!(isSyncing(provider.providerName) | async)"
                             type="button"
-                            class="btn btn-outline-primary btn-sm w-100"
+                            class="btn btn-outline-primary btn-sm"
                             [disabled]="!provider.isConnected"
-                            (click)="startSync(provider.providerName)">
-                      <i class="fas fa-sync-alt me-1"></i>
-                      Sync Data
+                            (click)="startSync(provider.providerName)"
+                            title="Sync Data">
+                      <i class="fas fa-sync-alt"></i>
                     </button>
 
                     <!-- Syncing State -->
-                    <div *ngIf="isSyncing(provider.providerName)" class="d-flex align-items-center justify-content-between">
-                      <div class="d-flex align-items-center">
-                        <div class="spinner-border spinner-border-sm me-2" role="status">
-                          <span class="visually-hidden">Loading...</span>
-                        </div>
-                        <span class="text-primary">Syncing...</span>
+                    <div *ngIf="isSyncing(provider.providerName) | async" class="d-flex align-items-center">
+                      <div class="spinner-border spinner-border-sm me-2" role="status">
+                        <span class="visually-hidden">Loading...</span>
                       </div>
                       <button type="button"
                               class="btn btn-outline-danger btn-sm"
-                              (click)="cancelSync(provider.providerName)">
+                              (click)="cancelSync(provider.providerName)"
+                              title="Cancel Sync">
                         <i class="fas fa-times"></i>
                       </button>
                     </div>
+                  </div>
 
+                  <!-- Sync Progress and Error States -->
+                  <div *ngIf="provider.isConnected">
                     <!-- Progress Bar -->
-                    <div *ngIf="isSyncing(provider.providerName) && getSyncProgress(provider.providerName) > 0" class="mt-2">
+                    <div *ngIf="(isSyncing(provider.providerName) | async) && (getSyncProgress(provider.providerName) | async) > 0" class="mt-2">
                       <div class="progress" style="height: 6px;">
                         <div class="progress-bar progress-bar-primary"
-                             [style.width.%]="getSyncProgress(provider.providerName)">
+                             [style.width.%]="getSyncProgress(provider.providerName) | async">
                         </div>
                       </div>
-                      <small class="text-muted">{{ getSyncProgress(provider.providerName) }}% Complete</small>
+                      <small class="text-muted">{{ getSyncProgress(provider.providerName) | async }}% Complete</small>
                     </div>
 
                     <!-- Error State -->
-                    <div *ngIf="getSyncError(provider.providerName)" class="mt-2">
+                    <div *ngIf="getSyncError(provider.providerName) | async as error" class="mt-2">
                       <div class="alert alert-danger alert-sm" role="alert">
                         <i class="fas fa-exclamation-triangle me-1"></i>
-                        {{ getSyncError(provider.providerName) }}
+                        {{ error }}
                         <button type="button"
                                 class="btn btn-outline-danger btn-sm ms-2"
                                 (click)="retrySync(provider.providerName)">

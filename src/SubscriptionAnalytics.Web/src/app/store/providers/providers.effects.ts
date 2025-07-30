@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { of } from 'rxjs';
-import { catchError, map, mergeMap } from 'rxjs/operators';
+import { of, timer } from 'rxjs';
+import { catchError, map, mergeMap, switchMap } from 'rxjs/operators';
 import { ProviderService } from 'src/app/api-client/api/provider.service';
 import { ConnectorInfo } from 'src/app/api-client/model/connectorInfo';
 import { OAuthCallbackRequest } from 'src/app/api-client/model/oAuthCallbackRequest';
@@ -40,6 +40,18 @@ export class ProvidersEffects {
       ))
   ));
 
+  disconnectProvider$ = createEffect(() => this.actions$.pipe(
+    ofType(ProvidersActions.disconnectProvider),
+    mergeMap(({ providerName }) => this.providerService.apiProviderProviderDelete(providerName)
+      .pipe(
+        map(() => ProvidersActions.disconnectProviderSuccess({ providerName })),
+        catchError(error => of(ProvidersActions.disconnectProviderFailure({
+          providerName,
+          error: error.error?.message || error.message || 'Failed to disconnect provider'
+        })))
+      ))
+  ));
+
   loadConnections$ = createEffect(() => this.actions$.pipe(
     ofType(ProvidersActions.loadConnections),
     mergeMap(() => this.providerService.apiProviderConnectionsGet()
@@ -64,6 +76,64 @@ export class ProvidersEffects {
           catchError(error => of(ProvidersActions.handleOAuthCallbackFailure({ error: error.error?.message || 'Failed to complete OAuth flow' })))
         );
     })
+  ));
+
+  startSync$ = createEffect(() => this.actions$.pipe(
+    ofType(ProvidersActions.startSync),
+    mergeMap(({ providerName }) => this.providerService.apiProviderProviderSyncPost(providerName)
+      .pipe(
+        map(response => ProvidersActions.startSyncSuccess({ providerName, jobId: response.jobId || '' })),
+        catchError(error => of(ProvidersActions.startSyncFailure({
+          providerName,
+          error: error.error?.message || error.message || 'Failed to start sync'
+        })))
+      ))
+  ));
+
+  startSyncSuccess$ = createEffect(() => this.actions$.pipe(
+    ofType(ProvidersActions.startSyncSuccess),
+    map(({ providerName, jobId }) => ProvidersActions.monitorSyncProgress({ providerName, jobId }))
+  ));
+
+  monitorSyncProgress$ = createEffect(() => this.actions$.pipe(
+    ofType(ProvidersActions.monitorSyncProgress),
+    mergeMap(({ providerName, jobId }) =>
+      timer(0, 2000).pipe( // Check every 2 seconds
+        switchMap(() => this.providerService.apiProviderSyncStatusJobIdGet(jobId)),
+        map(status => {
+          if (status.status === 'Running') {
+            return ProvidersActions.updateSyncProgress({
+              providerName,
+              progress: status.progress || 0,
+              status: status.status
+            });
+          } else {
+            return ProvidersActions.syncCompleted({
+              providerName,
+              status: status.status,
+              errorMessage: status.errorMessage
+            });
+          }
+        }),
+        catchError(error => of(ProvidersActions.syncCompleted({
+          providerName,
+          status: 'Failed',
+          errorMessage: error.error?.message || error.message || 'Failed to get sync status'
+        })))
+      )
+    )
+  ));
+
+  cancelSync$ = createEffect(() => this.actions$.pipe(
+    ofType(ProvidersActions.cancelSync),
+    mergeMap(({ providerName, jobId }) => this.providerService.apiProviderSyncJobIdDelete(jobId)
+      .pipe(
+        map(() => ProvidersActions.cancelSyncSuccess({ providerName })),
+        catchError(error => of(ProvidersActions.cancelSyncFailure({
+          providerName,
+          error: error.error?.message || error.message || 'Failed to cancel sync'
+        })))
+      ))
   ));
 
   constructor(

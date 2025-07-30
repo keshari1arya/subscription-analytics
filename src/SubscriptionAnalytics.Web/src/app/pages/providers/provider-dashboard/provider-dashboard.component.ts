@@ -6,12 +6,12 @@ import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { BsModalRef, BsModalService, ModalModule } from 'ngx-bootstrap/modal';
 import { Observable, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { ConnectorInfo, ProviderService, SyncJobResponseDto, SyncJobStatusResponseDto } from 'src/app/api-client';
+import { ConnectorInfo } from 'src/app/api-client';
 import { LoaderComponent } from 'src/app/shared/ui/loader/loader.component';
 import { PagetitleComponent } from 'src/app/shared/ui/pagetitle/pagetitle.component';
 import * as ProvidersActions from 'src/app/store/providers/providers.actions';
 import * as ProvidersSelectors from 'src/app/store/providers/providers.selectors';
-
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-provider-dashboard',
@@ -37,11 +37,11 @@ export class ProviderDashboardComponent implements OnInit {
   providersWithStatus$: Observable<any[]>;
   modalRef?: BsModalRef;
 
-  // Sync state
-  syncingProviders: Set<string> = new Set();
-  syncProgress: { [key: string]: number } = {};
-  syncErrors: { [key: string]: string } = {};
-  syncJobs: { [key: string]: string } = {};
+  // Sync state from store
+  syncingProviders$: Observable<Set<string>>;
+  syncProgress$: Observable<{ [key: string]: number }>;
+  syncErrors$: Observable<{ [key: string]: string }>;
+  syncJobs$: Observable<{ [key: string]: string }>;
 
   breadCrumbItems: Array<{}> = [
     { label: 'Dashboard', path: '/dashboard' },
@@ -51,14 +51,19 @@ export class ProviderDashboardComponent implements OnInit {
 
   constructor(
     private store: Store,
-    private modalService: BsModalService,
-    private providerService: ProviderService
+    private modalService: BsModalService
   ) {
     this.providers$ = this.store.select(ProvidersSelectors.selectProviders);
     this.loading$ = this.store.select(ProvidersSelectors.selectProvidersLoading);
     this.error$ = this.store.select(ProvidersSelectors.selectProvidersError);
     this.installingProvider$ = this.store.select(ProvidersSelectors.selectInstallingProvider);
     this.connections$ = this.store.select(ProvidersSelectors.selectConnections);
+
+    // Sync state selectors
+    this.syncingProviders$ = this.store.select(ProvidersSelectors.selectSyncingProviders);
+    this.syncProgress$ = this.store.select(ProvidersSelectors.selectSyncProgress);
+    this.syncErrors$ = this.store.select(ProvidersSelectors.selectSyncErrors);
+    this.syncJobs$ = this.store.select(ProvidersSelectors.selectSyncJobs);
 
     // Combine providers with connection status
     this.providersWithStatus$ = combineLatest([
@@ -104,128 +109,105 @@ export class ProviderDashboardComponent implements OnInit {
     this.store.dispatch(ProvidersActions.clearProviderError());
   }
 
-  // Sync functionality
+  // Sync functionality using store
   startSync(providerName: string) {
-    if (!providerName || this.syncingProviders.has(providerName)) {
+    if (!providerName) {
+      return;
+    }
+    this.store.dispatch(ProvidersActions.startSync({ providerName }));
+  }
+
+  cancelSync(providerName: string) {
+    this.syncJobs$.subscribe(syncJobs => {
+      const jobId = syncJobs[providerName];
+      if (jobId) {
+        this.store.dispatch(ProvidersActions.cancelSync({ providerName, jobId }));
+      }
+    }).unsubscribe();
+  }
+
+  retrySync(providerName: string) {
+    // Clear error and start sync again
+    this.store.dispatch(ProvidersActions.startSync({ providerName }));
+  }
+
+  disconnectProvider(provider: any) {
+    if (!provider.providerName) {
       return;
     }
 
-    this.syncingProviders.add(providerName);
-    this.syncProgress[providerName] = 0;
-    this.syncErrors[providerName] = '';
+    Swal.fire({
+      title: 'Disconnect Provider?',
+      text: `Are you sure you want to disconnect ${provider.displayName || provider.providerName}? This will remove all connection data.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, disconnect!',
+      cancelButtonText: 'Cancel'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Dispatch disconnect action
+        this.store.dispatch(ProvidersActions.disconnectProvider({ providerName: provider.providerName }));
 
-    this.providerService.apiProviderProviderSyncPost(providerName).subscribe({
-      next: (response: SyncJobResponseDto) => {
-        if (response.jobId) {
-          this.syncJobs[providerName] = response.jobId;
-          this.monitorSyncProgress(providerName, response.jobId);
-        }
-      },
-      error: (error) => {
-        this.handleSyncError(providerName, 'Failed to start sync: ' + (error.error?.message || error.message));
+        Swal.fire(
+          'Disconnected!',
+          `${provider.displayName || provider.providerName} has been disconnected.`,
+          'success'
+        );
       }
     });
   }
 
-  private monitorSyncProgress(providerName: string, jobId: string) {
-    const interval = setInterval(() => {
-      this.providerService.apiProviderSyncStatusJobIdGet(jobId).subscribe({
-        next: (status: SyncJobStatusResponseDto) => {
-          this.updateSyncProgress(providerName, status);
-
-          if (status.status === 'Completed' || status.status === 'Failed' || status.status === 'Cancelled') {
-            clearInterval(interval);
-            this.syncingProviders.delete(providerName);
-            delete this.syncJobs[providerName];
-          }
-        },
-        error: (error) => {
-          clearInterval(interval);
-          this.handleSyncError(providerName, 'Failed to get sync status: ' + (error.error?.message || error.message));
-        }
-      });
-    }, 2000); // Check every 2 seconds
+  // Helper methods for template
+  isSyncing(providerName: string): Observable<boolean> {
+    return this.syncingProviders$.pipe(
+      map(syncingProviders => syncingProviders.has(providerName))
+    );
   }
 
-  private updateSyncProgress(providerName: string, status: SyncJobStatusResponseDto) {
-    if (status.status === 'Running') {
-      // Use the progress property from the API response
-      if (status.progress !== undefined) {
-        this.syncProgress[providerName] = status.progress;
-      } else {
-        // Fallback to simple progress
-        this.syncProgress[providerName] = Math.min(this.syncProgress[providerName] + 10, 90);
-      }
-    } else if (status.status === 'Completed') {
-      this.syncProgress[providerName] = 100;
-      setTimeout(() => {
-        delete this.syncProgress[providerName];
-      }, 2000);
-    } else if (status.status === 'Failed') {
-      this.handleSyncError(providerName, status.errorMessage || 'Sync failed');
-    }
+  getSyncProgress(providerName: string): Observable<number> {
+    return this.syncProgress$.pipe(
+      map(syncProgress => syncProgress[providerName] || 0)
+    );
   }
 
-  private handleSyncError(providerName: string, error: string) {
-    this.syncingProviders.delete(providerName);
-    this.syncErrors[providerName] = error;
-    delete this.syncProgress[providerName];
-    delete this.syncJobs[providerName];
-  }
-
-  cancelSync(providerName: string) {
-    const jobId = this.syncJobs[providerName];
-    if (jobId) {
-      this.providerService.apiProviderSyncJobIdDelete(jobId).subscribe({
-        next: () => {
-          this.syncingProviders.delete(providerName);
-          delete this.syncProgress[providerName];
-          delete this.syncErrors[providerName];
-          delete this.syncJobs[providerName];
-        },
-        error: (error) => {
-          this.handleSyncError(providerName, 'Failed to cancel sync: ' + (error.error?.message || error.message));
-        }
-      });
-    }
-  }
-
-  retrySync(providerName: string) {
-    delete this.syncErrors[providerName];
-    this.startSync(providerName);
-  }
-
-  isSyncing(providerName: string): boolean {
-    return this.syncingProviders.has(providerName);
-  }
-
-  getSyncProgress(providerName: string): number {
-    return this.syncProgress[providerName] || 0;
-  }
-
-  getSyncError(providerName: string): string {
-    return this.syncErrors[providerName] || '';
+  getSyncError(providerName: string): Observable<string> {
+    return this.syncErrors$.pipe(
+      map(syncErrors => syncErrors[providerName] || '')
+    );
   }
 
   getProviderIcon(providerName: string): string {
     // Return appropriate icon based on provider name
     switch (providerName?.toLowerCase()) {
       case 'stripe':
-        return 'assets/images/brands/stripe.png';
+        return 'assets/images/brands/stripe.svg';
       case 'paypal':
-        return 'assets/images/brands/paypal.png';
+        return 'assets/images/brands/paypal.svg';
       default:
         return 'assets/images/brands/default-provider.png';
     }
   }
 
-  getProviderDescription(providerName: string): string {
-    switch (providerName?.toLowerCase()) {
+  getProviderDescription(provider: any): string {
+    const providerName = provider.providerName?.toLowerCase();
+
+    switch (providerName) {
       case 'stripe':
+        if (provider.isConnected) {
+          return 'Your Stripe account is connected and ready to sync payment data and subscriptions.';
+        }
         return 'Connect your Stripe account to sync payment data and subscriptions.';
       case 'paypal':
+        if (provider.isConnected) {
+          return 'Your PayPal account is connected and ready to sync payment data and subscriptions.';
+        }
         return 'Connect your PayPal account to sync payment data and subscriptions.';
       default:
+        if (provider.isConnected) {
+          return 'Your account is connected and ready to sync data and subscriptions.';
+        }
         return 'Connect your account to sync data and subscriptions.';
     }
   }

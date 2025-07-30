@@ -21,7 +21,7 @@ export const selectProvidersError = createSelector(
 export const selectInstallingProvider = createSelector(
   selectProvidersState,
   (state) => state.installingProvider
-); 
+);
 
 export const selectConnections = createSelector(
   selectProvidersState,
@@ -46,4 +46,45 @@ export const selectOAuthCallbackLoading = createSelector(
 export const selectOAuthCallbackError = createSelector(
   selectProvidersState,
   (state) => state.oauthCallbackError
-); 
+);
+
+// Sync selectors
+export const selectSyncingProviders = createSelector(
+  selectProvidersState,
+  (state) => state.syncingProviders
+);
+
+export const selectSyncProgress = createSelector(
+  selectProvidersState,
+  (state) => state.syncProgress
+);
+
+export const selectSyncErrors = createSelector(
+  selectProvidersState,
+  (state) => state.syncErrors
+);
+
+export const selectSyncJobs = createSelector(
+  selectProvidersState,
+  (state) => state.syncJobs
+);
+
+export const selectIsSyncing = createSelector(
+  selectProvidersState,
+  (state) => (providerName: string) => state.syncingProviders.has(providerName)
+);
+
+export const selectSyncProgressForProvider = createSelector(
+  selectProvidersState,
+  (state) => (providerName: string) => state.syncProgress[providerName] || 0
+);
+
+export const selectSyncErrorForProvider = createSelector(
+  selectProvidersState,
+  (state) => (providerName: string) => state.syncErrors[providerName] || ''
+);
+
+export const selectSyncJobForProvider = createSelector(
+  selectProvidersState,
+  (state) => (providerName: string) => state.syncJobs[providerName] || ''
+);

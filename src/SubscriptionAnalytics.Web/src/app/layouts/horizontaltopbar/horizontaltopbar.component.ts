@@ -1,5 +1,5 @@
-import { Component, OnInit, AfterViewInit, Inject, ViewChild, Input, ElementRef } from '@angular/core';
-import { Router, NavigationEnd } from '@angular/router';
+import { AfterViewInit, Component, ElementRef, Inject, Input, OnInit, ViewChild } from '@angular/core';
+import { NavigationEnd, Router } from '@angular/router';
 import MetisMenu from 'metismenujs';
 import { CookieService } from 'ngx-cookie-service';
 import { LanguageService } from '../../core/services/language.service';
@@ -8,10 +8,13 @@ import { EventService } from '../../core/services/event.service';
 
 import { CommonModule, DOCUMENT } from '@angular/common';
 
-import { MENU } from './menu';
-import { MenuItem } from './menu.model';
+import { Store } from '@ngrx/store';
 import { TranslateModule } from '@ngx-translate/core';
 import { TokenService } from 'src/app/core/services/token.service';
+import { logout } from '../../store/Authentication/authentication.actions';
+import { RootReducerState } from '../../store/index';
+import { MENU } from './menu';
+import { MenuItem } from './menu.model';
 
 @Component({
   selector: 'app-horizontaltopbar',
@@ -48,6 +51,7 @@ export class HorizontaltopbarComponent implements OnInit, AfterViewInit {
   constructor(@Inject(DOCUMENT) private document: any, private router: Router, private eventService: EventService,
     public languageService: LanguageService,
     private tokenService: TokenService,
+    private store: Store<RootReducerState>,
     // tslint:disable-next-line: variable-name
     public _cookiesService: CookieService) {
     router.events.subscribe(event => {
@@ -86,7 +90,8 @@ export class HorizontaltopbarComponent implements OnInit, AfterViewInit {
    * Logout the user
    */
   logout() {
-    this.tokenService.logout();
+    // Dispatch logout action to trigger the enhanced logout effect
+    this.store.dispatch(logout());
     this.router.navigate(['/auth/login']);
   }
 

@@ -1,17 +1,18 @@
-import { Component, OnInit, Output, EventEmitter, Inject } from '@angular/core';
-import { Router } from '@angular/router';
 import { CommonModule, DOCUMENT } from '@angular/common';
-import { TokenService } from '../../core/services/token.service';
-import { CookieService } from 'ngx-cookie-service';
-import { LanguageService } from '../../core/services/language.service';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
+import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { Observable, map } from 'rxjs';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
+import { CookieService } from 'ngx-cookie-service';
+import { Observable } from 'rxjs';
+import { SimplebarAngularModule } from 'simplebar-angular';
+import { RootReducerState } from 'src/app/store';
 import { changesLayout } from 'src/app/store/layouts/layout.actions';
 import { getLayoutMode } from 'src/app/store/layouts/layout.selector';
-import { RootReducerState } from 'src/app/store';
-import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
-import { SimplebarAngularModule } from 'simplebar-angular';
+import { LanguageService } from '../../core/services/language.service';
+import { TokenService } from '../../core/services/token.service';
+import { logout } from '../../store/Authentication/authentication.actions';
 
 @Component({
   selector: 'app-topbar',
@@ -100,7 +101,8 @@ export class TopbarComponent implements OnInit {
    * Logout the user
    */
   logout() {
-    this.tokenService.clearTokens();
+    // Dispatch logout action to trigger the enhanced logout effect
+    this.store.dispatch(logout());
     this.router.navigate(['/auth/login']);
   }
 

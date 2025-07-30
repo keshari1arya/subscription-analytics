@@ -168,10 +168,26 @@ export class AuthenticationEffects {
         this.tokenService.clearTokens();
         // Clear tenant context
         this.tenantService.clearTenantContext();
+
+        // Clear ALL localStorage values
+        this.clearAllLocalStorage();
       }),
       exhaustMap(() => of(logoutSuccess()))
     )
   );
+
+  /**
+   * Clear all localStorage values
+   */
+  private clearAllLocalStorage(): void {
+    try {
+      // Clear all localStorage items
+      localStorage.clear();
+      console.log('All localStorage values cleared on logout');
+    } catch (error) {
+      console.error('Error clearing localStorage:', error);
+    }
+  }
 
   constructor(
     @Inject(Actions) private actions$: Actions,
