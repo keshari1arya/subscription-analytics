@@ -11,6 +11,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  schemas  = ["landingpage_straightat"]
 }
 
 model WaitlistEntry {
@@ -23,6 +24,7 @@ model WaitlistEntry {
   metadata  Json?    // additional data like user agent, referrer, etc.
 
   @@map("waitlist_entries")
+  @@schema("landingpage_straightat")
 }
 
 model ContactSubmission {
@@ -37,4 +39,5 @@ model ContactSubmission {
   metadata  Json?    // additional data
 
   @@map("contact_submissions")
+  @@schema("landingpage_straightat")
 }

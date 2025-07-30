@@ -1,159 +1,259 @@
-# SubscriptionAnalytics Landing Page
+# 🚀 SubscriptionAnalytics Landing Page
 
-A modern, SEO-optimized landing page for SubscriptionAnalytics - a unified subscription intelligence platform.
+A modern, responsive landing page for SubscriptionAnalytics with server-side functionality and database persistence.
 
-## 🚀 Features
+## ✨ Features
 
-- **SEO Optimized**: Comprehensive meta tags, Open Graph, Twitter Cards
-- **Modern Design**: Clean, professional design with smooth animations
-- **Responsive**: Mobile-first design that works on all devices
-- **Performance**: Optimized with Next.js 15 and Tailwind CSS
-- **Accessibility**: WCAG compliant with proper semantic HTML
-- **Analytics Ready**: Structured for conversion tracking
+### **Frontend**
+- 🎨 Modern, responsive design with Tailwind CSS
+- ⚡ Next.js 15 with App Router
+- 🎭 Smooth animations with Framer Motion
+- 📱 Mobile-first responsive design
+- 🎯 SEO optimized with meta tags
+- 📊 Google Analytics integration ready
 
-## 📋 Sections
+### **Backend**
+- 🗄️ PostgreSQL database with Prisma ORM
+- ✅ Form validation with Zod
+- 🔄 Real-time database persistence
+- 🛡️ Duplicate prevention for waitlist
+- 📈 Health monitoring endpoint
+- 📊 Analytics tracking ready
 
-1. **Hero Section** - Compelling headline with clear value proposition
-2. **Problem Section** - Highlights pain points of current solutions
-3. **Solution Section** - Showcases unique benefits and features
-4. **Pricing Section** - Transparent pricing with three tiers
-5. **Waitlist Section** - Email capture with social proof
-6. **Contact Section** - Contact form and information
-7. **Footer** - Links and company information
+### **API Endpoints**
+```bash
+POST /api/waitlist     # Join waitlist with validation
+GET  /api/waitlist     # Get signup count
+POST /api/contact      # Submit contact form
+GET  /api/contact      # Get submission count
+GET  /api/health       # Health check with stats
+```
 
 ## 🛠️ Tech Stack
 
-- **Next.js 15** - React framework with App Router
-- **TypeScript** - Type-safe development
-- **Tailwind CSS** - Utility-first CSS framework
-- **Framer Motion** - Smooth animations and transitions
-- **Lucide React** - Beautiful icons
-- **ESLint** - Code quality and consistency
+- **Frontend**: Next.js 15, React 19, TypeScript
+- **Styling**: Tailwind CSS 4, Framer Motion
+- **Database**: PostgreSQL with Prisma ORM
+- **Validation**: Zod
+- **Deployment**: Vercel
+- **CI/CD**: GitHub Actions
 
-## 🚀 Getting Started
+## 🚀 Quick Start
 
-### Prerequisites
-
-- Node.js 18+
-- Yarn package manager
-
-### Installation
-
+### **1. Clone Repository**
 ```bash
-# Install dependencies
-yarn install
-
-# Start development server
-yarn dev
-
-# Build for production
-yarn build
-
-# Start production server
-yarn start
+git clone https://github.com/your-username/subscriptionanalytics.git
+cd landing-page
 ```
 
-The development server will start at `http://localhost:3000`
+### **2. Install Dependencies**
+```bash
+yarn install
+```
 
-## 📊 SEO Features
+### **3. Environment Setup**
+```bash
+# Copy environment file
+cp env.example .env
 
-- Comprehensive meta tags
-- Open Graph and Twitter Card support
-- Structured data markup
-- Semantic HTML structure
-- Fast loading times
-- Mobile-friendly design
+# Update with your database URL
+DATABASE_URL="postgresql://landingpage_straightat:271238ae708062d3a7fd7a9c695231ebed9f25f1@ia56i9.h.filess.io:5434/landingpage_straightat"
+```
 
-## 🎨 Design System
+### **4. Database Setup**
+```bash
+# Generate Prisma client
+npx prisma generate
 
-- **Colors**: Blue primary (#2563eb), with supporting grays
-- **Typography**: Inter font family
-- **Spacing**: Consistent 8px grid system
-- **Animations**: Smooth Framer Motion transitions
-- **Components**: Reusable, accessible components
+# Push schema to database
+npx prisma db push
+```
 
-## 📱 Responsive Design
+### **5. Start Development Server**
+```bash
+yarn dev
+```
 
-- Mobile-first approach
-- Breakpoints: sm (640px), md (768px), lg (1024px), xl (1280px)
-- Touch-friendly interactions
-- Optimized for all screen sizes
+Visit [http://localhost:3000](http://localhost:3000) to see the application.
 
-## 🔧 Customization
+## 🗄️ Database Schema
 
-### Content Updates
+### **Waitlist Entries**
+```sql
+CREATE TABLE waitlist_entries (
+  id TEXT PRIMARY KEY,
+  email TEXT UNIQUE NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW(),
+  status TEXT DEFAULT 'pending',
+  source TEXT,
+  metadata JSONB
+);
+```
 
-All content is easily customizable in the component files:
-- `src/app/components/Hero.tsx` - Main headline and CTA
-- `src/app/components/ProblemSection.tsx` - Pain points
-- `src/app/components/SolutionSection.tsx` - Benefits
-- `src/app/components/PricingSection.tsx` - Pricing tiers
-- `src/app/components/WaitlistSection.tsx` - Email capture
+### **Contact Submissions**
+```sql
+CREATE TABLE contact_submissions (
+  id TEXT PRIMARY KEY,
+  first_name TEXT NOT NULL,
+  last_name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  company TEXT,
+  message TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW(),
+  status TEXT DEFAULT 'new',
+  metadata JSONB
+);
+```
 
-### Styling
+## 🧪 Testing
 
-- Tailwind CSS classes for styling
-- Custom CSS in `src/app/globals.css`
-- Component-specific styles in each component
+### **Health Check**
+```bash
+curl http://localhost:3000/api/health
+```
 
-### SEO Configuration
+### **Waitlist Signup**
+```bash
+curl -X POST http://localhost:3000/api/waitlist \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@example.com"}'
+```
 
-Update SEO settings in `src/app/layout.tsx`:
-- Meta tags
-- Open Graph data
-- Twitter Cards
-- Canonical URLs
-
-## 📈 Analytics Integration
-
-Ready for integration with:
-- Google Analytics
-- Google Tag Manager
-- Facebook Pixel
-- LinkedIn Insight Tag
-- Custom conversion tracking
+### **Contact Form**
+```bash
+curl -X POST http://localhost:3000/api/contact \
+  -H "Content-Type: application/json" \
+  -d '{
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "john@example.com",
+    "message": "Test message"
+  }'
+```
 
 ## 🚀 Deployment
 
-### Vercel (Recommended)
+### **Vercel Deployment**
+1. Connect GitHub repository to Vercel
+2. Add environment variables:
+   - `DATABASE_URL`
+   - `NEXT_PUBLIC_API_URL`
+   - `NEXT_PUBLIC_GA_MEASUREMENT_ID`
+3. Deploy automatically on push to main branch
 
+### **Domain Setup**
+- Configure custom domain: `branddsync.info`
+- Set up DNS records for Vercel
+- SSL certificate will be auto-generated
+
+## 📊 Monitoring
+
+### **Health Endpoint**
 ```bash
-# Install Vercel CLI
-npm i -g vercel
+GET /api/health
+```
+Returns application status and database statistics.
 
-# Deploy
-vercel
+### **Analytics**
+- Google Analytics integration ready
+- Form submission tracking
+- Conversion rate monitoring
+
+## 🔧 Development
+
+### **Available Scripts**
+```bash
+yarn dev          # Start development server
+yarn build        # Build for production
+yarn start        # Start production server
+yarn lint         # Run ESLint
 ```
 
-### Netlify
-
+### **Database Commands**
 ```bash
-# Build the project
-yarn build
-
-# Deploy to Netlify
-netlify deploy --prod --dir=out
+npx prisma generate    # Generate Prisma client
+npx prisma db push     # Push schema to database
+npx prisma studio      # Open database GUI
 ```
 
-### Other Platforms
+## 📁 Project Structure
 
-The project can be deployed to any static hosting platform:
-- AWS S3 + CloudFront
-- Google Cloud Storage
-- Azure Static Web Apps
-- GitHub Pages
+```
+landing-page/
+├── src/
+│   ├── app/
+│   │   ├── api/              # API routes
+│   │   │   ├── waitlist/     # Waitlist endpoint
+│   │   │   ├── contact/      # Contact form endpoint
+│   │   │   └── health/       # Health check endpoint
+│   │   ├── components/       # React components
+│   │   └── lib/              # Utilities
+│   │       ├── prisma.ts     # Database client
+│   │       └── validation.ts # Zod schemas
+├── prisma/
+│   └── schema.prisma         # Database schema
+├── .github/
+│   └── workflows/            # CI/CD pipeline
+└── public/                   # Static assets
+```
 
-## 📞 Support
+## 🎯 Business Features
 
-For questions or support:
-- Email: hello@subscriptionanalytics.com
-- Documentation: [Coming Soon]
-- Issues: [GitHub Issues]
+### **Lead Generation**
+- Email capture for waitlist
+- Contact form for inquiries
+- Meeting scheduling integration
+- Analytics tracking
+
+### **User Experience**
+- Fast loading times
+- Mobile responsive design
+- Smooth animations
+- Clear call-to-actions
+
+### **Analytics & Tracking**
+- Form submission tracking
+- Page view analytics
+- Conversion rate monitoring
+- User behavior insights
+
+## 🔒 Security
+
+- Input validation with Zod
+- SQL injection prevention (Prisma)
+- Rate limiting ready
+- Secure database connections
+- Environment variable protection
+
+## 📈 Performance
+
+- Next.js 15 with App Router
+- Optimized images and assets
+- CDN distribution via Vercel
+- Database connection pooling
+- Efficient API responses
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
 
 ## 📄 License
 
-This project is proprietary software. All rights reserved.
+This project is licensed under the MIT License.
+
+## 📞 Support
+
+For questions or issues:
+1. Check the [deployment guide](./DEPLOYMENT.md)
+2. Review API documentation
+3. Check database connectivity
+4. Contact the development team
 
 ---
 
-Built with ❤️ for subscription businesses
+**Built with ❤️ for SubscriptionAnalytics**
