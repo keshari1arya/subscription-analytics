@@ -1,104 +1,88 @@
-import { prisma } from '@/lib/prisma'
-import { waitlistSchema } from '@/lib/validation'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '../../../lib/prisma';
+import { waitlistSchema } from '../../../lib/validation';
+import { createErrorResponse, createSuccessResponse, withSecurity } from '../../lib/middleware';
+import { sanitizeInput, validateEmail } from '../../lib/security';
 
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json()
-
-    // Validate input
-    const validationResult = waitlistSchema.safeParse(body)
-    if (!validationResult.success) {
-      return NextResponse.json(
-        {
-          error: 'Invalid input',
-          details: validationResult.error.issues
-        },
-        { status: 400 }
-      )
+// Handler function
+const waitlistHandler = async (req: NextRequest): Promise<NextResponse> => {
+  if (req.method === 'GET') {
+    try {
+      const count = await prisma.waitlistEntry.count();
+      return createSuccessResponse({ count }, 'Waitlist count retrieved successfully');
+    } catch (error) {
+      console.error('Error getting waitlist count:', error);
+      return createErrorResponse('Failed to get waitlist count', 500);
     }
+  }
 
-    const { email, source, metadata } = validationResult.data
+  if (req.method === 'POST') {
+    try {
+      const body = await req.json();
 
-    // Check if email already exists
-    const existingEntry = await prisma.waitlistEntry.findUnique({
-      where: { email }
-    })
-
-    if (existingEntry) {
-      return NextResponse.json(
-        {
-          error: 'Email already registered',
-          message: 'This email is already on our waitlist'
-        },
-        { status: 409 }
-      )
-    }
-
-    // Create waitlist entry
-    const waitlistEntry = await prisma.waitlistEntry.create({
-      data: {
-        email,
-        source: source || 'website',
-        metadata: metadata || {
-          userAgent: request.headers.get('user-agent'),
-          referer: request.headers.get('referer'),
-          timestamp: new Date().toISOString()
-        }
+      // Validate input
+      const validation = waitlistSchema.safeParse(body);
+      if (!validation.success) {
+        return createErrorResponse('Invalid input data', 400, validation.error.issues);
       }
-    })
 
-    console.log('New waitlist signup:', email)
+      const { email } = validation.data;
 
-    return NextResponse.json(
-      {
-        success: true,
-        message: 'Successfully joined waitlist',
+      // Additional email validation
+      if (!validateEmail(email)) {
+        return createErrorResponse('Invalid email format', 400);
+      }
+
+      // Sanitize email
+      const sanitizedEmail = sanitizeInput(email).toLowerCase();
+
+      // Check for existing entry
+      const existingEntry = await prisma.waitlistEntry.findUnique({
+        where: { email: sanitizedEmail }
+      });
+
+      if (existingEntry) {
+        return createErrorResponse('Email already registered', 409);
+      }
+
+      // Create new entry
+      const entry = await prisma.waitlistEntry.create({
         data: {
-          id: waitlistEntry.id,
-          email: waitlistEntry.email,
-          createdAt: waitlistEntry.createdAt
+          email: sanitizedEmail,
+          source: 'website',
+          metadata: {
+            userAgent: req.headers.get('user-agent') || '',
+            referer: req.headers.get('referer') || '',
+            ip: req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown',
+            timestamp: new Date().toISOString()
+          }
         }
-      },
-      { status: 201 }
-    )
+      });
 
-  } catch (error) {
-    console.error('Waitlist API error:', error)
-
-    // Handle Prisma errors
-    if (error instanceof Error && error.message.includes('prisma')) {
-      return NextResponse.json(
-        { error: 'Database error. Please try again later.' },
-        { status: 500 }
-      )
+      return createSuccessResponse(
+        { id: entry.id, email: entry.email },
+        'Successfully joined waitlist',
+        201
+      );
+    } catch (error) {
+      console.error('Error creating waitlist entry:', error);
+      return createErrorResponse('Failed to join waitlist', 500);
     }
-
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
   }
-}
 
-export async function GET() {
-  try {
-    const count = await prisma.waitlistEntry.count()
+  return createErrorResponse('Method not allowed', 405);
+};
 
-    return NextResponse.json(
-      {
-        success: true,
-        data: {
-          totalSignups: count
-        }
-      },
-      { status: 200 }
-    )
-  } catch (error) {
-    console.error('Waitlist count error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
-  }
-}
+// Export with security middleware
+export const GET = withSecurity(waitlistHandler, {
+  rateLimit: { max: 50, windowMs: 15 * 60 * 1000 }, // 50 requests per 15 minutes
+  cors: true,
+  securityHeaders: true
+});
+
+export const POST = withSecurity(waitlistHandler, {
+  rateLimit: { max: 10, windowMs: 15 * 60 * 1000 }, // 10 submissions per 15 minutes
+  cors: true,
+  securityHeaders: true,
+  validateFields: ['email']
+});

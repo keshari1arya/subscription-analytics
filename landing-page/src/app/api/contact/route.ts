@@ -1,94 +1,79 @@
-import { prisma } from '@/lib/prisma'
-import { contactSchema } from '@/lib/validation'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '../../../lib/prisma';
+import { contactSchema } from '../../../lib/validation';
+import { createErrorResponse, createSuccessResponse, withSecurity } from '../../lib/middleware';
+import { sanitizeInput } from '../../lib/security';
 
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json()
-
-    // Validate input
-    const validationResult = contactSchema.safeParse(body)
-    if (!validationResult.success) {
-      return NextResponse.json(
-        {
-          error: 'Invalid input',
-          details: validationResult.error.issues
-        },
-        { status: 400 }
-      )
+// Handler function
+const contactHandler = async (req: NextRequest): Promise<NextResponse> => {
+  if (req.method === 'GET') {
+    try {
+      const count = await prisma.contactSubmission.count();
+      return createSuccessResponse({ count }, 'Contact submissions count retrieved successfully');
+    } catch (error) {
+      console.error('Error getting contact count:', error);
+      return createErrorResponse('Failed to get contact count', 500);
     }
+  }
 
-    const { firstName, lastName, email, company, message, metadata } = validationResult.data
+  if (req.method === 'POST') {
+    try {
+      const body = await req.json();
 
-    // Create contact submission
-    const contactSubmission = await prisma.contactSubmission.create({
-      data: {
-        firstName,
-        lastName,
-        email,
-        company,
-        message,
-        metadata: metadata || {
-          userAgent: request.headers.get('user-agent'),
-          referer: request.headers.get('referer'),
-          timestamp: new Date().toISOString()
-        }
+      // Validate input
+      const validation = contactSchema.safeParse(body);
+      if (!validation.success) {
+        return createErrorResponse('Invalid input data', 400, validation.error.issues);
       }
-    })
 
-    console.log('New contact form submission:', { firstName, lastName, email, company })
+      const { firstName, lastName, email, company, message } = validation.data;
 
-    return NextResponse.json(
-      {
-        success: true,
-        message: 'Message sent successfully',
+      // Sanitize inputs
+      const sanitizedData = {
+        firstName: sanitizeInput(firstName),
+        lastName: sanitizeInput(lastName),
+        email: sanitizeInput(email).toLowerCase(),
+        company: company ? sanitizeInput(company) : null,
+        message: sanitizeInput(message)
+      };
+
+      // Create contact submission
+      const submission = await prisma.contactSubmission.create({
         data: {
-          id: contactSubmission.id,
-          firstName: contactSubmission.firstName,
-          lastName: contactSubmission.lastName,
-          email: contactSubmission.email,
-          createdAt: contactSubmission.createdAt
+          ...sanitizedData,
+          metadata: {
+            userAgent: req.headers.get('user-agent') || '',
+            referer: req.headers.get('referer') || '',
+            ip: req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown',
+            timestamp: new Date().toISOString()
+          }
         }
-      },
-      { status: 201 }
-    )
+      });
 
-  } catch (error) {
-    console.error('Contact API error:', error)
-
-    // Handle Prisma errors
-    if (error instanceof Error && error.message.includes('prisma')) {
-      return NextResponse.json(
-        { error: 'Database error. Please try again later.' },
-        { status: 500 }
-      )
+      return createSuccessResponse(
+        { id: submission.id, email: submission.email },
+        'Contact form submitted successfully',
+        201
+      );
+    } catch (error) {
+      console.error('Error creating contact submission:', error);
+      return createErrorResponse('Failed to submit contact form', 500);
     }
-
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
   }
-}
 
-export async function GET() {
-  try {
-    const count = await prisma.contactSubmission.count()
+  return createErrorResponse('Method not allowed', 405);
+};
 
-    return NextResponse.json(
-      {
-        success: true,
-        data: {
-          totalSubmissions: count
-        }
-      },
-      { status: 200 }
-    )
-  } catch (error) {
-    console.error('Contact count error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
-  }
-}
+// Export with security middleware
+export const GET = withSecurity(contactHandler, {
+  rateLimit: { max: 50, windowMs: 15 * 60 * 1000 }, // 50 requests per 15 minutes
+  cors: true,
+  securityHeaders: true
+});
+
+export const POST = withSecurity(contactHandler, {
+  rateLimit: { max: 5, windowMs: 15 * 60 * 1000 }, // 5 submissions per 15 minutes
+  cors: true,
+  securityHeaders: true,
+  validateFields: ['firstName', 'lastName', 'email', 'message']
+});

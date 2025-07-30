@@ -1,40 +1,34 @@
-import { prisma } from '@/lib/prisma'
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '../../../lib/prisma';
+import { createErrorResponse, createSuccessResponse, withSecurity } from '../../lib/middleware';
 
-export async function GET() {
+// Handler function
+const healthHandler = async (req: NextRequest): Promise<NextResponse> => {
   try {
     // Test database connection
-    await prisma.$queryRaw`SELECT 1`
+    const waitlistCount = await prisma.waitlistEntry.count();
+    const contactCount = await prisma.contactSubmission.count();
 
-    // Get basic stats
-    const [waitlistCount, contactCount] = await Promise.all([
-      prisma.waitlistEntry.count(),
-      prisma.contactSubmission.count()
-    ])
+    const healthData = {
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      database: 'connected',
+      stats: {
+        waitlistEntries: waitlistCount,
+        contactSubmissions: contactCount
+      }
+    };
 
-    return NextResponse.json(
-      {
-        status: 'healthy',
-        timestamp: new Date().toISOString(),
-        database: 'connected',
-        stats: {
-          waitlistSignups: waitlistCount,
-          contactSubmissions: contactCount
-        }
-      },
-      { status: 200 }
-    )
+    return createSuccessResponse(healthData, 'Health check successful');
   } catch (error) {
-    console.error('Health check error:', error)
-
-    return NextResponse.json(
-      {
-        status: 'unhealthy',
-        timestamp: new Date().toISOString(),
-        database: 'disconnected',
-        error: error instanceof Error ? error.message : 'Unknown error'
-      },
-      { status: 503 }
-    )
+    console.error('Health check error:', error);
+    return createErrorResponse('Health check failed', 500);
   }
-}
+};
+
+// Export with security middleware
+export const GET = withSecurity(healthHandler, {
+  rateLimit: { max: 100, windowMs: 15 * 60 * 1000 }, // 100 requests per 15 minutes
+  cors: true,
+  securityHeaders: true
+});

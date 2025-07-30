@@ -1,196 +1,256 @@
 'use client'
 
-import { motion } from 'framer-motion'
-import { Clock, Gift, Mail, Users } from 'lucide-react'
-import { useState } from 'react'
-import Button from './Button'
+import { motion } from 'framer-motion';
+import { CheckCircle, Mail, Users } from 'lucide-react';
+import React, { useState } from 'react';
+import { useFormValidation, VALIDATION_RULES } from '../lib/formValidation';
+import FormInput from './FormInput';
 
-export default function WaitlistSection() {
-  const [email, setEmail] = useState('')
-  const [isSubmitted, setIsSubmitted] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState('')
+const WaitlistSection: React.FC = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+
+  const {
+    data,
+    errors,
+    touched,
+    handleChange,
+    handleBlur,
+    validateAll,
+    reset,
+    isValid,
+  } = useFormValidation(
+    { email: '' },
+    { email: VALIDATION_RULES.email }
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-    setIsLoading(true)
+    e.preventDefault();
+
+    // Validate all fields
+    if (!validateAll()) {
+      return;
+    }
+
+    setIsLoading(true);
+    setSubmitError('');
 
     try {
-      // Validate email
-      if (!email || !email.includes('@')) {
-        throw new Error('Please enter a valid email address')
-      }
-
-      // Here you would typically send to your API
-      // For now, we'll simulate the API call
       const response = await fetch('/api/waitlist', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email }),
-      })
+        body: JSON.stringify({ email: data.email }),
+      });
 
-      if (!response.ok) {
-        throw new Error('Failed to join waitlist. Please try again.')
+      const result = await response.json();
+
+      if (response.ok) {
+        setIsSubmitted(true);
+        reset();
+
+        // Track analytics
+        if (typeof window !== 'undefined' && (window as any).gtag) {
+          (window as any).gtag('event', 'waitlist_signup', {
+            event_category: 'engagement',
+            event_label: 'waitlist_form',
+          });
+        }
+      } else {
+        setSubmitError(result.message || 'Failed to join waitlist. Please try again.');
       }
-
-      setIsSubmitted(true)
-      setEmail('')
-
-      // Track conversion
-      if (typeof window !== 'undefined' && window.gtag) {
-        window.gtag('event', 'waitlist_signup', {
-          event_category: 'engagement',
-          event_label: 'waitlist_form'
-        })
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong')
+    } catch (error) {
+      console.error('Waitlist submission error:', error);
+      setSubmitError('Network error. Please check your connection and try again.');
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
-  const benefits = [
-    {
-      icon: Gift,
-      title: 'Early Access',
-      description: 'Be among the first to try our platform'
-    },
-    {
-      icon: Clock,
-      title: 'Exclusive Pricing',
-      description: 'Lock in special launch pricing'
-    },
-    {
-      icon: Users,
-      title: 'Priority Support',
-      description: 'Get dedicated support when we launch'
-    }
-  ]
+  const handleInputChange = (field: string, value: string) => {
+    handleChange(field, value);
+    setSubmitError(''); // Clear previous errors when user starts typing
+  };
 
   return (
-    <section id="waitlist" className="py-20 bg-gradient-to-br from-blue-600 to-indigo-700">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+    <section id="waitlist" className="py-20 bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
           viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-12"
         >
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+          <motion.div
+            initial={{ scale: 0 }}
+            whileInView={{ scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
+            className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-6"
+          >
+            <Mail className="w-8 h-8 text-blue-600" />
+          </motion.div>
+
+          <h2 className="text-4xl font-bold text-gray-900 mb-4">
             Join the Waitlist
           </h2>
-          <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-            Be the first to know when we launch. Get early access, exclusive pricing,
-            and priority support for your subscription analytics needs.
+          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+            Be among the first to experience unified subscription analytics.
+            Get early access and exclusive pricing when we launch.
           </p>
-        </motion.div>
 
-        {/* Social Proof */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          viewport={{ once: true }}
-          className="mb-12"
-        >
-          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-            <p className="text-blue-100 mb-4">
-              Already <span className="font-bold text-white">2,847 people</span> on the waitlist
-            </p>
-            <div className="flex justify-center items-center space-x-1 mb-4">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center text-xs font-semibold text-white">
-                  {String.fromCharCode(65 + i)}
-                </div>
-              ))}
-              <span className="text-sm text-blue-100 ml-2">+2,842 more</span>
+          <div className="flex items-center justify-center space-x-8 text-sm text-gray-500 mb-8">
+            <div className="flex items-center">
+              <Users className="w-4 h-4 mr-2" />
+              <span>2,847 people already joined</span>
+            </div>
+            <div className="flex items-center">
+              <CheckCircle className="w-4 h-4 mr-2 text-green-500" />
+              <span>Free early access</span>
             </div>
           </div>
         </motion.div>
 
-        {/* Email Form */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
           viewport={{ once: true }}
-          className="mb-12"
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="max-w-md mx-auto"
         >
-          {!isSubmitted ? (
-            <form onSubmit={handleSubmit} className="max-w-md mx-auto">
-              <div className="flex flex-col sm:flex-row gap-4">
-                <div className="flex-1">
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="Enter your email"
-                      required
-                      className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      disabled={isLoading}
-                    />
-                  </div>
-                  {error && (
-                    <p className="text-red-200 text-sm mt-2 text-left">{error}</p>
-                  )}
-                </div>
-                <Button
-                  type="submit"
-                  disabled={isLoading}
-                  className="whitespace-nowrap"
-                >
-                  {isLoading ? 'Joining...' : 'Join Waitlist'}
-                </Button>
-              </div>
-            </form>
-          ) : (
+          {isSubmitted ? (
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="bg-green-500 text-white rounded-lg p-6"
+              className="text-center p-8 bg-green-50 rounded-2xl border border-green-200"
             >
-              <h3 className="text-xl font-semibold mb-2">Welcome to the waitlist!</h3>
-              <p>We&apos;ll notify you as soon as we launch. Check your email for confirmation.</p>
+              <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+              <h3 className="text-2xl font-bold text-green-800 mb-2">
+                You&apos;re on the list!
+              </h3>
+              <p className="text-green-700 mb-4">
+                We&apos;ll notify you as soon as SubscriptionAnalytics is ready.
+                Get ready to transform your subscription analytics!
+              </p>
+              <button
+                onClick={() => setIsSubmitted(false)}
+                className="text-green-600 hover:text-green-700 font-medium underline"
+              >
+                Join with another email
+              </button>
             </motion.div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <FormInput
+                type="email"
+                name="email"
+                label="Email Address"
+                placeholder="Enter your email address"
+                value={data.email}
+                error={errors.email}
+                touched={touched.email}
+                required={true}
+                onChange={(value) => handleInputChange('email', value)}
+                onBlur={() => handleBlur('email')}
+              />
+
+              {submitError && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-4 bg-red-50 border border-red-200 rounded-lg"
+                >
+                  <div className="flex items-center">
+                    <svg
+                      className="w-5 h-5 text-red-500 mr-2"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    <span className="text-red-700 text-sm">{submitError}</span>
+                  </div>
+                </motion.div>
+              )}
+
+              <motion.button
+                type="submit"
+                disabled={isLoading || !isValid}
+                whileHover={{ scale: isLoading ? 1 : 1.02 }}
+                whileTap={{ scale: isLoading ? 1 : 0.98 }}
+                className={`
+                  w-full py-4 px-8 rounded-lg font-semibold text-white transition-all duration-200
+                  ${isLoading || !isValid
+                    ? 'bg-gray-400 cursor-not-allowed'
+                    : 'bg-blue-600 hover:bg-blue-700 shadow-lg hover:shadow-xl'
+                  }
+                `}
+              >
+                {isLoading ? (
+                  <div className="flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                    Joining waitlist...
+                  </div>
+                ) : (
+                  'Join Waitlist'
+                )}
+              </motion.button>
+
+              <p className="text-xs text-gray-500 text-center">
+                By joining, you agree to receive updates about SubscriptionAnalytics.
+                We respect your privacy and won&apos;t spam you.
+              </p>
+            </form>
           )}
         </motion.div>
 
-        {/* Benefits */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          className="grid md:grid-cols-3 gap-8"
+          transition={{ duration: 0.6, delay: 0.6 }}
+          className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8 text-center"
         >
-          {benefits.map((benefit, index) => (
-            <motion.div
-              key={benefit.title}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.8 + index * 0.1 }}
-              viewport={{ once: true }}
-              className="text-center"
-            >
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-                <benefit.icon className="w-12 h-12 text-white mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-white mb-2">
-                  {benefit.title}
-                </h3>
-                <p className="text-blue-100">
-                  {benefit.description}
-                </p>
-              </div>
-            </motion.div>
-          ))}
+          <div className="p-6 bg-white rounded-xl shadow-sm">
+            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+              <CheckCircle className="w-6 h-6 text-blue-600" />
+            </div>
+            <h3 className="font-semibold text-gray-900 mb-2">Early Access</h3>
+            <p className="text-sm text-gray-600">
+              Be the first to try our unified analytics platform
+            </p>
+          </div>
+
+          <div className="p-6 bg-white rounded-xl shadow-sm">
+            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+              <Users className="w-6 h-6 text-green-600" />
+            </div>
+            <h3 className="font-semibold text-gray-900 mb-2">Exclusive Pricing</h3>
+            <p className="text-sm text-gray-600">
+              Get special launch pricing and discounts
+            </p>
+          </div>
+
+          <div className="p-6 bg-white rounded-xl shadow-sm">
+            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+              <Mail className="w-6 h-6 text-purple-600" />
+            </div>
+            <h3 className="font-semibold text-gray-900 mb-2">Product Updates</h3>
+            <p className="text-sm text-gray-600">
+              Stay informed about new features and improvements
+            </p>
+          </div>
         </motion.div>
       </div>
     </section>
-  )
-}
+  );
+};
+
+export default WaitlistSection;
