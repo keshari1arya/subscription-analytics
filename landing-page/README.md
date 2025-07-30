@@ -142,6 +142,8 @@ curl -X POST http://localhost:3000/api/contact \
    - `NEXT_PUBLIC_GA_MEASUREMENT_ID`
 3. Deploy automatically on push to main branch
 
+**Note**: The build process includes `prisma generate` to ensure the Prisma client is properly generated for Vercel deployment.
+
 ### **Domain Setup**
 - Configure custom domain: `branddsync.info`
 - Set up DNS records for Vercel
@@ -165,7 +167,7 @@ Returns application status and database statistics.
 ### **Available Scripts**
 ```bash
 yarn dev          # Start development server
-yarn build        # Build for production
+yarn build        # Build for production (includes prisma generate)
 yarn start        # Start production server
 yarn lint         # Run ESLint
 ```
