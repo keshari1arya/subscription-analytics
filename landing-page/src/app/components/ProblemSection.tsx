@@ -53,7 +53,7 @@ export default function ProblemSection() {
           </motion.p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
           {problems.map((problem, index) => (
             <motion.div
               key={problem.title}
@@ -63,14 +63,14 @@ export default function ProblemSection() {
               viewport={{ once: true }}
               className="relative"
             >
-              <div className={`${problem.bgColor} p-8 rounded-2xl h-full border border-gray-200 hover:shadow-lg transition-shadow duration-300`}>
+              <div className={`${problem.bgColor} p-6 md:p-8 rounded-2xl h-full border border-gray-200 hover:shadow-lg transition-shadow duration-300`}>
                 <div className={`${problem.color} mb-4`}>
-                  <problem.icon className="w-12 h-12" />
+                  <problem.icon className="w-10 h-10 md:w-12 md:h-12" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                <h3 className="text-lg md:text-xl font-semibold text-gray-900 mb-3 md:mb-4">
                   {problem.title}
                 </h3>
-                <p className="text-gray-600 leading-relaxed">
+                <p className="text-gray-600 leading-relaxed text-sm md:text-base">
                   {problem.description}
                 </p>
               </div>
@@ -84,14 +84,14 @@ export default function ProblemSection() {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.6 }}
           viewport={{ once: true }}
-          className="mt-16 text-center"
+          className="mt-12 md:mt-16 text-center"
         >
-          <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-200">
-            <AlertTriangle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">
+          <div className="bg-white rounded-2xl p-6 md:p-8 shadow-lg border border-gray-200">
+            <AlertTriangle className="w-12 h-12 md:w-16 md:h-16 text-red-500 mx-auto mb-4" />
+            <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-3 md:mb-4">
               The Result? Missed Opportunities
             </h3>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="text-base md:text-lg text-gray-600 max-w-2xl mx-auto">
               Without unified analytics, you&apos;re making business decisions with incomplete data.
               You&apos;re missing insights that could drive growth, reduce churn, and optimize your subscription business.
             </p>

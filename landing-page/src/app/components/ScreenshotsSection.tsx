@@ -43,21 +43,21 @@ export default function ScreenshotsSection() {
   }
 
   const renderDashboard = () => (
-    <div className="bg-white rounded-lg shadow-lg overflow-hidden w-full max-w-4xl mx-auto h-96">
+    <div className="bg-white rounded-lg shadow-lg overflow-hidden w-full mx-auto h-96">
       {/* Header */}
       <div className="bg-gray-900 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <div className="w-6 h-6 bg-blue-600 rounded"></div>
           <span className="text-white font-semibold text-sm">SubscriptionAnalytics</span>
         </div>
-        <div className="flex items-center space-x-3 text-gray-300 text-xs">
+        <div className="hidden sm:flex items-center space-x-3 text-gray-300 text-xs">
           <span className="text-white">Dashboard</span>
           <span>Customers</span>
           <span>Subscriptions</span>
         </div>
         <div className="flex items-center space-x-2">
           <div className="w-6 h-6 bg-gray-700 rounded-full"></div>
-          <span className="text-white text-xs">John Doe</span>
+          <span className="text-white text-xs hidden sm:block">John Doe</span>
         </div>
       </div>
 
@@ -163,21 +163,21 @@ export default function ScreenshotsSection() {
   )
 
   const renderCustomers = () => (
-    <div className="bg-white rounded-lg shadow-lg overflow-hidden w-full max-w-4xl mx-auto h-96">
+    <div className="bg-white rounded-lg shadow-lg overflow-hidden w-full mx-auto h-96">
       {/* Header */}
       <div className="bg-gray-900 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <div className="w-6 h-6 bg-green-600 rounded"></div>
           <span className="text-white font-semibold text-sm">SubscriptionAnalytics</span>
         </div>
-        <div className="flex items-center space-x-3 text-gray-300 text-xs">
+        <div className="hidden sm:flex items-center space-x-3 text-gray-300 text-xs">
           <span>Dashboard</span>
           <span className="text-white">Customers</span>
           <span>Subscriptions</span>
         </div>
         <div className="flex items-center space-x-2">
           <div className="w-6 h-6 bg-gray-700 rounded-full"></div>
-          <span className="text-white text-xs">John Doe</span>
+          <span className="text-white text-xs hidden sm:block">John Doe</span>
         </div>
       </div>
 
@@ -194,83 +194,83 @@ export default function ScreenshotsSection() {
         {/* Customer Table */}
         <div className="bg-gray-50 border border-gray-200 rounded-lg overflow-hidden">
           <div className="bg-gray-100 px-3 py-2 border-b border-gray-200">
-            <div className="grid grid-cols-4 gap-2 text-xs font-semibold text-gray-700">
-              <div>Customer</div>
-              <div>Plan</div>
-              <div>MRR</div>
-              <div>Status</div>
+            <div className="grid grid-cols-12 gap-2 text-xs font-semibold text-gray-700">
+              <div className="col-span-5">Customer</div>
+              <div className="col-span-3">Plan</div>
+              <div className="col-span-2">MRR</div>
+              <div className="col-span-2">Status</div>
             </div>
           </div>
           <div className="divide-y divide-gray-200">
             <div className="px-3 py-2 hover:bg-gray-50">
-              <div className="grid grid-cols-4 gap-2 items-center">
-                <div className="flex items-center space-x-2">
-                  <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-semibold">AC</div>
-                  <div>
-                    <div className="font-semibold text-gray-900 text-xs">Acme Corp</div>
-                    <div className="text-xs text-gray-500">acme@example.com</div>
+              <div className="grid grid-cols-12 gap-2 items-center">
+                <div className="col-span-5 flex items-center space-x-2 min-w-0">
+                  <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">AC</div>
+                  <div className="min-w-0 flex-1">
+                    <div className="font-semibold text-gray-900 text-xs truncate">Acme Corp</div>
+                    <div className="text-xs text-gray-500 truncate">acme@example.com</div>
                   </div>
                 </div>
-                <div>
-                  <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">Enterprise</span>
+                <div className="col-span-3">
+                  <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full whitespace-nowrap">Enterprise</span>
                 </div>
-                <div className="font-semibold text-gray-900 text-sm">$2,500</div>
-                <div>
-                  <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Active</span>
+                <div className="col-span-2 font-semibold text-gray-900 text-sm">$2,500</div>
+                <div className="col-span-2">
+                  <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full whitespace-nowrap">Active</span>
                 </div>
               </div>
             </div>
             <div className="px-3 py-2 hover:bg-gray-50">
-              <div className="grid grid-cols-4 gap-2 items-center">
-                <div className="flex items-center space-x-2">
-                  <div className="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center text-white text-xs font-semibold">TS</div>
-                  <div>
-                    <div className="font-semibold text-gray-900 text-xs">TechStart</div>
-                    <div className="text-xs text-gray-500">tech@startup.com</div>
+              <div className="grid grid-cols-12 gap-2 items-center">
+                <div className="col-span-5 flex items-center space-x-2 min-w-0">
+                  <div className="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">TS</div>
+                  <div className="min-w-0 flex-1">
+                    <div className="font-semibold text-gray-900 text-xs truncate">TechStart</div>
+                    <div className="text-xs text-gray-500 truncate">tech@startup.com</div>
                   </div>
                 </div>
-                <div>
-                  <span className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full">Professional</span>
+                <div className="col-span-3">
+                  <span className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full whitespace-nowrap">Professional</span>
                 </div>
-                <div className="font-semibold text-gray-900 text-sm">$1,200</div>
-                <div>
-                  <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Active</span>
+                <div className="col-span-2 font-semibold text-gray-900 text-sm">$1,200</div>
+                <div className="col-span-2">
+                  <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full whitespace-nowrap">Active</span>
                 </div>
               </div>
             </div>
             <div className="px-3 py-2 hover:bg-gray-50">
-              <div className="grid grid-cols-4 gap-2 items-center">
-                <div className="flex items-center space-x-2">
-                  <div className="w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center text-white text-xs font-semibold">IL</div>
-                  <div>
-                    <div className="font-semibold text-gray-900 text-xs">InnovateLabs</div>
-                    <div className="text-xs text-gray-500">hello@innovate.com</div>
+              <div className="grid grid-cols-12 gap-2 items-center">
+                <div className="col-span-5 flex items-center space-x-2 min-w-0">
+                  <div className="w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">IL</div>
+                  <div className="min-w-0 flex-1">
+                    <div className="font-semibold text-gray-900 text-xs truncate">InnovateLabs</div>
+                    <div className="text-xs text-gray-500 truncate">hello@innovate.com</div>
                   </div>
                 </div>
-                <div>
-                  <span className="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">Starter</span>
+                <div className="col-span-3">
+                  <span className="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full whitespace-nowrap">Starter</span>
                 </div>
-                <div className="font-semibold text-gray-900 text-sm">$500</div>
-                <div>
-                  <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Active</span>
+                <div className="col-span-2 font-semibold text-gray-900 text-sm">$500</div>
+                <div className="col-span-2">
+                  <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full whitespace-nowrap">Active</span>
                 </div>
               </div>
             </div>
             <div className="px-3 py-2 hover:bg-gray-50">
-              <div className="grid grid-cols-4 gap-2 items-center">
-                <div className="flex items-center space-x-2">
-                  <div className="w-6 h-6 bg-red-600 rounded-full flex items-center justify-center text-white text-xs font-semibold">OC</div>
-                  <div>
-                    <div className="font-semibold text-gray-900 text-xs">OldCompany</div>
-                    <div className="text-xs text-gray-500">contact@old.com</div>
+              <div className="grid grid-cols-12 gap-2 items-center">
+                <div className="col-span-5 flex items-center space-x-2 min-w-0">
+                  <div className="w-6 h-6 bg-red-600 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">OC</div>
+                  <div className="min-w-0 flex-1">
+                    <div className="font-semibold text-gray-900 text-xs truncate">OldCompany</div>
+                    <div className="text-xs text-gray-500 truncate">contact@old.com</div>
                   </div>
                 </div>
-                <div>
-                  <span className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full">Professional</span>
+                <div className="col-span-3">
+                  <span className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full whitespace-nowrap">Professional</span>
                 </div>
-                <div className="font-semibold text-gray-900 text-sm">$0</div>
-                <div>
-                  <span className="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">Churned</span>
+                <div className="col-span-2 font-semibold text-gray-900 text-sm">$0</div>
+                <div className="col-span-2">
+                  <span className="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full whitespace-nowrap">Churned</span>
                 </div>
               </div>
             </div>
@@ -292,21 +292,21 @@ export default function ScreenshotsSection() {
   )
 
   const renderSubscriptions = () => (
-    <div className="bg-white rounded-lg shadow-lg overflow-hidden w-full max-w-4xl mx-auto h-96">
+    <div className="bg-white rounded-lg shadow-lg overflow-hidden w-full mx-auto h-96">
       {/* Header */}
       <div className="bg-gray-900 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <div className="w-6 h-6 bg-purple-600 rounded"></div>
           <span className="text-white font-semibold text-sm">SubscriptionAnalytics</span>
         </div>
-        <div className="flex items-center space-x-3 text-gray-300 text-xs">
+        <div className="hidden sm:flex items-center space-x-3 text-gray-300 text-xs">
           <span>Dashboard</span>
           <span>Customers</span>
           <span className="text-white">Subscriptions</span>
         </div>
         <div className="flex items-center space-x-2">
           <div className="w-6 h-6 bg-gray-700 rounded-full"></div>
-          <span className="text-white text-xs">John Doe</span>
+          <span className="text-white text-xs hidden sm:block">John Doe</span>
         </div>
       </div>
 
@@ -485,16 +485,16 @@ export default function ScreenshotsSection() {
           </motion.p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-start">
           {/* Screenshot Display */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
-            className="relative"
+            className="relative order-2 lg:order-1"
           >
-            <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6 shadow-lg">
+            <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-4 sm:p-6 shadow-lg">
               <div className="relative">
                 {renderScreenshot()}
 
@@ -534,17 +534,17 @@ export default function ScreenshotsSection() {
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
-            className="space-y-6"
+            className="space-y-6 order-1 lg:order-2"
           >
-            <div className="flex items-center space-x-4">
-              <div className={`p-3 rounded-lg bg-gradient-to-br ${screenshots[currentIndex].color}`}>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
+              <div className={`p-3 rounded-lg bg-gradient-to-br ${screenshots[currentIndex].color} flex-shrink-0`}>
                 {React.createElement(screenshots[currentIndex].icon, { className: "w-8 h-8 text-white" })}
               </div>
-              <div>
-                <h3 className="text-2xl font-bold text-gray-900">
+              <div className="flex-1 min-w-0">
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-900">
                   {screenshots[currentIndex].title}
                 </h3>
-                <p className="text-gray-600 text-lg">
+                <p className="text-gray-600 text-base sm:text-lg mt-1">
                   {screenshots[currentIndex].description}
                 </p>
               </div>
@@ -676,7 +676,7 @@ export default function ScreenshotsSection() {
               </ul>
             </div>
 
-            <div className="bg-blue-50 rounded-xl p-6 border border-blue-200">
+            <div className="bg-blue-50 rounded-xl p-4 sm:p-6 border border-blue-200">
               <h4 className="font-semibold text-blue-900 mb-2">Why This Matters</h4>
               <p className="text-blue-800 text-sm">
                 Get a complete view of your subscription business across all payment providers.
@@ -684,7 +684,7 @@ export default function ScreenshotsSection() {
               </p>
             </div>
 
-            <div className="flex space-x-4">
+            <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
               <button className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
                 View Live Demo
               </button>
