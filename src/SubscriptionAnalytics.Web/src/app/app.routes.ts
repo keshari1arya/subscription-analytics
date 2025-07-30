@@ -12,11 +12,6 @@ export const routes: Routes = [
         pathMatch: "full"
     },
     {
-        path: "landing",
-        loadChildren: () =>
-            import("./landing/landing.module").then((m) => m.LandingModule),
-    },
-    {
         path: "tenant",
         component: LayoutComponent,
         loadChildren: () =>
