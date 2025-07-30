@@ -1,10 +1,5 @@
 {
   "buildCommand": "yarn build",
   "installCommand": "yarn install",
-  "framework": "nextjs",
-  "build": {
-    "env": {
-      "PRISMA_GENERATE_DATAPROXY": "true"
-    }
-  }
+  "framework": "nextjs"
 }
