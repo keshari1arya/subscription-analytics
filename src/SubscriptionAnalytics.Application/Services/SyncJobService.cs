@@ -1,6 +1,7 @@
 using SubscriptionAnalytics.Shared.Entities;
 using SubscriptionAnalytics.Shared.Enums;
 using SubscriptionAnalytics.Shared.Interfaces;
+using System.Text.Json;
 
 namespace SubscriptionAnalytics.Application.Services;
 
@@ -13,7 +14,13 @@ public class SyncJobService : ISyncJobService
         _syncJobRepository = syncJobRepository;
     }
 
-    public async Task<SyncJob> CreateJobAsync(Guid tenantId, SyncJobType jobType, string providerName)
+    public async Task<SyncJob> CreateJobAsync(
+        Guid tenantId,
+        string providerName,
+        SyncJobType jobType,
+        string? accessToken = null,
+        string? refreshToken = null,
+        Dictionary<string, object>? additionalData = null)
     {
         var syncJob = new SyncJob
         {
@@ -24,11 +31,28 @@ public class SyncJobService : ISyncJobService
             Progress = 0,
             RetryCount = 0,
             ProviderName = providerName,
+            StartedAt = null,
+            CompletedAt = null,
+            ErrorMessage = null,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
             CreatedBy = "system",
             UpdatedBy = "system"
         };
+
+        // Store access token and additional data in the job (you might want to encrypt these)
+        if (!string.IsNullOrEmpty(accessToken))
+        {
+            // TODO: Encrypt sensitive data before storing
+            syncJob.ErrorMessage = $"AccessToken: {accessToken}"; // Temporary storage, should be encrypted
+        }
+
+        if (additionalData != null)
+        {
+            // Store additional data as JSON in a separate field or encrypted
+            var additionalDataJson = JsonSerializer.Serialize(additionalData);
+            // TODO: Store this in a separate field or encrypted
+        }
 
         return await _syncJobRepository.AddAsync(syncJob);
     }

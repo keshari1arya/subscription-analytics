@@ -5,6 +5,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SubscriptionAnalytics.Worker;
+using SubscriptionAnalytics.Worker.Services;
+using SubscriptionAnalytics.Shared.Enums;
+using System.Text.Json;
 
 // Configure dependency injection
 var services = new ServiceCollection();
@@ -25,6 +28,9 @@ services.AddLogging(builder =>
     builder.AddConsole();
     builder.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Information);
 });
+
+// Add standalone sync worker
+services.AddScoped<StandaloneSyncWorker>();
 
 // Add application services
 services.AddScoped<ILambdaWorker, LambdaWorker>();
@@ -49,51 +55,91 @@ if (Environment.GetEnvironmentVariable("AWS_LAMBDA_FUNCTION_NAME") != null)
 }
 else
 {
-    // Local development mode - run a simple test
-    Console.WriteLine("Running Worker in local development mode...");
-    
+    // Local development mode - run continuous job processor
+    Console.WriteLine("🔄 Starting Continuous Job Processor...");
+    Console.WriteLine("==========================================");
+
     using var scope = serviceProvider.CreateScope();
-    var worker = scope.ServiceProvider.GetRequiredService<ILambdaWorker>();
-    
-    // Create a simple test stream
-    var testInput = "{\"test\": \"data\"}";
-    var stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(testInput));
-    
-    // Create a mock Lambda context
-    var context = new MockLambdaContext();
-    
+    var syncWorker = scope.ServiceProvider.GetRequiredService<StandaloneSyncWorker>();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+
+    var pollingInterval = TimeSpan.FromSeconds(10); // Check every 10 seconds
+    var isRunning = true;
+
+    Console.WriteLine($"📊 Polling interval: {pollingInterval.TotalSeconds} seconds");
+    Console.WriteLine("⏹️  Press Ctrl+C to stop the worker");
+    Console.WriteLine("");
+
+    // Handle graceful shutdown
+    Console.CancelKeyPress += (sender, e) =>
+    {
+        e.Cancel = true;
+        isRunning = false;
+        Console.WriteLine("\n🛑 Shutting down gracefully...");
+    };
+
     try
     {
-        var result = await worker.ExecuteAsync(stream, context);
-        Console.WriteLine("Worker executed successfully!");
+        while (isRunning)
+        {
+            try
+            {
+                // Check for pending jobs
+                var pendingJobs = await syncWorker.GetPendingJobsAsync();
+
+                if (pendingJobs.Any())
+                {
+                    Console.WriteLine($"🔍 Found {pendingJobs.Count()} pending job(s)");
+
+                    foreach (var job in pendingJobs)
+                    {
+                        Console.WriteLine($"⚡ Processing job {job.Id} for tenant {job.TenantId}, provider {job.ProviderName}");
+
+                        try
+                        {
+                            var result = await syncWorker.ProcessSyncJobAsync(job);
+
+                            if (result.Status == SyncJobStatus.Completed)
+                            {
+                                Console.WriteLine($"✅ Job {job.Id} completed successfully! Progress: {result.Progress}%");
+                            }
+                            else if (result.Status == SyncJobStatus.Failed)
+                            {
+                                Console.WriteLine($"❌ Job {job.Id} failed: {result.ErrorMessage}");
+                            }
+                            else if (result.Status == SyncJobStatus.Cancelled)
+                            {
+                                Console.WriteLine($"⏹️  Job {job.Id} was cancelled");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"💥 Error processing job {job.Id}: {ex.Message}");
+                            logger.LogError(ex, "Error processing job {JobId}", job.Id);
+                        }
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("😴 No pending jobs found, waiting...");
+                }
+
+                // Wait before next poll
+                await Task.Delay(pollingInterval);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"💥 Error in job polling loop: {ex.Message}");
+                logger.LogError(ex, "Error in job polling loop");
+                await Task.Delay(TimeSpan.FromSeconds(30)); // Wait longer on error
+            }
+        }
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"Worker execution failed: {ex.Message}");
+        Console.WriteLine($"💥 Fatal error: {ex.Message}");
+        logger.LogError(ex, "Fatal error in worker");
     }
-    
-    Console.WriteLine("Press any key to exit...");
-    Console.ReadKey();
-}
 
-// Mock Lambda context for local development
-public class MockLambdaContext : ILambdaContext
-{
-    public string AwsRequestId => "local-test-request-id";
-    public IClientContext ClientContext => null!;
-    public string FunctionName => "local-test-function";
-    public string FunctionVersion => "local-test-version";
-    public ICognitoIdentity Identity => null!;
-    public string InvokedFunctionArn => "local-test-arn";
-    public ILambdaLogger Logger => new MockLambdaLogger();
-    public string LogGroupName => "local-test-log-group";
-    public string LogStreamName => "local-test-log-stream";
-    public int MemoryLimitInMB => 512;
-    public TimeSpan RemainingTime => TimeSpan.FromMinutes(5);
-}
-
-public class MockLambdaLogger : ILambdaLogger
-{
-    public void Log(string message) => Console.WriteLine($"[LAMBDA] {message}");
-    public void LogLine(string message) => Console.WriteLine($"[LAMBDA] {message}");
+    Console.WriteLine("👋 Worker stopped");
 }

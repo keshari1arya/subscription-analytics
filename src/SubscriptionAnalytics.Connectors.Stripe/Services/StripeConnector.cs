@@ -13,8 +13,9 @@ public class StripeConnector : IStripeConnector, IConnector
     private readonly string _clientSecret;
     private readonly string _apiKey;
     private readonly ILogger<StripeConnector> _logger;
+    private readonly IStripeSyncService? _stripeSyncService;
 
-    public StripeConnector(IConfiguration configuration, ILogger<StripeConnector> logger)
+    public StripeConnector(IConfiguration configuration, ILogger<StripeConnector> logger, IStripeSyncService? stripeSyncService = null)
     {
         // Use configuration first, then fall back to environment variables
         _clientId = configuration["Stripe:ConnectClientId"]
@@ -27,6 +28,7 @@ public class StripeConnector : IStripeConnector, IConnector
             ?? Environment.GetEnvironmentVariable("STRIPE_API_KEY")
             ?? throw new InvalidOperationException("Stripe API Key is not configured");
         _logger = logger;
+        _stripeSyncService = stripeSyncService;
 
         // Initialize Stripe configuration
         StripeConfiguration.ApiKey = _apiKey;
@@ -75,12 +77,29 @@ public class StripeConnector : IStripeConnector, IConnector
 
     public async Task SyncDataAsync(Guid tenantId, CancellationToken cancellationToken)
     {
-        // TODO: Implement Stripe data synchronization
-        // This would involve fetching customers, subscriptions, payments, etc. from Stripe
         _logger.LogInformation("Syncing Stripe data for tenant: {TenantId}", tenantId);
 
-        // Placeholder implementation
-        await Task.Delay(100, cancellationToken); // Simulate async work
+        if (_stripeSyncService == null)
+        {
+            _logger.LogWarning("Stripe sync service not available, using placeholder implementation");
+            await Task.Delay(100, cancellationToken); // Fallback implementation
+            return;
+        }
+
+        // Get the access token for this tenant
+        // TODO: Get access token from tenant's provider connection
+        var accessToken = "placeholder"; // This should come from the tenant's provider connection
+
+        try
+        {
+            var totalSynced = await _stripeSyncService.SyncAllDataAsync(tenantId, accessToken, cancellationToken);
+            _logger.LogInformation("Successfully synced {TotalSynced} items for tenant {TenantId}", totalSynced, tenantId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error syncing Stripe data for tenant {TenantId}", tenantId);
+            throw;
+        }
     }
 
     // IStripeConnector implementation (existing methods)

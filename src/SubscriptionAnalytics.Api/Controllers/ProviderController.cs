@@ -1,12 +1,14 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SubscriptionAnalytics.Application.Services;
-using SubscriptionAnalytics.Shared.Enums;
-using SubscriptionAnalytics.Shared.Interfaces;
-using SubscriptionAnalytics.Shared.DTOs;
-using SubscriptionAnalytics.Api.Configuration;
 using Microsoft.Extensions.Options;
 using SubscriptionAnalytics.Application.Interfaces;
+using SubscriptionAnalytics.Application.Services;
+using SubscriptionAnalytics.Infrastructure.Services;
+using SubscriptionAnalytics.Shared.DTOs;
+using SubscriptionAnalytics.Shared.Enums;
+using SubscriptionAnalytics.Shared.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
+using SubscriptionAnalytics.Api.Configuration;
 
 namespace SubscriptionAnalytics.Api.Controllers;
 
@@ -21,7 +23,6 @@ public class ProviderController : ControllerBase
     private readonly ILogger<ProviderController> _logger;
     private readonly IOptions<OAuthConfiguration> _oauthConfig;
     private readonly ISyncJobService _syncJobService;
-    private readonly ISyncJobProcessor _syncJobProcessor;
 
     public ProviderController(
         IConnectorFactory connectorFactory,
@@ -29,8 +30,7 @@ public class ProviderController : ControllerBase
         ITenantContext tenantContext,
         ILogger<ProviderController> logger,
         IOptions<OAuthConfiguration> oauthConfig,
-        ISyncJobService syncJobService,
-        ISyncJobProcessor syncJobProcessor)
+        ISyncJobService syncJobService)
     {
         _connectorFactory = connectorFactory;
         _connectionService = connectionService;
@@ -38,39 +38,30 @@ public class ProviderController : ControllerBase
         _logger = logger;
         _oauthConfig = oauthConfig;
         _syncJobService = syncJobService;
-        _syncJobProcessor = syncJobProcessor;
     }
 
     /// <summary>
     /// Gets all available payment providers
     /// </summary>
-    [HttpGet("providers")]
+    [HttpGet()]
     [AllowAnonymous] // Allow anonymous access for testing
     public ActionResult<IEnumerable<ConnectorInfo>> GetAvailableProviders()
     {
-        try
+        var connectors = _connectorFactory.GetAllConnectors();
+        var providers = connectors.Select(c => new ConnectorInfo
         {
-            var connectors = _connectorFactory.GetAllConnectors();
-            var providers = connectors.Select(c => new ConnectorInfo
-            {
-                ProviderName = c.ProviderName,
-                DisplayName = c.DisplayName,
-                SupportsOAuth = c.SupportsOAuth
-            });
+            ProviderName = c.ProviderName,
+            DisplayName = c.DisplayName,
+            SupportsOAuth = c.SupportsOAuth
+        });
 
-            return Ok(providers);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error in GetAvailableProviders");
-            return StatusCode(500, new ErrorResponseDto("Internal server error"));
-        }
+        return Ok(providers);
     }
 
     /// <summary>
     /// Initiates OAuth flow for a payment provider
     /// </summary>
-    [HttpPost("provider/{provider}")]
+    [HttpPost("{provider}")]
     public async Task<ActionResult<InitiateConnectionResponse>> InitiateConnection(
         [FromRoute] string provider)
     {
@@ -95,34 +86,45 @@ public class ProviderController : ControllerBase
         }
 
         var connector = _connectorFactory.GetConnector(connectorType);
-        var state = Guid.NewGuid().ToString();
+        if (connector == null)
+        {
+            return BadRequest(new ErrorResponseDto($"Provider {provider} not found"));
+        }
 
-        // Use UI callback URL from configuration
+        if (!connector.SupportsOAuth)
+        {
+            return BadRequest(new ErrorResponseDto($"Provider {provider} does not support OAuth"));
+        }
+
+        var state = Guid.NewGuid().ToString();
         var redirectUri = $"{_oauthConfig.Value.UiCallbackUrl}?provider={provider}";
 
-        var authUrl = await connector.GenerateOAuthUrlAsync(state, redirectUri, tenantId);
+        var oauthUrl = await connector.GenerateOAuthUrlAsync(state, redirectUri, tenantId);
 
         return Ok(new InitiateConnectionResponse
         {
-            AuthorizationUrl = authUrl,
+            AuthorizationUrl = oauthUrl,
             State = state,
             Provider = provider
         });
     }
 
     /// <summary>
-    /// Handles OAuth callback from UI (after user authorizes on provider site)
+    /// Handles OAuth callback from UI
     /// </summary>
     [HttpPost("oauth-callback-from-ui")]
     public async Task<IActionResult> HandleOAuthCallbackFromUI(
         [FromBody] OAuthCallbackRequest request)
     {
-        // Get tenant ID from header (set by TenantInterceptor)
-        var tenantId = _tenantContext.TenantId;
+        if (_tenantContext == null)
+        {
+            return BadRequest(new ErrorResponseDto("Tenant context service is not available."));
+        }
 
+        var tenantId = _tenantContext.TenantId;
         if (tenantId == Guid.Empty)
         {
-            return BadRequest(new ErrorResponseDto("Tenant context not found. Please provide X-Tenant-Id header."));
+            return BadRequest(new ErrorResponseDto("Tenant context not found"));
         }
 
         if (!Enum.TryParse<ConnectorType>(request.Provider, true, out var connectorType))
@@ -131,33 +133,28 @@ public class ProviderController : ControllerBase
         }
 
         var connector = _connectorFactory.GetConnector(connectorType);
-
-        // Exchange authorization code for access token
-        var tokenResponse = await connector.ExchangeOAuthCodeAsync(request.Code, request.State);
-
-        if (tokenResponse == null || string.IsNullOrEmpty(tokenResponse.AccessToken))
+        if (connector == null)
         {
-            return BadRequest(new ErrorResponseDto("Failed to exchange authorization code for access token"));
+            return BadRequest(new ErrorResponseDto($"Provider {request.Provider} not found"));
         }
 
-        // Save connection to database
-        await _connectionService.SaveConnectionAsync(tenantId, request.Provider, tokenResponse);
+        var tokenResponse = await connector.ExchangeOAuthCodeAsync(request.Code, request.State);
+        var connection = await _connectionService.SaveConnectionAsync(tenantId, request.Provider, tokenResponse);
 
-        _logger.LogInformation("OAuth flow completed successfully for tenant {TenantId} with provider {Provider}",
-            tenantId, request.Provider);
-
-        return Ok(new
+        return Ok(new ProviderConnectionDto
         {
-            success = true,
-            message = $"{request.Provider} connected successfully",
-            providerAccountId = tokenResponse.ProviderAccountId
+            Id = connection.Id,
+            ProviderName = connection.ProviderName,
+            Status = connection.Status,
+            ConnectedAt = connection.ConnectedAt,
+            LastSyncedAt = connection.LastSyncedAt
         });
     }
 
     /// <summary>
-    /// Handles OAuth callback from payment providers
+    /// Handles OAuth callback from payment provider
     /// </summary>
-    [HttpGet("tenant/{tenantId:guid}/provider/{provider}/oauth-callback")]
+    [HttpGet("tenant/{tenantId:guid}/{provider}/oauth-callback")]
     [AllowAnonymous] // Payment providers call this endpoint directly
     public async Task<IActionResult> HandleOAuthCallback(
         Guid tenantId,
@@ -167,18 +164,10 @@ public class ProviderController : ControllerBase
         [FromQuery] string? error = null,
         [FromQuery] string? error_description = null)
     {
-        // Handle OAuth errors from providers
         if (!string.IsNullOrEmpty(error))
         {
-            _logger.LogWarning("OAuth error for tenant {TenantId} with provider {Provider}: {Error} - {Description}",
-                tenantId, provider, error, error_description);
-
-            return BadRequest(new ErrorResponseDto(error));
-        }
-
-        if (string.IsNullOrEmpty(code) || string.IsNullOrEmpty(state))
-        {
-            return BadRequest(new ErrorResponseDto("Missing required OAuth parameters"));
+            _logger.LogWarning("OAuth error: {Error} - {Description}", error, error_description);
+            return Redirect($"{_oauthConfig.Value.UiCallbackUrl}?error={error}&error_description={error_description}");
         }
 
         if (!Enum.TryParse<ConnectorType>(provider, true, out var connectorType))
@@ -187,60 +176,58 @@ public class ProviderController : ControllerBase
         }
 
         var connector = _connectorFactory.GetConnector(connectorType);
-        var tokenResponse = await connector.ExchangeOAuthCodeAsync(code, state);
+        if (connector == null)
+        {
+            return BadRequest(new ErrorResponseDto($"Provider {provider} not found"));
+        }
 
-        // Store the connection in the database
+        var tokenResponse = await connector.ExchangeOAuthCodeAsync(code, state);
         var connection = await _connectionService.SaveConnectionAsync(tenantId, provider, tokenResponse);
 
-        return Ok(new SuccessResponseDto(true, $"{provider} account connected successfully"));
+        return Redirect($"{_oauthConfig.Value.UiCallbackUrl}?success=true&provider={provider}");
     }
 
     /// <summary>
-    /// Gets the current connection status for a provider
+    /// Gets connection status for a specific provider
     /// </summary>
-    [HttpGet("provider/{provider}")]
+    [HttpGet("{provider}/status")]
     public async Task<ActionResult<ProviderConnectionDto>> GetConnection([FromRoute] string provider)
     {
         if (_tenantContext == null)
         {
-            _logger.LogError("TenantContext is null in ProviderController");
             return BadRequest(new ErrorResponseDto("Tenant context service is not available."));
         }
 
         var tenantId = _tenantContext.TenantId;
-
         if (tenantId == Guid.Empty)
         {
-            return BadRequest(new ErrorResponseDto("Tenant context not found. Please provide X-Tenant-Id header."));
+            return BadRequest(new ErrorResponseDto("Tenant context not found"));
         }
 
         var connection = await _connectionService.GetConnectionAsync(tenantId, provider);
-
         if (connection == null)
         {
-            return NotFound(new ErrorResponseDto($"No {provider} connection found for this tenant"));
+            return NotFound(new ErrorResponseDto($"No connection found for provider {provider}"));
         }
 
         return Ok(connection);
     }
 
     /// <summary>
-    /// Gets all connections for a tenant
+    /// Gets all connections for the current tenant
     /// </summary>
     [HttpGet("connections")]
     public async Task<ActionResult<IEnumerable<ProviderConnectionDto>>> GetConnections()
     {
         if (_tenantContext == null)
         {
-            _logger.LogError("TenantContext is null in ProviderController");
             return BadRequest(new ErrorResponseDto("Tenant context service is not available."));
         }
 
         var tenantId = _tenantContext.TenantId;
-
         if (tenantId == Guid.Empty)
         {
-            return BadRequest(new ErrorResponseDto("Tenant context not found. Please provide X-Tenant-Id header."));
+            return BadRequest(new ErrorResponseDto("Tenant context not found"));
         }
 
         var connections = await _connectionService.GetConnectionsAsync(tenantId);
@@ -248,148 +235,203 @@ public class ProviderController : ControllerBase
     }
 
     /// <summary>
-    /// Disconnects a payment provider for a tenant
+    /// Disconnects a provider
     /// </summary>
-    [HttpDelete("provider/{provider}")]
+    [HttpDelete("{provider}")]
     public async Task<IActionResult> DisconnectProvider([FromRoute] string provider)
     {
         if (_tenantContext == null)
         {
-            _logger.LogError("TenantContext is null in ProviderController");
             return BadRequest(new ErrorResponseDto("Tenant context service is not available."));
         }
 
         var tenantId = _tenantContext.TenantId;
-
         if (tenantId == Guid.Empty)
         {
-            return BadRequest(new ErrorResponseDto("Tenant context not found. Please provide X-Tenant-Id header."));
+            return BadRequest(new ErrorResponseDto("Tenant context not found"));
         }
 
-        var success = await _connectionService.DisconnectAsync(tenantId, provider);
-
-        if (!success)
+        if (!Enum.TryParse<ConnectorType>(provider, true, out var connectorType))
         {
-            return NotFound(new ErrorResponseDto($"No {provider} connection found for this tenant"));
+            return BadRequest(new ErrorResponseDto($"Unsupported provider: {provider}"));
         }
 
-        return NoContent();
+        var connector = _connectorFactory.GetConnector(connectorType);
+        if (connector == null)
+        {
+            return BadRequest(new ErrorResponseDto($"Provider {provider} not found"));
+        }
+
+        await connector.DisconnectAsync(tenantId);
+        await _connectionService.DisconnectAsync(tenantId, provider);
+
+        return Ok(new { message = $"Successfully disconnected {provider}" });
     }
 
     /// <summary>
-    /// Initiates a sync operation for a provider
+    /// Initiates a sync job for a provider (just adds job to database)
     /// </summary>
-    [HttpPost("sync/{provider}")]
+    [HttpPost("{provider}/sync")]
     public async Task<ActionResult<SyncJobResponseDto>> SyncProvider([FromRoute] string provider)
     {
         if (_tenantContext == null)
         {
-            _logger.LogError("TenantContext is null in ProviderController");
             return BadRequest(new ErrorResponseDto("Tenant context service is not available."));
         }
 
         var tenantId = _tenantContext.TenantId;
-
         if (tenantId == Guid.Empty)
         {
-            return BadRequest(new ErrorResponseDto("Tenant context not found. Please provide X-Tenant-Id header."));
+            return BadRequest(new ErrorResponseDto("Tenant context not found"));
         }
 
-        try
+        // Check if provider is connected
+        var connection = await _connectionService.GetConnectionAsync(tenantId, provider);
+        if (connection == null)
         {
-            // Create a new sync job
-            var syncJob = await _syncJobService.CreateJobAsync(tenantId, SyncJobType.FullSync, provider);
-
-            // Process the sync job immediately (no queue)
-            _ = Task.Run(async () =>
-            {
-                try
-                {
-                    await _syncJobProcessor.ProcessFullSyncAsync(syncJob);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error processing sync job {JobId}", syncJob.Id);
-                }
-            });
-
-            return Ok(new SyncJobResponseDto
-            {
-                JobId = syncJob.Id,
-                Status = syncJob.Status.ToString(),
-                Message = "Sync job created and started"
-            });
+            return BadRequest(new ErrorResponseDto($"Provider {provider} is not connected"));
         }
-        catch (Exception ex)
+
+        // For now, we'll pass null for access token since it's encrypted in the database
+        // The worker will need to decrypt it when processing the job
+        var syncJob = await _syncJobService.CreateJobAsync(
+            tenantId: tenantId,
+            providerName: provider,
+            jobType: SyncJobType.FullSync,
+            accessToken: null, // Will be retrieved from database by worker
+            refreshToken: null, // Will be retrieved from database by worker
+            additionalData: null // Will be retrieved from database by worker
+        );
+
+        _logger.LogInformation("Created sync job {JobId} for tenant {TenantId}, provider {Provider}",
+            syncJob.Id, tenantId, provider);
+
+        return Ok(new SyncJobResponseDto
         {
-            _logger.LogError(ex, "Error creating sync job for provider {Provider}", provider);
-            return StatusCode(500, new ErrorResponseDto("Failed to create sync job"));
-        }
+            JobId = syncJob.Id,
+            Status = syncJob.Status.ToString(),
+            Message = "Sync job created successfully. Worker will process it automatically."
+        });
     }
 
     /// <summary>
-    /// Gets the status of a sync job
+    /// Gets sync job status
     /// </summary>
     [HttpGet("sync/status/{jobId:guid}")]
     public async Task<ActionResult<SyncJobStatusResponseDto>> GetSyncJobStatus([FromRoute] Guid jobId)
     {
         if (_tenantContext == null)
         {
-            _logger.LogError("TenantContext is null in ProviderController");
             return BadRequest(new ErrorResponseDto("Tenant context service is not available."));
         }
 
         var tenantId = _tenantContext.TenantId;
-
         if (tenantId == Guid.Empty)
         {
-            return BadRequest(new ErrorResponseDto("Tenant context not found. Please provide X-Tenant-Id header."));
+            return BadRequest(new ErrorResponseDto("Tenant context not found"));
         }
 
-        try
+        var syncJob = await _syncJobService.GetJobAsync(jobId);
+        if (syncJob == null)
         {
-            var syncJob = await _syncJobService.GetJobAsync(jobId);
-
-            if (syncJob == null)
-            {
-                return NotFound(new ErrorResponseDto("Sync job not found"));
-            }
-
-            // Ensure the job belongs to the current tenant
-            if (syncJob.TenantId != tenantId)
-            {
-                return Forbid();
-            }
-
-            return Ok(new SyncJobStatusResponseDto
-            {
-                JobId = syncJob.Id,
-                Status = syncJob.Status.ToString(),
-                Progress = syncJob.Progress,
-                ErrorMessage = syncJob.ErrorMessage,
-                StartedAt = syncJob.StartedAt,
-                CompletedAt = syncJob.CompletedAt,
-                RetryCount = syncJob.RetryCount
-            });
+            return NotFound(new ErrorResponseDto($"Sync job {jobId} not found"));
         }
-        catch (Exception ex)
+
+        // Ensure the job belongs to the current tenant
+        if (syncJob.TenantId != tenantId)
         {
-            _logger.LogError(ex, "Error getting sync job status for job {JobId}", jobId);
-            return StatusCode(500, new ErrorResponseDto("Failed to get sync job status"));
+            return Forbid();
         }
+
+        return Ok(new SyncJobStatusResponseDto
+        {
+            JobId = syncJob.Id,
+            Status = syncJob.Status.ToString(),
+            Progress = syncJob.Progress,
+            ErrorMessage = syncJob.ErrorMessage,
+            StartedAt = syncJob.StartedAt,
+            CompletedAt = syncJob.CompletedAt,
+            RetryCount = syncJob.RetryCount
+        });
     }
-}
 
-public class ConnectorInfo
-{
-    public string ProviderName { get; set; } = string.Empty;
-    public string DisplayName { get; set; } = string.Empty;
-    public bool SupportsOAuth { get; set; }
-}
+    /// <summary>
+    /// Gets sync history for the current tenant
+    /// </summary>
+    [HttpGet("sync/history")]
+    public async Task<ActionResult<IEnumerable<SyncJobHistoryResponseDto>>> GetSyncHistory()
+    {
+        if (_tenantContext == null)
+        {
+            return BadRequest(new ErrorResponseDto("Tenant context service is not available."));
+        }
 
-public class InitiateConnectionResponse
-{
-    public string AuthorizationUrl { get; set; } = string.Empty;
-    public string State { get; set; } = string.Empty;
-    public string Provider { get; set; } = string.Empty;
+        var tenantId = _tenantContext.TenantId;
+        if (tenantId == Guid.Empty)
+        {
+            return BadRequest(new ErrorResponseDto("Tenant context not found"));
+        }
+
+        var syncJobs = await _syncJobService.GetJobsByTenantAsync(tenantId);
+        var history = syncJobs.Select(job => new SyncJobHistoryResponseDto
+        {
+            JobId = job.Id,
+            ProviderName = job.ProviderName,
+            JobType = job.JobType.ToString(),
+            Status = job.Status.ToString(),
+            Progress = job.Progress,
+            ErrorMessage = job.ErrorMessage,
+            StartedAt = job.StartedAt,
+            CompletedAt = job.CompletedAt,
+            RetryCount = job.RetryCount,
+            CreatedAt = job.CreatedAt
+        });
+
+        return Ok(history);
+    }
+
+    /// <summary>
+    /// Cancels a sync job
+    /// </summary>
+    [HttpDelete("sync/{jobId:guid}")]
+    public async Task<ActionResult<SyncJobCancelResponseDto>> CancelSyncJob([FromRoute] Guid jobId)
+    {
+        if (_tenantContext == null)
+        {
+            return BadRequest(new ErrorResponseDto("Tenant context service is not available."));
+        }
+
+        var tenantId = _tenantContext.TenantId;
+        if (tenantId == Guid.Empty)
+        {
+            return BadRequest(new ErrorResponseDto("Tenant context not found"));
+        }
+
+        var syncJob = await _syncJobService.GetJobAsync(jobId);
+        if (syncJob == null)
+        {
+            return NotFound(new ErrorResponseDto($"Sync job {jobId} not found"));
+        }
+
+        // Ensure the job belongs to the current tenant
+        if (syncJob.TenantId != tenantId)
+        {
+            return Forbid();
+        }
+
+        // Only allow cancellation of pending or running jobs
+        if (syncJob.Status != SyncJobStatus.Pending && syncJob.Status != SyncJobStatus.Running)
+        {
+            return BadRequest(new ErrorResponseDto($"Cannot cancel job with status {syncJob.Status}"));
+        }
+
+        await _syncJobService.UpdateJobStatusAsync(jobId, SyncJobStatus.Cancelled, errorMessage: "Cancelled by user");
+
+        return Ok(new SyncJobCancelResponseDto
+        {
+            JobId = jobId,
+            Status = SyncJobStatus.Cancelled.ToString(),
+            Message = "Sync job cancelled successfully"
+        });
+    }
 }

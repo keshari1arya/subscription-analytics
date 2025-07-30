@@ -6,7 +6,7 @@ import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { BsModalRef, BsModalService, ModalModule } from 'ngx-bootstrap/modal';
 import { Observable, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { ConnectorInfo } from 'src/app/api-client';
+import { ConnectorInfo, ProviderService, SyncJobResponseDto, SyncJobStatusResponseDto } from 'src/app/api-client';
 import { LoaderComponent } from 'src/app/shared/ui/loader/loader.component';
 import { PagetitleComponent } from 'src/app/shared/ui/pagetitle/pagetitle.component';
 import * as ProvidersActions from 'src/app/store/providers/providers.actions';
@@ -37,6 +37,12 @@ export class ProviderDashboardComponent implements OnInit {
   providersWithStatus$: Observable<any[]>;
   modalRef?: BsModalRef;
 
+  // Sync state
+  syncingProviders: Set<string> = new Set();
+  syncProgress: { [key: string]: number } = {};
+  syncErrors: { [key: string]: string } = {};
+  syncJobs: { [key: string]: string } = {};
+
   breadCrumbItems: Array<{}> = [
     { label: 'Dashboard', path: '/dashboard' },
     { label: 'Integrations', path: '/providers' },
@@ -45,7 +51,8 @@ export class ProviderDashboardComponent implements OnInit {
 
   constructor(
     private store: Store,
-    private modalService: BsModalService
+    private modalService: BsModalService,
+    private providerService: ProviderService
   ) {
     this.providers$ = this.store.select(ProvidersSelectors.selectProviders);
     this.loading$ = this.store.select(ProvidersSelectors.selectProvidersLoading);
@@ -95,6 +102,109 @@ export class ProviderDashboardComponent implements OnInit {
 
   clearError() {
     this.store.dispatch(ProvidersActions.clearProviderError());
+  }
+
+  // Sync functionality
+  startSync(providerName: string) {
+    if (!providerName || this.syncingProviders.has(providerName)) {
+      return;
+    }
+
+    this.syncingProviders.add(providerName);
+    this.syncProgress[providerName] = 0;
+    this.syncErrors[providerName] = '';
+
+    this.providerService.apiProviderProviderSyncPost(providerName).subscribe({
+      next: (response: SyncJobResponseDto) => {
+        if (response.jobId) {
+          this.syncJobs[providerName] = response.jobId;
+          this.monitorSyncProgress(providerName, response.jobId);
+        }
+      },
+      error: (error) => {
+        this.handleSyncError(providerName, 'Failed to start sync: ' + (error.error?.message || error.message));
+      }
+    });
+  }
+
+  private monitorSyncProgress(providerName: string, jobId: string) {
+    const interval = setInterval(() => {
+      this.providerService.apiProviderSyncStatusJobIdGet(jobId).subscribe({
+        next: (status: SyncJobStatusResponseDto) => {
+          this.updateSyncProgress(providerName, status);
+
+          if (status.status === 'Completed' || status.status === 'Failed' || status.status === 'Cancelled') {
+            clearInterval(interval);
+            this.syncingProviders.delete(providerName);
+            delete this.syncJobs[providerName];
+          }
+        },
+        error: (error) => {
+          clearInterval(interval);
+          this.handleSyncError(providerName, 'Failed to get sync status: ' + (error.error?.message || error.message));
+        }
+      });
+    }, 2000); // Check every 2 seconds
+  }
+
+  private updateSyncProgress(providerName: string, status: SyncJobStatusResponseDto) {
+    if (status.status === 'Running') {
+      // Use the progress property from the API response
+      if (status.progress !== undefined) {
+        this.syncProgress[providerName] = status.progress;
+      } else {
+        // Fallback to simple progress
+        this.syncProgress[providerName] = Math.min(this.syncProgress[providerName] + 10, 90);
+      }
+    } else if (status.status === 'Completed') {
+      this.syncProgress[providerName] = 100;
+      setTimeout(() => {
+        delete this.syncProgress[providerName];
+      }, 2000);
+    } else if (status.status === 'Failed') {
+      this.handleSyncError(providerName, status.errorMessage || 'Sync failed');
+    }
+  }
+
+  private handleSyncError(providerName: string, error: string) {
+    this.syncingProviders.delete(providerName);
+    this.syncErrors[providerName] = error;
+    delete this.syncProgress[providerName];
+    delete this.syncJobs[providerName];
+  }
+
+  cancelSync(providerName: string) {
+    const jobId = this.syncJobs[providerName];
+    if (jobId) {
+      this.providerService.apiProviderSyncJobIdDelete(jobId).subscribe({
+        next: () => {
+          this.syncingProviders.delete(providerName);
+          delete this.syncProgress[providerName];
+          delete this.syncErrors[providerName];
+          delete this.syncJobs[providerName];
+        },
+        error: (error) => {
+          this.handleSyncError(providerName, 'Failed to cancel sync: ' + (error.error?.message || error.message));
+        }
+      });
+    }
+  }
+
+  retrySync(providerName: string) {
+    delete this.syncErrors[providerName];
+    this.startSync(providerName);
+  }
+
+  isSyncing(providerName: string): boolean {
+    return this.syncingProviders.has(providerName);
+  }
+
+  getSyncProgress(providerName: string): number {
+    return this.syncProgress[providerName] || 0;
+  }
+
+  getSyncError(providerName: string): string {
+    return this.syncErrors[providerName] || '';
   }
 
   getProviderIcon(providerName: string): string {

@@ -3,6 +3,7 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
 import { catchError, map, mergeMap } from 'rxjs/operators';
 import { ProviderService } from 'src/app/api-client/api/provider.service';
+import { ConnectorInfo } from 'src/app/api-client/model/connectorInfo';
 import { OAuthCallbackRequest } from 'src/app/api-client/model/oAuthCallbackRequest';
 import * as ProvidersActions from './providers.actions';
 
@@ -11,16 +12,20 @@ export class ProvidersEffects {
 
   loadProviders$ = createEffect(() => this.actions$.pipe(
     ofType(ProvidersActions.loadProviders),
-    mergeMap(() => this.providerService.apiProviderListGet()
+    mergeMap(() => this.providerService.apiProviderGet()
       .pipe(
-        map(providers => ProvidersActions.loadProvidersSuccess({ providers })),
+        map((providers: any) => {
+          // Convert the response to ConnectorInfo array
+          const connectorInfos: ConnectorInfo[] = Array.isArray(providers) ? providers : [];
+          return ProvidersActions.loadProvidersSuccess({ providers: connectorInfos });
+        }),
         catchError(error => of(ProvidersActions.loadProvidersFailure({ error: error.message || 'Failed to load providers' })))
       ))
   ));
 
   installProvider$ = createEffect(() => this.actions$.pipe(
     ofType(ProvidersActions.installProvider),
-    mergeMap(({ providerName }) => this.providerService.apiProviderConnectProviderPost(providerName)
+    mergeMap(({ providerName }) => this.providerService.apiProviderProviderPost(providerName)
       .pipe(
         map(response => {
           // If response has an authorization URL, it's an OAuth redirect
@@ -53,7 +58,7 @@ export class ProvidersEffects {
         state: state
       };
 
-      return this.providerService.apiProviderOauthCallbackPost(oauthData)
+      return this.providerService.apiProviderOauthCallbackFromUiPost(oauthData)
         .pipe(
           map(result => ProvidersActions.handleOAuthCallbackSuccess({ provider, result })),
           catchError(error => of(ProvidersActions.handleOAuthCallbackFailure({ error: error.error?.message || 'Failed to complete OAuth flow' })))

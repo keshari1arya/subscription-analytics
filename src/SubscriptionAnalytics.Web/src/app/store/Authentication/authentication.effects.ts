@@ -1,15 +1,15 @@
-import { Injectable, Inject } from '@angular/core';
-import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { map, switchMap, catchError, exhaustMap, tap, first, mergeMap } from 'rxjs/operators';
-import { from, of } from 'rxjs';
-import { IdentityService } from '../../api-client/api/identity.service';
-import { LoginRequest, RegisterRequest, AccessTokenResponse } from '../../api-client/model/models';
-import { login, loginSuccess, loginFailure, logout, logoutSuccess, Register, RegisterSuccess, RegisterFailure } from './authentication.actions';
+import { Inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { environment } from 'src/environments/environment';
-import { UserProfileService } from 'src/app/core/services/user.service';
-import { TokenService } from '../../core/services/token.service';
+import { Actions, createEffect, ofType } from '@ngrx/effects';
+import { of } from 'rxjs';
+import { catchError, exhaustMap, map, mergeMap, tap } from 'rxjs/operators';
 import { TenantService } from 'src/app/core/services/tenant.service';
+import { UserProfileService } from 'src/app/core/services/user.service';
+import { environment } from 'src/environments/environment';
+import { IdentityService } from '../../api-client/api/identity.service';
+import { AccessTokenResponse, LoginRequest, RegisterRequest } from '../../api-client/model/models';
+import { TokenService } from '../../core/services/token.service';
+import { login, loginFailure, loginSuccess, logout, logoutSuccess, Register, RegisterFailure, RegisterSuccess } from './authentication.actions';
 
 @Injectable()
 export class AuthenticationEffects {
@@ -112,7 +112,7 @@ export class AuthenticationEffects {
             // Store tokens using TokenService
             this.tokenService.setTokens(response.accessToken, response.refreshToken);
             this.tokenService.setCurrentUser(user);
-            
+
             // Initialize tenant context after successful login
             return this.tenantService.initializeTenantContext().pipe(
               map((hasTenants) => {

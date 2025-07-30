@@ -1,134 +1,201 @@
-# SubscriptionAnalytics Worker (AWS Lambda)
+# Standalone Sync Worker
 
-This project contains the AWS Lambda function for running background jobs and scheduled tasks for the SubscriptionAnalytics application.
+This worker is designed to be completely independent and self-contained. It can run independently without depending on the API's database context.
 
-## Features
+## 🏗️ Architecture
 
-- **AWS Lambda Function**: Serverless background processing
-- **Scheduled Execution**: Runs on a configurable schedule via EventBridge
-- **Dependency Injection**: Full DI container support
-- **Logging**: Integrated with AWS CloudWatch Logs
-- **Configuration**: Support for environment-specific settings
+### Key Features:
+- **Independent Database Connection**: Creates its own DbContext instance
+- **Self-Contained**: No dependencies on API services
+- **Configurable**: Uses its own configuration files
+- **Scalable**: Can run multiple instances
+- **Queue-Ready**: Designed for future queue integration
 
-## Prerequisites
+### Components:
 
-- .NET 9 SDK
-- AWS CLI configured
-- AWS SAM CLI (for local testing)
+1. **StandaloneSyncWorker**: Main worker class that processes sync jobs
+2. **SyncJobRequest**: Input model for sync job requests
+3. **SyncJobResult**: Output model for sync job results
+4. **Configuration**: Independent appsettings.json files
 
-## Building
+## 🚀 Running the Worker
 
+### Prerequisites:
+1. Update `appsettings.json` with your database connection string
+2. Update `appsettings.json` with your Stripe API key
+3. Ensure the database is accessible
+
+### Local Development:
 ```bash
-# Build the project
-dotnet build -c Release
-
-# Publish for Lambda
-dotnet publish -c Release -o ./bin/Release/net9.0/
-```
-
-## Local Testing
-
-```bash
-# Test locally using SAM
-sam local invoke SubscriptionAnalyticsWorkerFunction --event events/test-event.json
-
-# Or run the function directly
+cd src/SubscriptionAnalytics.Worker
 dotnet run
 ```
 
-## Deployment
+### Production (Lambda):
+The worker is configured to run as an AWS Lambda function when deployed.
 
-### Using AWS SAM
+## 📋 Configuration
 
-```bash
-# Build and deploy
-sam build
-sam deploy --guided
-
-# Deploy to specific environment
-sam deploy --parameter-overrides Environment=prod
-```
-
-### Using AWS CLI
-
-```bash
-# Create deployment package
-cd ./bin/Release/net9.0/
-zip -r ../../../subscription-analytics-worker.zip .
-
-# Deploy using AWS CLI
-aws lambda create-function \
-  --function-name subscription-analytics-worker-dev \
-  --runtime dotnet9 \
-  --role arn:aws:iam::YOUR_ACCOUNT:role/lambda-execution-role \
-  --handler SubscriptionAnalytics.Worker::SubscriptionAnalytics.Worker.Program::Main \
-  --zip-file fileb://subscription-analytics-worker.zip
-```
-
-## Configuration
-
-The Lambda function uses the following configuration sources (in order of precedence):
-
-1. Environment variables
-2. `appsettings.json`
-3. `appsettings.Development.json`
-
-### Environment Variables
-
-- `ASPNETCORE_ENVIRONMENT`: Environment name (dev/staging/prod)
-- `AWS_LAMBDA_FUNCTION_NAME`: Lambda function name
-- Database connection strings and other app-specific settings
-
-## Scheduling
-
-The Lambda function is configured to run every hour by default. You can modify the schedule in `serverless.template`:
-
+### Database Connection:
 ```json
-"Schedule": "rate(1 hour)"
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=localhost;Port=5432;Database=subscriptionanalytics_dev_v5;Username=postgres;Password=yourpassword"
+  }
+}
 ```
 
-Other schedule examples:
-- `rate(5 minutes)` - Every 5 minutes
-- `rate(1 day)` - Daily
-- `cron(0 12 * * ? *)` - Daily at 12:00 UTC
-
-## Monitoring
-
-- **CloudWatch Logs**: All logs are automatically sent to CloudWatch
-- **CloudWatch Metrics**: Lambda execution metrics are available
-- **X-Ray**: Enable for distributed tracing
-
-## Development
-
-### Adding New Jobs
-
-1. Create a new job class in the `Jobs/` folder
-2. Implement the job logic
-3. Register the job in the DI container
-4. Call the job from the `LambdaWorker.ExecuteAsync` method
-
-### Testing
-
-```bash
-# Run unit tests
-dotnet test
-
-# Run integration tests
-dotnet test --filter Category=Integration
+### Stripe Configuration:
+```json
+{
+  "Stripe": {
+    "ApiKey": "sk_test_...",
+    "ConnectClientId": "ca_...",
+    "ConnectClientSecret": "sk_test_...",
+    "WebhookSecret": "whsec_...",
+    "PublishableKey": "pk_test_..."
+  }
+}
 ```
 
-## Troubleshooting
+### Worker Settings:
+```json
+{
+  "Worker": {
+    "MaxRetries": 3,
+    "RetryDelaySeconds": 30,
+    "BatchSize": 100,
+    "TimeoutMinutes": 30
+  }
+}
+```
 
-### Common Issues
+## 🔄 Sync Process
 
-1. **Timeout**: Increase the timeout in `serverless.template`
-2. **Memory**: Increase memory allocation if needed
-3. **Cold Start**: Consider using provisioned concurrency for critical functions
+1. **Job Initialization**: Creates a sync job with status tracking
+2. **Provider Detection**: Determines which provider to sync (Stripe, PayPal, etc.)
+3. **Data Fetching**: Fetches data from the provider's API
+4. **Data Processing**: Processes and transforms the data
+5. **Database Operations**: Saves data to the database
+6. **Progress Tracking**: Updates progress throughout the process
+7. **Error Handling**: Handles errors and retries if needed
 
-### Logs
+## 🎯 Current Implementation
 
-Check CloudWatch Logs for detailed error information:
+### Stripe Sync:
+- ✅ Customer sync (fetch and save customers)
+- ✅ Incremental updates (create or update existing customers)
+- ✅ Progress tracking
+- ✅ Error handling
+- 🔄 Subscription sync (TODO)
+- 🔄 Payment sync (TODO)
 
+### PayPal Sync:
+- 🔄 Customer sync (TODO)
+- 🔄 Transaction sync (TODO)
+
+## 🔮 Future Enhancements
+
+### Queue Integration:
+- AWS SQS
+- Azure Service Bus
+- RabbitMQ
+- Redis Streams
+
+### Advanced Features:
+- Multiple worker instances
+- Retry logic with exponential backoff
+- Dead letter queues for failed jobs
+- Monitoring and alerting
+- Horizontal scaling
+- Real-time progress updates
+
+### Additional Providers:
+- PayPal integration
+- Square integration
+- Shopify integration
+- Custom provider support
+
+## 🧪 Testing
+
+### Local Testing:
 ```bash
-aws logs tail /aws/lambda/subscription-analytics-worker-dev --follow
-``` 
+# Run the worker locally
+dotnet run --project src/SubscriptionAnalytics.Worker
+
+# The worker will process a test sync job
+```
+
+### Integration Testing:
+```bash
+# Test with real data
+# Update the tenant ID and access token in Program.cs
+dotnet run --project src/SubscriptionAnalytics.Worker
+```
+
+## 📊 Monitoring
+
+The worker includes comprehensive logging:
+- Job start/completion
+- Progress updates
+- Error details
+- Performance metrics
+
+## 🔒 Security
+
+- Database connections are isolated
+- API keys are stored in configuration
+- No shared state between workers
+- Secure token handling
+
+## 🚀 Deployment
+
+### AWS Lambda:
+The worker is configured for AWS Lambda deployment with:
+- Lambda runtime support
+- Dependency injection
+- Configuration management
+- Logging integration
+
+### Docker:
+```dockerfile
+# Example Dockerfile for containerized deployment
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
+COPY . /app
+WORKDIR /app
+ENTRYPOINT ["dotnet", "SubscriptionAnalytics.Worker.dll"]
+```
+
+## 📝 Usage Examples
+
+### Basic Usage:
+```csharp
+var request = new SyncJobRequest
+{
+    JobId = Guid.NewGuid(),
+    TenantId = tenantId,
+    ProviderName = "stripe",
+    AccessToken = "access_token_here"
+};
+
+var result = await syncWorker.ProcessSyncJobAsync(request);
+```
+
+### With Additional Data:
+```csharp
+var request = new SyncJobRequest
+{
+    JobId = Guid.NewGuid(),
+    TenantId = tenantId,
+    ProviderName = "stripe",
+    AccessToken = "access_token_here",
+    AdditionalData = new Dictionary<string, object>
+    {
+        ["sync_type"] = "full",
+        ["batch_size"] = 100,
+        ["force_refresh"] = true
+    }
+};
+```
+
+This standalone worker architecture ensures that your sync operations are completely independent, scalable, and reliable!

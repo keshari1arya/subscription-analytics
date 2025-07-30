@@ -96,10 +96,16 @@ builder.Services.AddScoped<ITenantService, TenantService>();
 builder.Services.AddScoped<ITenantContext, TenantContext>();
 builder.Services.AddScoped<IProviderConnectionService, ProviderConnectionService>();
 
+// Repository Services
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+
 // Sync Job Services
 builder.Services.AddScoped<ISyncJobRepository, SyncJobRepository>();
 builder.Services.AddScoped<ISyncJobService, SyncJobService>();
-builder.Services.AddScoped<ISyncJobProcessor, SyncJobProcessor>();
+
+// Stripe Sync Services
+builder.Services.AddScoped<IStripeCustomerRepository, StripeCustomerRepository>();
+builder.Services.AddScoped<IStripeSyncService, StripeSyncService>();
 
 // Add API Configuration
 builder.Services.AddApiConfiguration(builder.Configuration);

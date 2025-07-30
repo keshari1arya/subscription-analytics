@@ -1,11 +1,16 @@
-import { RouterModule, Routes } from '@angular/router';
-import { Page404Component } from './extrapages/page404/page404.component';
-import { CyptolandingComponent } from './cyptolanding/cyptolanding.component';
+import { Routes } from '@angular/router';
 import { AuthGuard } from './core/guards/auth.guard';
 import { TenantGuard } from './core/guards/tenant.guard';
+import { CyptolandingComponent } from './cyptolanding/cyptolanding.component';
+import { Page404Component } from './extrapages/page404/page404.component';
 import { LayoutComponent } from './layouts/layout.component';
 
 export const routes: Routes = [
+    {
+        path: "",
+        redirectTo: "/app",
+        pathMatch: "full"
+    },
     {
         path: "landing",
         loadChildren: () =>

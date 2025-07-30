@@ -65,23 +65,78 @@
                   </span>
                 </div>
 
-                <!-- Action Button -->
-                <button *ngIf="!provider.isConnected"
-                        type="button"
-                        class="btn btn-primary btn-sm"
-                        [disabled]="(installingProvider$ | async) === provider.providerName"
-                        (click)="installProvider(provider)">
-                  <i class="fas fa-plug me-1"></i>
-                  {{ (installingProvider$ | async) === provider.providerName ? 'Installing...' : 'Connect' }}
-                </button>
+                <!-- Action Buttons -->
+                <div class="d-flex flex-column gap-2">
+                  <!-- Connect Button -->
+                  <button *ngIf="!provider.isConnected"
+                          type="button"
+                          class="btn btn-primary btn-sm"
+                          [disabled]="(installingProvider$ | async) === provider.providerName"
+                          (click)="installProvider(provider)">
+                    <i class="fas fa-plug me-1"></i>
+                    {{ (installingProvider$ | async) === provider.providerName ? 'Installing...' : 'Connect' }}
+                  </button>
 
-                <button *ngIf="provider.isConnected"
-                        type="button"
-                        class="btn btn-success btn-sm"
-                        disabled>
-                  <i class="fas fa-check me-1"></i>
-                  Connected
-                </button>
+                  <button *ngIf="provider.isConnected"
+                          type="button"
+                          class="btn btn-success btn-sm"
+                          disabled>
+                    <i class="fas fa-check me-1"></i>
+                    Connected
+                  </button>
+
+                  <!-- Sync Button (only show for connected providers) -->
+                  <div *ngIf="provider.isConnected" class="mt-2">
+                    <!-- Sync Button -->
+                    <button *ngIf="!isSyncing(provider.providerName)"
+                            type="button"
+                            class="btn btn-outline-primary btn-sm w-100"
+                            [disabled]="!provider.isConnected"
+                            (click)="startSync(provider.providerName)">
+                      <i class="fas fa-sync-alt me-1"></i>
+                      Sync Data
+                    </button>
+
+                    <!-- Syncing State -->
+                    <div *ngIf="isSyncing(provider.providerName)" class="d-flex align-items-center justify-content-between">
+                      <div class="d-flex align-items-center">
+                        <div class="spinner-border spinner-border-sm me-2" role="status">
+                          <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <span class="text-primary">Syncing...</span>
+                      </div>
+                      <button type="button"
+                              class="btn btn-outline-danger btn-sm"
+                              (click)="cancelSync(provider.providerName)">
+                        <i class="fas fa-times"></i>
+                      </button>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div *ngIf="isSyncing(provider.providerName) && getSyncProgress(provider.providerName) > 0" class="mt-2">
+                      <div class="progress" style="height: 6px;">
+                        <div class="progress-bar progress-bar-primary"
+                             [style.width.%]="getSyncProgress(provider.providerName)">
+                        </div>
+                      </div>
+                      <small class="text-muted">{{ getSyncProgress(provider.providerName) }}% Complete</small>
+                    </div>
+
+                    <!-- Error State -->
+                    <div *ngIf="getSyncError(provider.providerName)" class="mt-2">
+                      <div class="alert alert-danger alert-sm" role="alert">
+                        <i class="fas fa-exclamation-triangle me-1"></i>
+                        {{ getSyncError(provider.providerName) }}
+                        <button type="button"
+                                class="btn btn-outline-danger btn-sm ms-2"
+                                (click)="retrySync(provider.providerName)">
+                          <i class="fas fa-redo me-1"></i>
+                          Retry
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
