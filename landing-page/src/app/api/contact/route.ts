@@ -1,53 +1,91 @@
+import { prisma } from '@/lib/prisma'
+import { contactSchema } from '@/lib/validation'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
   try {
-    const { firstName, lastName, email, company, message } = await request.json()
+    const body = await request.json()
 
-    // Validate required fields
-    if (!firstName || !lastName || !email || !message) {
+    // Validate input
+    const validationResult = contactSchema.safeParse(body)
+    if (!validationResult.success) {
       return NextResponse.json(
-        { error: 'Please fill in all required fields' },
+        {
+          error: 'Invalid input',
+          details: validationResult.error.issues
+        },
         { status: 400 }
       )
     }
 
-    // Validate email
-    if (!email.includes('@')) {
-      return NextResponse.json(
-        { error: 'Please enter a valid email address' },
-        { status: 400 }
-      )
-    }
+    const { firstName, lastName, email, company, message, metadata } = validationResult.data
 
-    // Here you would typically:
-    // 1. Save to your database
-    // 2. Send to your CRM (HubSpot, Salesforce, etc.)
-    // 3. Send notification email to your team
-    // 4. Send confirmation email to the user
-
-    // For now, we'll just log it and return success
-    console.log('New contact form submission:', {
-      firstName,
-      lastName,
-      email,
-      company,
-      message
+    // Create contact submission
+    const contactSubmission = await prisma.contactSubmission.create({
+      data: {
+        firstName,
+        lastName,
+        email,
+        company,
+        message,
+        metadata: metadata || {
+          userAgent: request.headers.get('user-agent'),
+          referer: request.headers.get('referer'),
+          timestamp: new Date().toISOString()
+        }
+      }
     })
 
-    // Simulate processing time
-    await new Promise(resolve => setTimeout(resolve, 500))
+    console.log('New contact form submission:', { firstName, lastName, email, company })
 
     return NextResponse.json(
       {
         success: true,
         message: 'Message sent successfully',
-        data: { firstName, lastName, email, company }
+        data: {
+          id: contactSubmission.id,
+          firstName: contactSubmission.firstName,
+          lastName: contactSubmission.lastName,
+          email: contactSubmission.email,
+          createdAt: contactSubmission.createdAt
+        }
+      },
+      { status: 201 }
+    )
+
+  } catch (error) {
+    console.error('Contact API error:', error)
+
+    // Handle Prisma errors
+    if (error instanceof Error && error.message.includes('prisma')) {
+      return NextResponse.json(
+        { error: 'Database error. Please try again later.' },
+        { status: 500 }
+      )
+    }
+
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}
+
+export async function GET() {
+  try {
+    const count = await prisma.contactSubmission.count()
+
+    return NextResponse.json(
+      {
+        success: true,
+        data: {
+          totalSubmissions: count
+        }
       },
       { status: 200 }
     )
   } catch (error) {
-    console.error('Contact API error:', error)
+    console.error('Contact count error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
