@@ -1,5 +1,6 @@
 import { Globe, Heart, Target, Users, Zap } from 'lucide-react'
 import { Metadata } from 'next'
+import Link from 'next/link'
 import Footer from '../components/Footer'
 import Header from '../components/Header'
 
@@ -72,7 +73,7 @@ const AboutPage = () => {
               About <span className="text-blue-600">SubscriptionAnalytics</span>
             </h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-12 leading-relaxed">
-              We're on a mission to democratize subscription analytics, making powerful insights accessible to businesses of all sizes.
+              We&apos;re on a mission to democratize subscription analytics, making powerful insights accessible to businesses of all sizes.
             </p>
           </div>
         </div>
@@ -91,13 +92,13 @@ const AboutPage = () => {
                   SubscriptionAnalytics was born from frustration. Our founder, Alex Chen, was running a SaaS company and found himself constantly switching between different payment provider dashboards to understand his business metrics.
                 </p>
                 <p>
-                  "I was spending more time compiling data from Stripe, PayPal, and other platforms than actually analyzing it," Alex recalls. "There had to be a better way."
+                  &ldquo;I was spending more time compiling data from Stripe, PayPal, and other platforms than actually analyzing it,&rdquo; Alex recalls. &ldquo;There had to be a better way.&rdquo;
                 </p>
                 <p>
                   In 2023, we set out to solve this problem. We built a unified platform that connects all your payment providers and gives you a single source of truth for your subscription analytics.
                 </p>
                 <p>
-                  Today, we're helping thousands of businesses make data-driven decisions about their subscription businesses, from startups to enterprise companies.
+                  Today, we&apos;re helping thousands of businesses make data-driven decisions about their subscription businesses, from startups to enterprise companies.
                 </p>
               </div>
             </div>
@@ -214,18 +215,18 @@ const AboutPage = () => {
             Ready to transform how you understand your subscription business? Join thousands of companies already using SubscriptionAnalytics.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a
+            <Link
               href="/#waitlist"
               className="bg-blue-600 text-white px-10 py-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
             >
               Get Started Today
-            </a>
-            <a
+            </Link>
+            <Link
               href="/#contact"
               className="border-2 border-blue-600 text-blue-600 px-10 py-4 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
             >
               Contact Us
-            </a>
+            </Link>
           </div>
         </div>
       </section>

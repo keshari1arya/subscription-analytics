@@ -91,7 +91,7 @@ export default function JobApplicationForm({ jobId, jobTitle, onSuccess, onError
           Application Submitted Successfully!
         </h3>
         <p className="text-green-700">
-          Thank you for your interest in the {jobTitle} position. We'll review your application and get back to you soon.
+          Thank you for your interest in the {jobTitle} position. We&apos;ll review your application and get back to you soon.
         </p>
       </motion.div>
     )

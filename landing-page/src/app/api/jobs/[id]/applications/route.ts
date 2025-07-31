@@ -3,9 +3,10 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const body = await request.json()
     const {
       firstName,
@@ -21,7 +22,7 @@ export async function POST(
 
     // Validate that the job listing exists and is active
     const jobListing = await prisma.jobListing.findUnique({
-      where: { id: params.id }
+      where: { id }
     })
 
     if (!jobListing) {
@@ -41,7 +42,7 @@ export async function POST(
     // Check if user has already applied
     const existingApplication = await prisma.jobApplication.findFirst({
       where: {
-        jobListingId: params.id,
+        jobListingId: id,
         email: email
       }
     })
@@ -55,7 +56,7 @@ export async function POST(
 
     const application = await prisma.jobApplication.create({
       data: {
-        jobListingId: params.id,
+        jobListingId: id,
         firstName,
         lastName,
         email,
@@ -85,12 +86,13 @@ export async function POST(
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const applications = await prisma.jobApplication.findMany({
       where: {
-        jobListingId: params.id
+        jobListingId: id
       },
       orderBy: {
         createdAt: 'desc'

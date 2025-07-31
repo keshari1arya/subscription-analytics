@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { prisma } from '../../../lib/prisma';
 import { createErrorResponse, createSuccessResponse, withSecurity } from '../../lib/middleware';
 
 // Handler function
-const healthHandler = async (_req: NextRequest): Promise<NextResponse> => {
+const healthHandler = async (): Promise<NextResponse> => {
   try {
     // Test database connection
     const waitlistCount = await prisma.waitlistEntry.count();

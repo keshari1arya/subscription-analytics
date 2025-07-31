@@ -1,5 +1,6 @@
 import { ArrowRight, Check, DollarSign, Shield, Star, X, Zap } from 'lucide-react'
 import { Metadata } from 'next'
+import Link from 'next/link'
 import Footer from '../components/Footer'
 import Header from '../components/Header'
 
@@ -69,19 +70,19 @@ const ComparisonPage = () => {
               See how we stack up against the competition and why businesses choose us for their subscription analytics needs.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a
+              <Link
                 href="/#waitlist"
                 className="bg-blue-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors inline-flex items-center"
               >
                 Join Waitlist
                 <ArrowRight className="ml-2 w-5 h-5" />
-              </a>
-              <a
+              </Link>
+              <Link
                 href="/#screenshots"
                 className="border-2 border-blue-600 text-blue-600 px-8 py-4 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
               >
                 View Demo
-              </a>
+              </Link>
             </div>
           </div>
         </div>
@@ -95,7 +96,7 @@ const ComparisonPage = () => {
               What Makes Us Different
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              We combine the best features from all platforms while adding unique capabilities that others can't match.
+              We combine the best features from all platforms while adding unique capabilities that others can&apos;t match.
             </p>
           </div>
 
@@ -196,7 +197,7 @@ const ComparisonPage = () => {
               Why Businesses Choose SubscriptionAnalytics
             </h2>
             <p className="text-xl opacity-90 max-w-3xl mx-auto">
-              We solve the problems that other platforms can't address effectively
+              We solve the problems that other platforms can&apos;t address effectively
             </p>
           </div>
 
@@ -217,7 +218,7 @@ const ComparisonPage = () => {
               </div>
               <h3 className="text-xl font-semibold mb-4">Real-Time Analytics</h3>
               <p className="opacity-90 leading-relaxed">
-                Get instant insights with real-time data synchronization. Make decisions based on current data, not yesterday's reports.
+                Get instant insights with real-time data synchronization. Make decisions based on current data, not yesterday&apos;s reports.
               </p>
             </div>
 
@@ -244,19 +245,19 @@ const ComparisonPage = () => {
             Join thousands of businesses that have switched to SubscriptionAnalytics for better insights, unified data, and actionable results.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a
+            <Link
               href="/#waitlist"
               className="bg-blue-600 text-white px-10 py-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors inline-flex items-center justify-center"
             >
               Join Waitlist
               <ArrowRight className="ml-2 w-5 h-5" />
-            </a>
-            <a
+            </Link>
+            <Link
               href="/#screenshots"
               className="border-2 border-blue-600 text-blue-600 px-10 py-4 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
             >
               View Demo
-            </a>
+            </Link>
           </div>
         </div>
       </section>

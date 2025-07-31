@@ -121,14 +121,14 @@ const PrivacyPage = () => {
               Your information may be transferred to and processed in countries other than your own. We ensure appropriate safeguards are in place to protect your information in accordance with this Privacy Policy and applicable data protection laws.
             </p>
 
-            <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">Children's Privacy</h2>
+                          <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">Children&apos;s Privacy</h2>
             <p className="text-gray-600 mb-6">
               Our services are not intended for children under the age of 16. We do not knowingly collect personal information from children under 16. If you believe we have collected information from a child under 16, please contact us immediately.
             </p>
 
             <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">Changes to This Privacy Policy</h2>
             <p className="text-gray-600 mb-6">
-              We may update this Privacy Policy from time to time. We will notify you of any material changes by posting the new Privacy Policy on this page and updating the "Last updated" date. We encourage you to review this Privacy Policy periodically.
+              We may update this Privacy Policy from time to time. We will notify you of any material changes by posting the new Privacy Policy on this page and updating the &ldquo;Last updated&rdquo; date. We encourage you to review this Privacy Policy periodically.
             </p>
 
             <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">Contact Us</h2>

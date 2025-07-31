@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
     const type = searchParams.get('type')
     const location = searchParams.get('location')
 
-    const where: any = {
+    const where: Record<string, unknown> = {
       isActive: true
     }
 

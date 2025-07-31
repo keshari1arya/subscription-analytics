@@ -25,8 +25,8 @@ interface JobListing {
 export default function AdminJobsPage() {
   const [jobs, setJobs] = useState<JobListing[]>([])
   const [loading, setLoading] = useState(true)
-  const [showForm, setShowForm] = useState(false)
-  const [editingJob, setEditingJob] = useState<JobListing | null>(null)
+  // const [showForm, setShowForm] = useState(false)
+  // const [editingJob, setEditingJob] = useState<JobListing | null>(null)
 
   useEffect(() => {
     fetchJobs()
@@ -89,7 +89,7 @@ export default function AdminJobsPage() {
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-3xl font-bold text-gray-900">Job Listings Management</h1>
             <button
-              onClick={() => setShowForm(true)}
+              onClick={() => {/* TODO: Implement add job form */}}
               className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center"
             >
               <Plus className="w-4 h-4 mr-2" />
@@ -164,13 +164,13 @@ export default function AdminJobsPage() {
                             >
                               {job.isActive ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                             </button>
-                            <button
-                              onClick={() => setEditingJob(job)}
-                              className="text-green-600 hover:text-green-900"
-                              title="Edit"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </button>
+                                                         <button
+                               onClick={() => {/* TODO: Implement edit job form */}}
+                               className="text-green-600 hover:text-green-900"
+                               title="Edit"
+                             >
+                               <Edit className="w-4 h-4" />
+                             </button>
                             <button
                               onClick={() => deleteJob(job.id)}
                               className="text-red-600 hover:text-red-900"

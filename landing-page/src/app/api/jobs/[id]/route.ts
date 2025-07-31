@@ -3,14 +3,15 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const body = await request.json()
     const { isActive } = body
 
     const job = await prisma.jobListing.update({
-      where: { id: params.id },
+      where: { id },
       data: { isActive }
     })
 
@@ -26,17 +27,18 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     // First delete all applications for this job
     await prisma.jobApplication.deleteMany({
-      where: { jobListingId: params.id }
+      where: { jobListingId: id }
     })
 
     // Then delete the job listing
     await prisma.jobListing.delete({
-      where: { id: params.id }
+      where: { id }
     })
 
     return NextResponse.json({ success: true })

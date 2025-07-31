@@ -1,6 +1,7 @@
 'use client'
 
 import { ArrowRight, Award, Briefcase, Clock, DollarSign, Globe, Heart, MapPin, Users, Zap } from 'lucide-react'
+import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import Footer from '../components/Footer'
 import Header from '../components/Header'
@@ -153,7 +154,7 @@ export default function CareersPage() {
               Our Culture
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              We're building more than a product - we're building a team that believes in the power of data to transform businesses.
+              We&apos;re building more than a product - we&apos;re building a team that believes in the power of data to transform businesses.
             </p>
           </div>
 
@@ -225,14 +226,14 @@ export default function CareersPage() {
               <Briefcase className="w-16 h-16 text-gray-400 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-gray-900 mb-2">No Open Positions</h3>
               <p className="text-gray-600 mb-6">
-                We don't have any open positions at the moment, but we're always looking for great talent!
+                We don&apos;t have any open positions at the moment, but we&apos;re always looking for great talent!
               </p>
-              <a
+                            <Link
                 href="/#contact"
                 className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
               >
                 Contact Us
-              </a>
+              </Link>
             </div>
           ) : (
             <div className="space-y-8">
@@ -300,13 +301,13 @@ export default function CareersPage() {
           )}
 
           <div className="text-center mt-12">
-            <p className="text-gray-600 mb-4">Don't see a position that fits? We're always looking for great talent!</p>
-            <a
+                          <p className="text-gray-600 mb-4">Don&apos;t see a position that fits? We&apos;re always looking for great talent!</p>
+                        <Link
               href="/#contact"
               className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
             >
               Contact Us
-            </a>
+            </Link>
           </div>
         </div>
       </section>
@@ -346,18 +347,18 @@ export default function CareersPage() {
             Help us build the future of subscription analytics and make a real impact on businesses worldwide.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a
+            <Link
               href="#openings"
               className="bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
             >
               View Open Positions
-            </a>
-            <a
+            </Link>
+                        <Link
               href="/about"
               className="border-2 border-white text-white px-8 py-4 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors"
             >
               Learn More About Us
-            </a>
+            </Link>
           </div>
         </div>
       </section>

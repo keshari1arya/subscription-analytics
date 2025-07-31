@@ -27,7 +27,7 @@ const TermsPage = () => {
 
           <div className="prose prose-lg max-w-none">
             <p className="text-gray-600 mb-8">
-              These Terms of Service ("Terms") govern your use of the SubscriptionAnalytics platform and services. By accessing or using our services, you agree to be bound by these Terms.
+              These Terms of Service (&ldquo;Terms&rdquo;) govern your use of the SubscriptionAnalytics platform and services. By accessing or using our services, you agree to be bound by these Terms.
             </p>
 
             <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">1. Acceptance of Terms</h2>
@@ -74,7 +74,7 @@ const TermsPage = () => {
               <li>Interfere with or disrupt the service or servers</li>
               <li>Transmit viruses, malware, or other harmful code</li>
               <li>Violate any applicable laws or regulations</li>
-              <li>Use the service to process data you don't have rights to</li>
+                              <li>Use the service to process data you don&apos;t have rights to</li>
             </ul>
 
             <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">5. Data and Privacy</h2>
@@ -127,7 +127,7 @@ const TermsPage = () => {
 
             <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">10. Disclaimers</h2>
             <p className="text-gray-600 mb-6">
-              Our services are provided "as is" without warranties of any kind. We disclaim all warranties, express or implied, including but not limited to warranties of merchantability, fitness for a particular purpose, and non-infringement.
+              Our services are provided &ldquo;as is&rdquo; without warranties of any kind. We disclaim all warranties, express or implied, including but not limited to warranties of merchantability, fitness for a particular purpose, and non-infringement.
             </p>
 
             <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">11. Termination</h2>
