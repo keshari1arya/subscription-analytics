@@ -1,456 +1,175 @@
-'use client'
-
-import { AlertTriangle, CheckCircle, Download, Edit, Eye, Info, Lock, Shield, Trash2 } from 'lucide-react'
+import { Metadata } from 'next'
 import Footer from '../components/Footer'
 import Header from '../components/Header'
 
-export default function GDPRPage() {
-  const dataRights = [
-    {
-      right: 'Right to Access',
-      description: 'You can request a copy of all personal data we hold about you',
-      icon: Eye,
-      color: 'blue'
-    },
-    {
-      right: 'Right to Rectification',
-      description: 'You can request correction of inaccurate or incomplete data',
-      icon: Edit,
-      color: 'green'
-    },
-    {
-      right: 'Right to Erasure',
-      description: 'You can request deletion of your personal data ("right to be forgotten")',
-      icon: Trash2,
-      color: 'red'
-    },
-    {
-      right: 'Right to Portability',
-      description: 'You can request your data in a structured, machine-readable format',
-      icon: Download,
-      color: 'purple'
-    },
-    {
-      right: 'Right to Restrict Processing',
-      description: 'You can request limitation of how we process your data',
-      icon: Lock,
-      color: 'orange'
-    },
-    {
-      right: 'Right to Object',
-      description: 'You can object to processing of your data for specific purposes',
-      icon: AlertTriangle,
-      color: 'yellow'
-    }
-  ]
+export const metadata: Metadata = {
+  title: 'GDPR Compliance - SubscriptionAnalytics',
+  description: 'Learn about SubscriptionAnalytics GDPR compliance and your data protection rights under the General Data Protection Regulation.',
+  keywords: 'GDPR, data protection, privacy rights, EU data protection, data subject rights',
+}
 
-  const dataProcessing = [
-    {
-      purpose: 'Account Management',
-      legalBasis: 'Contract Performance',
-      dataRetention: 'Duration of account + 7 years',
-      dataTypes: 'Name, email, company, usage data',
-      status: 'active'
-    },
-    {
-      purpose: 'Service Provision',
-      legalBasis: 'Contract Performance',
-      dataRetention: 'Duration of service + 3 years',
-      dataTypes: 'Subscription data, payment information, usage analytics',
-      status: 'active'
-    },
-    {
-      purpose: 'Customer Support',
-      legalBasis: 'Legitimate Interest',
-      dataRetention: '3 years after last interaction',
-      dataTypes: 'Contact information, support tickets, communication history',
-      status: 'active'
-    },
-    {
-      purpose: 'Marketing Communications',
-      legalBasis: 'Consent',
-      dataRetention: 'Until consent withdrawal',
-      dataTypes: 'Email address, preferences, engagement metrics',
-      status: 'active'
-    },
-    {
-      purpose: 'Analytics & Improvement',
-      legalBasis: 'Legitimate Interest',
-      dataRetention: '2 years',
-      dataTypes: 'Usage patterns, performance data, aggregated statistics',
-      status: 'active'
-    },
-    {
-      purpose: 'Legal Compliance',
-      legalBasis: 'Legal Obligation',
-      dataRetention: '7 years',
-      dataTypes: 'Financial records, audit trails, compliance documentation',
-      status: 'active'
-    }
-  ]
-
-  const dataTransfers = [
-    {
-      recipient: 'Cloud Infrastructure (AWS)',
-      location: 'United States',
-      purpose: 'Data hosting and processing',
-      safeguards: 'Standard Contractual Clauses, EU-US Data Privacy Framework',
-      status: 'adequate'
-    },
-    {
-      recipient: 'Payment Processors (Stripe)',
-      location: 'United States',
-      purpose: 'Payment processing',
-      safeguards: 'Standard Contractual Clauses, PCI DSS compliance',
-      status: 'adequate'
-    },
-    {
-      recipient: 'Analytics Services (Google Analytics)',
-      location: 'United States',
-      purpose: 'Website analytics',
-      safeguards: 'Standard Contractual Clauses, data anonymization',
-      status: 'adequate'
-    },
-    {
-      recipient: 'Customer Support (Zendesk)',
-      location: 'United States',
-      purpose: 'Customer service management',
-      safeguards: 'Standard Contractual Clauses, data minimization',
-      status: 'adequate'
-    }
-  ]
-
-  const securityMeasures = [
-    {
-      measure: 'Data Encryption',
-      description: 'All data encrypted in transit and at rest using AES-256',
-      status: 'implemented',
-      icon: Lock
-    },
-    {
-      measure: 'Access Controls',
-      description: 'Role-based access control with multi-factor authentication',
-      status: 'implemented',
-      icon: Shield
-    },
-    {
-      measure: 'Regular Audits',
-      description: 'Annual security audits and penetration testing',
-      status: 'implemented',
-      icon: CheckCircle
-    },
-    {
-      measure: 'Data Minimization',
-      description: 'Only collect data necessary for specified purposes',
-      status: 'implemented',
-      icon: Info
-    },
-    {
-      measure: 'Breach Notification',
-      description: '72-hour notification process for data breaches',
-      status: 'implemented',
-      icon: AlertTriangle
-    },
-    {
-      measure: 'Staff Training',
-      description: 'Regular GDPR and data protection training for all staff',
-      status: 'implemented',
-      icon: CheckCircle
-    }
-  ]
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active':
-      case 'implemented':
-      case 'adequate':
-        return 'bg-green-100 text-green-800'
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800'
-      case 'inactive':
-        return 'bg-red-100 text-red-800'
-      default:
-        return 'bg-gray-100 text-gray-800'
-    }
-  }
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'active':
-      case 'implemented':
-      case 'adequate':
-        return 'Active'
-      case 'pending':
-        return 'Pending'
-      case 'inactive':
-        return 'Inactive'
-      default:
-        return status
-    }
-  }
-
+const GDPRPage = () => {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <Header />
 
-      {/* Hero Section */}
-      <section className="pt-32 pb-20 bg-gradient-to-br from-blue-600 via-indigo-700 to-purple-800 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <div className="flex justify-center mb-6">
-              <div className="bg-white/20 rounded-full p-4">
-                <Shield className="w-12 h-12 text-white" />
-              </div>
-            </div>
-            <h1 className="text-4xl sm:text-6xl font-bold mb-6">
+      {/* Content */}
+      <section className="pt-32 pb-20">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
               GDPR Compliance
             </h1>
-            <p className="text-xl opacity-90 max-w-3xl mx-auto leading-relaxed">
-              We are committed to protecting your privacy and ensuring full compliance with the General Data Protection Regulation (GDPR).
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Data Rights Section */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              Your Data Rights
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Under GDPR, you have specific rights regarding your personal data. Here's how we support them:
+            <p className="text-lg text-gray-600">
+              Your Data Protection Rights Under the General Data Protection Regulation
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {dataRights.map((right, index) => (
-              <div key={index} className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition-shadow">
-                <div className="flex items-center mb-4">
-                  <div className={`bg-${right.color}-100 rounded-lg p-3 mr-4`}>
-                    <right.icon className={`w-6 h-6 text-${right.color}-600`} />
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900">{right.right}</h3>
-                </div>
-                <p className="text-gray-600 leading-relaxed">{right.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Data Processing Activities */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              Data Processing Activities
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Transparent overview of how we process your personal data
+          <div className="prose prose-lg max-w-none">
+            <p className="text-gray-600 mb-8">
+              At SubscriptionAnalytics, we are committed to protecting your privacy and ensuring compliance with the General Data Protection Regulation (GDPR). This page explains your rights and how we handle your personal data in accordance with GDPR requirements.
             </p>
-          </div>
 
-          <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Processing Purpose
-                    </th>
-                    <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
-                      Legal Basis
-                    </th>
-                    <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">
-                      Retention Period
-                    </th>
-                    <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden xl:table-cell">
-                      Data Types
-                    </th>
-                    <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {dataProcessing.map((activity, index) => (
-                    <tr key={index} className="hover:bg-gray-50">
-                      <td className="px-3 sm:px-6 py-3 sm:py-4">
-                        <div className="text-sm font-medium text-gray-900">{activity.purpose}</div>
-                        <div className="md:hidden text-xs text-gray-500 mt-1">
-                          <strong>Legal Basis:</strong> {activity.legalBasis}
-                        </div>
-                        <div className="lg:hidden text-xs text-gray-500 mt-1">
-                          <strong>Retention:</strong> {activity.dataRetention}
-                        </div>
-                      </td>
-                      <td className="px-3 sm:px-6 py-3 sm:py-4 text-sm text-gray-900 hidden md:table-cell">
-                        {activity.legalBasis}
-                      </td>
-                      <td className="px-3 sm:px-6 py-3 sm:py-4 text-sm text-gray-900 hidden lg:table-cell">
-                        {activity.dataRetention}
-                      </td>
-                      <td className="px-3 sm:px-6 py-3 sm:py-4 text-sm text-gray-900 hidden xl:table-cell">
-                        <div className="max-w-xs">{activity.dataTypes}</div>
-                      </td>
-                      <td className="px-3 sm:px-6 py-3 sm:py-4">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(activity.status)}`}>
-                          {getStatusText(activity.status)}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">What is GDPR?</h2>
+            <p className="text-gray-600 mb-6">
+              The General Data Protection Regulation (GDPR) is a comprehensive data protection law that applies to all organizations operating within the EU and those that offer goods or services to individuals in the EU. It gives you greater control over your personal data and ensures that organizations handle your data responsibly.
+            </p>
+
+            <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">Your GDPR Rights</h2>
+            <p className="text-gray-600 mb-4">
+              Under GDPR, you have the following rights regarding your personal data:
+            </p>
+
+            <h3 className="text-xl font-semibold text-gray-900 mt-8 mb-4">1. Right to Access</h3>
+            <p className="text-gray-600 mb-4">
+              You have the right to request a copy of the personal data we hold about you and information about how we process it.
+            </p>
+
+            <h3 className="text-xl font-semibold text-gray-900 mt-8 mb-4">2. Right to Rectification</h3>
+            <p className="text-gray-600 mb-4">
+              You have the right to request that we correct any inaccurate or incomplete personal data we hold about you.
+            </p>
+
+            <h3 className="text-xl font-semibold text-gray-900 mt-8 mb-4">3. Right to Erasure (Right to be Forgotten)</h3>
+            <p className="text-gray-600 mb-4">
+              You have the right to request that we delete your personal data in certain circumstances, such as when the data is no longer necessary for the purpose for which it was collected.
+            </p>
+
+            <h3 className="text-xl font-semibold text-gray-900 mt-8 mb-4">4. Right to Restrict Processing</h3>
+            <p className="text-gray-600 mb-4">
+              You have the right to request that we limit how we process your personal data in certain circumstances.
+            </p>
+
+            <h3 className="text-xl font-semibold text-gray-900 mt-8 mb-4">5. Right to Data Portability</h3>
+            <p className="text-gray-600 mb-4">
+              You have the right to receive your personal data in a structured, commonly used, machine-readable format and to transmit that data to another controller.
+            </p>
+
+            <h3 className="text-xl font-semibold text-gray-900 mt-8 mb-4">6. Right to Object</h3>
+            <p className="text-gray-600 mb-4">
+              You have the right to object to the processing of your personal data in certain circumstances, such as for direct marketing purposes.
+            </p>
+
+            <h3 className="text-xl font-semibold text-gray-900 mt-8 mb-4">7. Rights Related to Automated Decision Making</h3>
+            <p className="text-gray-600 mb-6">
+              You have the right not to be subject to a decision based solely on automated processing, including profiling, which produces legal effects concerning you or similarly significantly affects you.
+            </p>
+
+            <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">How to Exercise Your Rights</h2>
+            <p className="text-gray-600 mb-4">
+              To exercise any of your GDPR rights, you can:
+            </p>
+            <ul className="list-disc pl-6 mb-6 text-gray-600">
+              <li>Contact us at <strong>gdpr@subscriptionanalytics.com</strong></li>
+              <li>Use our data subject rights request form</li>
+              <li>Contact our Data Protection Officer</li>
+            </ul>
+            <p className="text-gray-600 mb-6">
+              We will respond to your request within one month of receipt. If we need more time, we will inform you of the reason and the extended timeframe.
+            </p>
+
+            <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">Legal Basis for Processing</h2>
+            <p className="text-gray-600 mb-4">
+              We process your personal data based on the following legal grounds:
+            </p>
+            <ul className="list-disc pl-6 mb-6 text-gray-600">
+              <li><strong>Consent:</strong> When you explicitly agree to the processing of your personal data</li>
+              <li><strong>Contract:</strong> When processing is necessary for the performance of our service agreement</li>
+              <li><strong>Legitimate Interest:</strong> When processing is necessary for our legitimate business interests</li>
+              <li><strong>Legal Obligation:</strong> When processing is required by law</li>
+            </ul>
+
+            <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">Data Transfers</h2>
+            <p className="text-gray-600 mb-6">
+              Your personal data may be transferred to and processed in countries outside the European Economic Area (EEA). We ensure that such transfers comply with GDPR requirements by implementing appropriate safeguards, such as Standard Contractual Clauses approved by the European Commission.
+            </p>
+
+            <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">Data Retention</h2>
+            <p className="text-gray-600 mb-6">
+              We retain your personal data only for as long as necessary to fulfill the purposes for which it was collected, including for the purposes of satisfying any legal, accounting, or reporting requirements. Our retention periods are based on the nature of the data and the purpose for which it was collected.
+            </p>
+
+            <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">Data Security</h2>
+            <p className="text-gray-600 mb-6">
+              We implement appropriate technical and organizational security measures to protect your personal data against unauthorized access, alteration, disclosure, or destruction. These measures include encryption, access controls, regular security assessments, and employee training.
+            </p>
+
+            <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">Data Breach Notification</h2>
+            <p className="text-gray-600 mb-6">
+              In the event of a personal data breach that poses a risk to your rights and freedoms, we will notify the relevant supervisory authority within 72 hours of becoming aware of the breach. We will also notify you without undue delay if the breach is likely to result in a high risk to your rights and freedoms.
+            </p>
+
+            <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">Your Right to Lodge a Complaint</h2>
+            <p className="text-gray-600 mb-6">
+              You have the right to lodge a complaint with a supervisory authority if you believe that our processing of your personal data infringes the GDPR. You can contact your local data protection authority or the supervisory authority in the EU member state where you reside, work, or where the alleged infringement occurred.
+            </p>
+
+            <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">Data Protection Officer</h2>
+            <p className="text-gray-600 mb-6">
+              We have appointed a Data Protection Officer (DPO) to oversee our GDPR compliance. You can contact our DPO at:
+            </p>
+            <div className="bg-gray-50 rounded-lg p-6 mb-8">
+              <p className="text-gray-600 mb-2">
+                <strong>Email:</strong> dpo@subscriptionanalytics.com
+              </p>
+              <p className="text-gray-600 mb-2">
+                <strong>Address:</strong> 123 Analytics Street, Tech City, TC 12345
+              </p>
+              <p className="text-gray-600">
+                <strong>Phone:</strong> +1 (555) 123-4567
+              </p>
+            </div>
+
+            <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">Updates to This Policy</h2>
+            <p className="text-gray-600 mb-6">
+              We may update this GDPR compliance information from time to time to reflect changes in our practices or applicable law. We will notify you of any material changes by posting the updated information on this page.
+            </p>
+
+            <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">Contact Us</h2>
+            <p className="text-gray-600 mb-6">
+              If you have any questions about our GDPR compliance or your data protection rights, please contact us:
+            </p>
+            <div className="bg-gray-50 rounded-lg p-6 mb-8">
+              <p className="text-gray-600 mb-2">
+                <strong>General Inquiries:</strong> privacy@subscriptionanalytics.com
+              </p>
+              <p className="text-gray-600 mb-2">
+                <strong>GDPR Requests:</strong> gdpr@subscriptionanalytics.com
+              </p>
+              <p className="text-gray-600 mb-2">
+                <strong>Data Protection Officer:</strong> dpo@subscriptionanalytics.com
+              </p>
+              <p className="text-gray-600">
+                <strong>Address:</strong> 123 Analytics Street, Tech City, TC 12345
+              </p>
+            </div>
+
+            <div className="border-t border-gray-200 pt-8 mt-12">
+              <p className="text-sm text-gray-500">
+                This GDPR compliance information is effective as of January 15, 2024. For more information about our data practices, please see our <a href="/privacy" className="text-blue-600 hover:text-blue-700">Privacy Policy</a>.
+              </p>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* Data Transfers */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              International Data Transfers
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              We ensure adequate protection for data transferred outside the EEA
-            </p>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Recipient
-                    </th>
-                    <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
-                      Location
-                    </th>
-                    <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">
-                      Purpose
-                    </th>
-                    <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden xl:table-cell">
-                      Safeguards
-                    </th>
-                    <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {dataTransfers.map((transfer, index) => (
-                    <tr key={index} className="hover:bg-gray-50">
-                      <td className="px-3 sm:px-6 py-3 sm:py-4">
-                        <div className="text-sm font-medium text-gray-900">{transfer.recipient}</div>
-                        <div className="md:hidden text-xs text-gray-500 mt-1">
-                          <strong>Location:</strong> {transfer.location}
-                        </div>
-                        <div className="lg:hidden text-xs text-gray-500 mt-1">
-                          <strong>Purpose:</strong> {transfer.purpose}
-                        </div>
-                      </td>
-                      <td className="px-3 sm:px-6 py-3 sm:py-4 text-sm text-gray-900 hidden md:table-cell">
-                        {transfer.location}
-                      </td>
-                      <td className="px-3 sm:px-6 py-3 sm:py-4 text-sm text-gray-900 hidden lg:table-cell">
-                        {transfer.purpose}
-                      </td>
-                      <td className="px-3 sm:px-6 py-3 sm:py-4 text-sm text-gray-900 hidden xl:table-cell">
-                        <div className="max-w-xs">{transfer.safeguards}</div>
-                      </td>
-                      <td className="px-3 sm:px-6 py-3 sm:py-4">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(transfer.status)}`}>
-                          {getStatusText(transfer.status)}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Security Measures */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              Security & Technical Measures
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Comprehensive security measures to protect your personal data
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {securityMeasures.map((measure, index) => (
-              <div key={index} className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition-shadow">
-                <div className="flex items-start">
-                  <div className="bg-green-100 rounded-lg p-3 mr-4">
-                    <measure.icon className="w-6 h-6 text-green-600" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-3">{measure.measure}</h3>
-                    <p className="text-gray-600 leading-relaxed mb-4">{measure.description}</p>
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(measure.status)}`}>
-                      {getStatusText(measure.status)}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Contact Information */}
-      <section className="py-20 bg-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6">
-            Contact Our Data Protection Officer
-          </h2>
-          <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-            For any questions about your data rights or our GDPR compliance, please contact our Data Protection Officer.
-          </p>
-
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-8 border border-blue-200">
-            <div className="grid md:grid-cols-2 gap-8">
-              <div className="text-left">
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">Data Protection Officer</h3>
-                <div className="space-y-3 text-gray-600">
-                  <p><strong>Email:</strong> dpo@subscriptionanalytics.com</p>
-                  <p><strong>Phone:</strong> +1 (555) 123-4567</p>
-                  <p><strong>Address:</strong> 123 Privacy Street, Data City, DC 12345</p>
-                </div>
-              </div>
-              <div className="text-left">
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">Response Time</h3>
-                <div className="space-y-3 text-gray-600">
-                  <p><strong>Data Requests:</strong> Within 30 days</p>
-                  <p><strong>General Inquiries:</strong> Within 48 hours</p>
-                  <p><strong>Breach Notifications:</strong> Within 72 hours</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Last Updated */}
-      <section className="py-12 bg-gray-50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-gray-500">
-            <strong>Last Updated:</strong> December 2024 |
-            <a href="/privacy" className="text-blue-600 hover:text-blue-700 ml-2">View Privacy Policy</a>
-          </p>
         </div>
       </section>
 
@@ -458,3 +177,5 @@ export default function GDPRPage() {
     </div>
   )
 }
+
+export default GDPRPage

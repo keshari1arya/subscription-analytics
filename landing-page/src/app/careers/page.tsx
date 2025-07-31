@@ -1,7 +1,6 @@
 'use client'
 
 import { ArrowRight, Award, Briefcase, Clock, DollarSign, Globe, Heart, MapPin, Users, Zap } from 'lucide-react'
-import { Metadata } from 'next'
 import { useEffect, useState } from 'react'
 import Footer from '../components/Footer'
 import Header from '../components/Header'
@@ -22,12 +21,6 @@ interface JobListing {
   _count: {
     applications: number
   }
-}
-
-export const metadata: Metadata = {
-  title: 'Careers - Join SubscriptionAnalytics Team',
-  description: 'Join our mission to democratize subscription analytics. Explore open positions and learn about our culture at SubscriptionAnalytics.',
-  keywords: 'careers, jobs, work at SubscriptionAnalytics, remote jobs, tech careers',
 }
 
 export default function CareersPage() {
