@@ -52,7 +52,14 @@ export default function DemoVideo() {
                       <Play className="w-12 h-12 ml-1" />
                     </div>
                     <h3 className="text-2xl font-bold mb-2">Product Demo</h3>
-                    <p className="text-blue-100">3:45 duration</p>
+                    <p className="text-blue-100">
+                      Coming Soon
+                      <span className="ml-1 inline-flex space-x-1">
+                        <span className="w-1 h-1 bg-blue-100 rounded-full animate-dot-grow" style={{ animationDelay: '0ms' }}></span>
+                        <span className="w-1 h-1 bg-blue-100 rounded-full animate-dot-grow" style={{ animationDelay: '500ms' }}></span>
+                        <span className="w-1 h-1 bg-blue-100 rounded-full animate-dot-grow" style={{ animationDelay: '1000ms' }}></span>
+                      </span>
+                    </p>
                   </div>
                 </div>
 
@@ -102,8 +109,8 @@ export default function DemoVideo() {
                   to give you actionable insights about your subscription business.
                 </p>
                 <div className="flex items-center space-x-4 text-sm text-gray-500">
-                  <span>3:45</span>
-                  <span>•</span>
+                  {/* <span>Coming Soon</span> */}
+                  {/* <span>•</span> */}
                   <span>HD Quality</span>
                   <span>•</span>
                   <span>No sound</span>
