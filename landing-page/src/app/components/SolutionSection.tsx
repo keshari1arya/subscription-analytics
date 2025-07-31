@@ -7,42 +7,42 @@ const solutions = [
   {
     icon: Zap,
     title: 'Multi-Provider Support',
-    description: 'Connect Stripe, PayPal, Square, and more in one unified dashboard.',
+    description: 'Planned unified dashboard for Stripe, PayPal, Square, and more payment providers.',
     color: 'text-blue-500',
     bgColor: 'bg-blue-50'
   },
   {
     icon: TrendingUp,
     title: 'Unified Analytics',
-    description: 'Complete view across all platforms with real-time MRR, ARR, and churn monitoring.',
+    description: 'Future complete view across all platforms with real-time MRR, ARR, and churn monitoring.',
     color: 'text-green-500',
     bgColor: 'bg-green-50'
   },
   {
     icon: Brain,
     title: 'Predictive Analytics',
-    description: 'AI-powered insights to predict churn, optimize pricing, and identify growth opportunities.',
+    description: 'Planned AI-powered insights to predict churn, optimize pricing, and identify growth opportunities.',
     color: 'text-purple-500',
     bgColor: 'bg-purple-50'
   },
   {
     icon: Shield,
     title: 'Enterprise Security',
-    description: 'SOC 2 compliant with bank-level encryption and multi-tenant architecture.',
+    description: 'Planned SOC 2 compliance with bank-level encryption and multi-tenant architecture.',
     color: 'text-indigo-500',
     bgColor: 'bg-indigo-50'
   },
   {
     icon: Clock,
     title: 'Easy Integration',
-    description: 'Connect in minutes, not weeks. No complex setup or custom development required.',
+    description: 'Designed for simple setup with no complex configuration or custom development required.',
     color: 'text-orange-500',
     bgColor: 'bg-orange-50'
   },
   {
     icon: CheckCircle,
     title: 'Real-time Insights',
-    description: 'Live dashboards with automated reporting and instant alerts for critical metrics.',
+    description: 'Planned live dashboards with automated reporting and instant alerts for critical metrics.',
     color: 'text-teal-500',
     bgColor: 'bg-teal-50'
   }

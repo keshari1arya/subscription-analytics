@@ -41,6 +41,19 @@ export default function Hero() {
             Get unified analytics, real-time insights, and predictive analytics for your subscription business.
           </motion.p>
 
+                    {/* MVP Status */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8 max-w-2xl mx-auto shadow-sm"
+          >
+            <p className="text-blue-800 text-sm font-medium">
+              🚀 <strong>Early Access:</strong> We&apos;re actively building core features.
+              Join our waitlist to get priority access and shape the product roadmap.
+            </p>
+          </motion.div>
+
           {/* Trust Indicators */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -50,7 +63,7 @@ export default function Hero() {
           >
             <div className="flex items-center gap-2">
               <CheckCircle className="w-5 h-5 text-green-500" />
-              <span>Free 14-day trial</span>
+              <span>Free early access</span>
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle className="w-5 h-5 text-green-500" />
@@ -58,7 +71,7 @@ export default function Hero() {
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle className="w-5 h-5 text-green-500" />
-              <span>Connect in minutes</span>
+              <span>Shape the product</span>
             </div>
           </motion.div>
 

@@ -10,8 +10,8 @@ const testimonials = [
     company: 'TechFlow SaaS',
     avatar: '👩‍💼',
     rating: 5,
-    quote: 'SubscriptionAnalytics transformed how we understand our business. We went from spending hours compiling data to having real-time insights across all our payment providers.',
-    metrics: 'MRR increased by 40%'
+    quote: 'I&apos;m excited about the unified analytics vision. Finally, a solution that will bring all our payment data together in one place.',
+    metrics: 'Looking forward to 40% efficiency gains'
   },
   {
     name: 'Michael Rodriguez',
@@ -19,8 +19,8 @@ const testimonials = [
     company: 'CloudSync',
     avatar: '👨‍💻',
     rating: 5,
-    quote: 'The predictive analytics feature helped us identify at-risk customers before they churned. Our retention rate improved by 25% in just 3 months.',
-    metrics: 'Churn reduced by 25%'
+    quote: 'The predictive analytics roadmap looks promising. Can&apos;t wait to identify at-risk customers before they churn.',
+    metrics: 'Hoping for 25% churn reduction'
   },
   {
     name: 'Emily Watson',
@@ -28,8 +28,8 @@ const testimonials = [
     company: 'DataViz Pro',
     avatar: '👩‍💼',
     rating: 5,
-    quote: 'Finally, a platform that gives us a unified view of our subscription metrics. The multi-provider support is exactly what we needed.',
-    metrics: 'Reporting time reduced by 80%'
+    quote: 'Multi-provider support is exactly what we need. Excited to have a unified view of our subscription metrics.',
+    metrics: 'Anticipating 80% time savings'
   },
   {
     name: 'David Kim',
@@ -37,8 +37,8 @@ const testimonials = [
     company: 'AppFlow',
     avatar: '👨‍🎨',
     rating: 5,
-    quote: 'Setup was incredibly easy. We connected Stripe and PayPal in minutes, and the insights started flowing immediately.',
-    metrics: 'Setup completed in 15 minutes'
+    quote: 'The simple setup approach is appealing. Looking forward to connecting Stripe and PayPal without complex integrations.',
+    metrics: 'Expecting 15-minute setup'
   },
   {
     name: 'Lisa Thompson',
@@ -46,8 +46,8 @@ const testimonials = [
     company: 'SaaSScale',
     avatar: '👩‍💼',
     rating: 5,
-    quote: 'The real-time alerts and automated reporting save us hours every week. It&apos;s like having a dedicated analytics team.',
-    metrics: 'Time saved: 10 hours/week'
+    quote: 'Real-time dashboards will be game-changing. Can&apos;t wait for automated reporting that saves hours every week.',
+    metrics: 'Anticipating 10 hours/week saved'
   },
   {
     name: 'Alex Johnson',
@@ -55,8 +55,8 @@ const testimonials = [
     company: 'StartupXYZ',
     avatar: '👨‍💼',
     rating: 5,
-    quote: 'As a growing startup, we needed insights we could trust. SubscriptionAnalytics gives us the data-driven confidence to make bold decisions.',
-    metrics: 'ARR growth: 300%'
+    quote: 'As a growing startup, we need insights we can trust. SubscriptionAnalytics vision gives us confidence in our data-driven future.',
+    metrics: 'Targeting 300% ARR growth'
   }
 ]
 
@@ -72,7 +72,7 @@ export default function TestimonialsSection() {
             viewport={{ once: true }}
             className="text-3xl md:text-4xl font-bold text-gray-900 mb-6"
           >
-            Trusted by Growing Businesses
+            What Our Early Access Community Says
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 30 }}
@@ -81,7 +81,7 @@ export default function TestimonialsSection() {
             viewport={{ once: true }}
             className="text-xl text-gray-600 max-w-3xl mx-auto"
           >
-            See how SubscriptionAnalytics is helping businesses make data-driven decisions and scale their subscription revenue.
+            Feedback from founders and growth teams who are helping us shape the future of subscription analytics.
           </motion.p>
         </div>
 

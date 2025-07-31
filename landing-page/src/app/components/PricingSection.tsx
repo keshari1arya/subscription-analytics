@@ -6,51 +6,49 @@ import Button from './Button'
 
 const plans = [
   {
-    name: 'Starter',
-    price: '$29',
-    period: '/month',
-    description: 'Perfect for small businesses getting started',
+    name: 'Early Access',
+    price: 'Free',
+    period: '',
+    description: 'Perfect for early adopters and beta testers',
     features: [
-      '1,000 customers',
-      '2 payment providers',
-      'Basic analytics',
-      'Email support',
-      '14-day free trial'
-    ],
-    popular: false,
-    color: 'border-gray-200',
-    bgColor: 'bg-white'
-  },
-  {
-    name: 'Professional',
-    price: '$99',
-    period: '/month',
-    description: 'Ideal for growing businesses with multiple providers',
-    features: [
-      '10,000 customers',
-      'Unlimited providers',
-      'Advanced analytics',
-      'Predictive insights',
-      'Priority support',
-      'Custom integrations'
+      'Core analytics features',
+      'Community feedback access',
+      'Priority feature requests',
+      'Direct product input',
+      'Exclusive early access'
     ],
     popular: true,
     color: 'border-blue-500',
     bgColor: 'bg-blue-50'
   },
   {
-    name: 'Enterprise',
-    price: 'Custom',
-    period: '',
-    description: 'For large organizations with complex needs',
+    name: 'Founder',
+    price: '$49',
+    period: '/month',
+    description: 'For founders building subscription businesses',
     features: [
-      'Unlimited customers',
-      'Unlimited providers',
-      'White-label solution',
-      'Dedicated support',
-      'Custom reporting',
+      'All core features',
+      'Multi-provider support',
+      'Basic analytics',
+      'Community support',
+      'Feature priority access'
+    ],
+    popular: false,
+    color: 'border-gray-200',
+    bgColor: 'bg-white'
+  },
+  {
+    name: 'Growth',
+    price: '$99',
+    period: '/month',
+    description: 'For growing businesses with advanced needs',
+    features: [
+      'Advanced analytics',
+      'Predictive insights',
+      'Custom integrations',
+      'Priority support',
       'API access',
-      'SLA guarantee'
+      'White-label options'
     ],
     popular: false,
     color: 'border-gray-200',

@@ -43,16 +43,16 @@ const ComparisonPage = () => {
   ]
 
   const ourFeatures = [
-    { icon: Zap, text: 'Unified multi-provider dashboard' },
-    { icon: Zap, text: 'Real-time data synchronization' },
-    { icon: Zap, text: 'Advanced predictive analytics' },
-    { icon: Zap, text: 'Custom reporting & insights' },
+    { icon: Zap, text: 'Planned unified multi-provider dashboard' },
+    { icon: Zap, text: 'Future real-time data synchronization' },
+    { icon: Zap, text: 'Advanced predictive analytics roadmap' },
+    { icon: Zap, text: 'Custom reporting & insights planned' },
     { icon: DollarSign, text: 'Affordable pricing for all sizes' },
-    { icon: Zap, text: 'Easy setup & integration' },
-    { icon: Zap, text: 'Comprehensive API access' },
-    { icon: Shield, text: '24/7 customer support' },
-    { icon: Zap, text: 'White-label solutions' },
-    { icon: Shield, text: 'Advanced security & compliance' }
+    { icon: Zap, text: 'Easy setup & integration design' },
+    { icon: Zap, text: 'Comprehensive API access planned' },
+    { icon: Shield, text: 'Community support & feedback' },
+    { icon: Zap, text: 'White-label solutions roadmap' },
+    { icon: Shield, text: 'Advanced security & compliance planned' }
   ]
 
   return (
