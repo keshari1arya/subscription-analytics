@@ -2,26 +2,49 @@
 
 import { motion } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import Button from './Button'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const pathname = usePathname()
 
   const navigation = [
-    { name: 'Features', href: '#features' },
-    { name: 'Demo', href: '#screenshots' },
-    { name: 'Pricing', href: '#pricing' },
-    { name: 'Contact', href: '#contact' },
+    { name: 'Features', href: '/#features' },
+    { name: 'Demo', href: '/#screenshots' },
+    { name: 'Compare', href: '/compare' },
+    { name: 'Pricing', href: '/#pricing' },
+    { name: 'About', href: '/about' },
   ]
 
   const scrollToSection = (href: string) => {
-    const element = document.querySelector(href)
+    const element = document.querySelector(href.replace('/', ''))
     if (element) {
       element.scrollIntoView({
         behavior: 'smooth',
         block: 'start'
       })
+    }
+    setIsMenuOpen(false)
+  }
+
+  const handleNavigation = (href: string) => {
+    if (href.startsWith('/#') || href.startsWith('#')) {
+      // Internal anchor - scroll to section
+      if (pathname === '/') {
+        scrollToSection(href)
+      } else {
+        // Navigate to home page first, then scroll
+        window.location.href = href
+      }
+    } else if (href.startsWith('/')) {
+      // External page - navigate
+      window.location.href = href
+    } else {
+      // Internal anchor - scroll to section
+      scrollToSection(href)
     }
     setIsMenuOpen(false)
   }
@@ -36,20 +59,20 @@ export default function Header() {
             animate={{ opacity: 1, x: 0 }}
             className="flex items-center"
           >
-            <div className="flex-shrink-0">
-              <h1 className="text-2xl font-bold text-blue-600">
+            <Link href="/" className="flex-shrink-0">
+              <h1 className="text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors cursor-pointer">
                 SubscriptionAnalytics
               </h1>
-            </div>
+            </Link>
           </motion.div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex space-x-8">
+          <nav className="hidden lg:flex space-x-8">
             {navigation.map((item) => (
               <motion.button
                 key={item.name}
-                onClick={() => scrollToSection(item.href)}
-                className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium transition-colors duration-200"
+                onClick={() => handleNavigation(item.href)}
+                className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium transition-colors duration-200 cursor-pointer"
                 whileHover={{ y: -2 }}
               >
                 {item.name}
@@ -59,7 +82,7 @@ export default function Header() {
 
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center space-x-4">
-            <Button variant="outline" size="sm" onClick={() => scrollToSection('#waitlist')}>
+            <Button variant="outline" size="sm" onClick={() => handleNavigation('/#waitlist')}>
               Join Waitlist
             </Button>
           </div>
@@ -68,7 +91,7 @@ export default function Header() {
           <div className="md:hidden">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="text-gray-700 hover:text-blue-600 p-2"
+              className="text-gray-700 hover:text-blue-600 p-2 cursor-pointer"
             >
               {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -87,14 +110,14 @@ export default function Header() {
               {navigation.map((item) => (
                 <button
                   key={item.name}
-                  onClick={() => scrollToSection(item.href)}
-                  className="text-gray-700 hover:text-blue-600 block px-3 py-2 text-base font-medium w-full text-left"
+                  onClick={() => handleNavigation(item.href)}
+                  className="text-gray-700 hover:text-blue-600 block px-3 py-2 text-base font-medium w-full text-left cursor-pointer"
                 >
                   {item.name}
                 </button>
               ))}
               <div className="pt-4">
-                <Button variant="outline" size="sm" onClick={() => scrollToSection('#waitlist')} className="w-full">
+                <Button variant="outline" size="sm" onClick={() => handleNavigation('/#waitlist')} className="w-full">
                   Join Waitlist
                 </Button>
               </div>

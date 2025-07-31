@@ -5,28 +5,29 @@ import { Github, Linkedin, Mail, Twitter } from 'lucide-react'
 
 const footerLinks = {
   product: [
-    { name: 'Features', href: '#features' },
-    { name: 'Pricing', href: '#pricing' },
-    { name: 'Integrations', href: '#' },
+    { name: 'Features', href: '/#features' },
+    { name: 'Demo', href: '/#screenshots' },
+    { name: 'Compare', href: '/compare' },
+    { name: 'Pricing', href: '/#pricing' },
     { name: 'API', href: '#' },
   ],
   company: [
-    { name: 'About', href: '#' },
-    { name: 'Blog', href: '#' },
-    { name: 'Careers', href: '#' },
-    { name: 'Contact', href: '#contact' },
+    { name: 'About', href: '/about' },
+    { name: 'Blog', href: '/blog' },
+    { name: 'Careers', href: '/careers' },
+    { name: 'Contact', href: '/#contact' },
   ],
   support: [
     { name: 'Help Center', href: '#' },
     { name: 'Documentation', href: '#' },
     { name: 'Status', href: '#' },
-    { name: 'Support', href: '#contact' },
+    { name: 'Support', href: '/#contact' },
   ],
   legal: [
-    { name: 'Privacy Policy', href: '#' },
-    { name: 'Terms of Service', href: '#' },
-    { name: 'Cookie Policy', href: '#' },
-    { name: 'GDPR', href: '#' },
+    { name: 'Privacy Policy', href: '/privacy' },
+    { name: 'Terms of Service', href: '/terms' },
+    { name: 'Cookie Policy', href: '/cookies' },
+    { name: 'GDPR', href: '/gdpr' },
   ],
 }
 
@@ -41,9 +42,9 @@ export default function Footer() {
   return (
     <footer className="bg-gray-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
           {/* Brand */}
-          <div className="lg:col-span-2">
+          <div className="col-span-2 md:col-span-1 lg:col-span-2">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
