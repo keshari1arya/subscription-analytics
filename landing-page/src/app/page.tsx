@@ -8,6 +8,7 @@ import PricingSection from './components/PricingSection'
 import ProblemSection from './components/ProblemSection'
 import ScreenshotsSection from './components/ScreenshotsSection'
 import SolutionSection from './components/SolutionSection'
+import TestimonialsSection from './components/TestimonialsSection'
 import WaitlistSection from './components/WaitlistSection'
 
 export default function Home() {
@@ -21,6 +22,7 @@ export default function Home() {
       <DemoVideo />
       <MeetingSection />
       <PricingSection />
+      <TestimonialsSection />
       <WaitlistSection />
       <ContactSection />
       <Footer />

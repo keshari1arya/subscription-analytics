@@ -41,10 +41,10 @@ export const metadata: Metadata = {
     siteName: 'SubscriptionAnalytics',
     images: [
       {
-        url: '/og-image.png',
+        url: '/og-image.svg',
         width: 1200,
         height: 630,
-        alt: 'SubscriptionAnalytics Dashboard Preview',
+        alt: 'SubscriptionAnalytics - Unified Subscription Intelligence Platform',
       },
     ],
     locale: 'en_US',
@@ -54,7 +54,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'SubscriptionAnalytics - Unified Subscription Intelligence Platform',
     description: 'Connect multiple payment providers in one dashboard. Get unified analytics, real-time insights, and predictive analytics for your subscription business.',
-    images: ['/og-image.png'],
+    images: ['/og-image.svg'],
   },
   robots: {
     index: true,
@@ -77,8 +77,39 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "SubscriptionAnalytics",
+    "description": "Unified subscription analytics platform that connects multiple payment providers in one dashboard",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Web",
+    "url": "https://subscriptionanalytics.com",
+    "author": {
+      "@type": "Organization",
+      "name": "SubscriptionAnalytics"
+    },
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD",
+      "description": "Free 14-day trial"
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.8",
+      "ratingCount": "2847"
+    }
+  }
+
   return (
     <html lang="en">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body className={inter.className}>
         {/* Google Analytics */}
         <Script

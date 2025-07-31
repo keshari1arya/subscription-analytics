@@ -17,6 +17,7 @@ export default function Header() {
     { name: 'Compare', href: '/compare' },
     { name: 'Pricing', href: '/#pricing' },
     { name: 'About', href: '/about' },
+    { name: 'FAQ', href: '/faq' },
   ]
 
   const scrollToSection = (href: string) => {

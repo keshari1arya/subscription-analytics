@@ -89,7 +89,12 @@ export default function Hero() {
             <p className="text-gray-500 mb-2">Already 2,847 people on the waitlist</p>
             <div className="flex justify-center items-center space-x-1">
               {[...Array(5)].map((_, i) => (
-                <div key={i} className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-xs font-semibold text-gray-600">
+                <div
+                  key={i}
+                  className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-xs font-semibold text-gray-600"
+                  role="img"
+                  aria-label={`User avatar ${i + 1}`}
+                >
                   {String.fromCharCode(65 + i)}
                 </div>
               ))}
